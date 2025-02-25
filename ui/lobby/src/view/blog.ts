@@ -18,7 +18,6 @@ export function rotateBlogs() {
         fix();
       }, 500);
     };
-
     const fix = () => {
       for (let i = 0; i < kids.length; i++) {
         const kid = kids[i % kids.length];
