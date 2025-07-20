@@ -126,9 +126,13 @@ final class RelayTourUi(helpers: Helpers, ui: RelayUi):
     Page(s"${trc.broadcastCalendar.txt()} ${showYearMonth(at)}")
       .css("bits.relay.calendar"):
         def dateForm(id: String) =
-          lila.ui.bits.calendarMselect(helpers, id, RelayCalendar.allYears, routes.RelayTour.calendarMonth)(
-            at
-          )
+          lila.ui.bits.calendarMselect(
+            helpers,
+            id,
+            allYears = RelayCalendar.allYears,
+            firstMonth = monthOfFirstRelay,
+            url = routes.RelayTour.calendarMonth
+          )(at)
         main(cls := "relay-calendar page-menu")(
           pageMenu("calendar"),
           div(cls := "page-menu__content box box-pad")(
@@ -146,9 +150,7 @@ final class RelayTourUi(helpers: Helpers, ui: RelayUi):
       main(cls := "relay-tour page-menu")(
         pageMenu("by", owner),
         div(cls := "page-menu__content box box-pad page")(
-          boxTop:
-            ui.broadcastH1(t.name)
-          ,
+          boxTop(ui.broadcastH1(t.name)),
           h2(t.info.toString),
           markup.map: html =>
             frag(
