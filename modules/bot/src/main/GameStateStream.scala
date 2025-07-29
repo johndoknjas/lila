@@ -78,7 +78,7 @@ final class GameStateStream(
         // prepend the full game JSON at the start of the stream
         queue.offer(json.some)
         // close stream if game is over
-        if init.game.finished then onGameOver(none)
+        if init.game.finishedOrAborted then onGameOver(none)
         else self ! SetOnline
       }
       lila.mon.bot.gameStream("start").increment()
@@ -97,16 +97,16 @@ final class GameStateStream(
       lila.mon.bot.gameStream("stop").increment()
 
     def receive =
-      case MoveGameEvent(g, _, _) if g.id == id && !g.finished                            => pushState(g)
+      case MoveGameEvent(g, _, _) if g.id == id && !g.finished => pushState(g)
       case lila.chat.ChatLine(chatId, UserLine(username, _, _, _, text, false, false), _) =>
         pushChatLine(username, text, chatId.value.lengthIs == GameId.size)
-      case FinishGame(g, _) if g.id == id                                 => onGameOver(g.some)
-      case AbortedBy(pov) if pov.gameId == id                             => onGameOver(pov.game.some)
-      case BoardDrawOffer(g) if g.id == id                                => pushState(g)
-      case BoardTakebackOffer(g) if g.id == id                            => pushState(g)
-      case BoardTakeback(g) if g.id == id                                 => pushState(g)
+      case FinishGame(g, _) if g.id == id => onGameOver(g.some)
+      case AbortedBy(pov) if pov.gameId == id => onGameOver(pov.game.some)
+      case BoardDrawOffer(g) if g.id == id => pushState(g)
+      case BoardTakebackOffer(g) if g.id == id => pushState(g)
+      case BoardTakeback(g) if g.id == id => pushState(g)
       case BoardGone(pov, seconds) if pov.gameId == id && pov.color != as => opponentGone(seconds)
-      case SetOnline                                                      =>
+      case SetOnline =>
         onlineApiUsers.setOnline(user.id)
         context.system.scheduler
           .scheduleOnce(6.second):
