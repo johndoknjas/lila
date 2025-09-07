@@ -479,7 +479,7 @@
   <string name="openTournaments">Åben turnering</string>
   <string name="duration">Varighed</string>
   <string name="winner">Vinder</string>
-  <string name="standing">Stilling</string>
+  <string name="standings">Stillinger</string>
   <string name="createANewTournament">Opret en ny turnering</string>
   <string name="tournamentCalendar">Turneringskalender</string>
   <string name="conditionOfEntry">Betingelser for deltagelse:</string>
@@ -1009,4 +1009,5 @@ Alle driftsomkostninger, udvikling og indhold finansieres udelukkende af brugerd
   <string name="accessibility">Tilgængelighed</string>
   <string name="enableBlindMode">Aktiver blindtilstand</string>
   <string name="disableBlindMode">Deaktiver blindtilstand</string>
+  <string name="copyToClipboard">Kopiér til udklipsholder</string>
 </resources>

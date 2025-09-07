@@ -13,7 +13,6 @@ import lila.core.misc.oauth.AccessTokenId
 import lila.core.security.FingerHash
 import lila.core.socket.Sri
 import lila.db.dsl.{ *, given }
-import lila.oauth.AccessToken
 
 final class SessionStore(val coll: Coll, cacheApi: lila.memo.CacheApi)(using Executor):
 
@@ -52,7 +51,8 @@ final class SessionStore(val coll: Coll, cacheApi: lila.memo.CacheApi)(using Exe
       apiVersion: Option[ApiVersion],
       up: Boolean,
       fp: Option[FingerPrint],
-      proxy: lila.core.security.IsProxy
+      proxy: lila.core.security.IsProxy,
+      pwned: IsPwned
   ): Funit =
     coll.insert
       .one:
@@ -65,7 +65,8 @@ final class SessionStore(val coll: Coll, cacheApi: lila.memo.CacheApi)(using Exe
           "up" -> up,
           "api" -> apiVersion, // lichobile
           "fp" -> fp.flatMap(lila.security.FingerHash.from),
-          "proxy" -> proxy
+          "proxy" -> proxy.is.option(proxy),
+          "pwned" -> pwned.yes.option(true)
         )
       .void
 

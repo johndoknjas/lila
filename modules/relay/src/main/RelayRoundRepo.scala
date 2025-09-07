@@ -4,13 +4,26 @@ import reactivemongo.akkastream.cursorProducer
 import reactivemongo.api.bson.*
 
 import lila.db.dsl.{ *, given }
+import lila.relay.RelayRound.WithTour
 
-final private class RelayRoundRepo(val coll: Coll)(using Executor):
+final private class RelayRoundRepo(val coll: Coll, tourRepo: RelayTourRepo)(using Executor):
 
   import RelayRoundRepo.*
   import BSONHandlers.given
 
   def exists(id: RelayRoundId): Fu[Boolean] = coll.exists($id(id))
+
+  def byId(id: RelayRoundId) = coll.byId[RelayRound](id)
+
+  def byIdWithTour(id: RelayRoundId): Fu[Option[WithTour]] =
+    coll
+      .aggregateOne(): framework =>
+        import framework.*
+        Match($id(id)) -> List(
+          PipelineOperator(tourRepo.lookup("tourId")),
+          UnwindField("tour")
+        )
+      .map(_.flatMap(BSONHandlers.readRoundWithTour))
 
   def byTourOrderedCursor(tourId: RelayTourId) =
     coll
@@ -76,8 +89,8 @@ final private class RelayRoundRepo(val coll: Coll)(using Executor):
       .sort(sort.asc)
       .cursor[RelayRound]()
       .uno
-    nextOrder <- next.soFu(n => orderOf(n.id))
-    curOrder <- next.isDefined.soFu(orderOf(round.id))
+    nextOrder <- next.traverse(n => orderOf(n.id))
+    curOrder <- next.isDefined.optionFu(orderOf(round.id))
   yield for
     n <- next
     no <- nextOrder

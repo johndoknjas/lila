@@ -46,3 +46,7 @@ final class OnlineApiUsers(
       lines = nb.fold(all): nb =>
         all.linesIterator.take(nb).mkString("\n")
     yield lines
+
+object OnlineApiUsers:
+  case object SetOnline
+  case object CheckOnline

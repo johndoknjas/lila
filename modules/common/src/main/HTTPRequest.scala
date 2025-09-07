@@ -38,6 +38,8 @@ object HTTPRequest:
   def isApi(req: RequestHeader) = req.path.startsWith("/api/")
   def isApiOrApp(req: RequestHeader) = isApi(req) || appOrigin(req).isDefined
 
+  def isPrometheus(req: RequestHeader) = req.path.startsWith("/prometheus-metrics/")
+
   def isAssets(req: RequestHeader) = req.path.startsWith("/assets/")
 
   def userAgent(req: RequestHeader): Option[UserAgent] = UserAgent.from:
@@ -77,7 +79,7 @@ object HTTPRequest:
 
   private val crawlerMatcher = UaMatcher:
     // spiders/crawlers
-    """Googlebot|GoogleOther|AdsBot|Google-Read-Aloud|bingbot|BingPreview|facebookexternalhit|meta-externalagent|SemrushBot|AhrefsBot|PetalBot|Applebot|YandexBot|YandexAdNet|YandexImages|Twitterbot|Baiduspider|Amazonbot|Bytespider|yacybot|ImagesiftBot|ChatGLM-Spider|YisouSpider|Yeti/|DataForSeoBot""" +
+    """Googlebot|GoogleOther|AdsBot|Google-Read-Aloud|bingbot|BingPreview|facebookexternalhit|meta-externalagent|SemrushBot|AhrefsBot|PetalBot|Applebot|YandexBot|YandexAdNet|YandexImages|Twitterbot|Bluesky|Baiduspider|Amazonbot|Bytespider|yacybot|ImagesiftBot|ChatGLM-Spider|YisouSpider|Yeti/|DataForSeoBot|ChatGPT|openai.com""" +
       // apps and servers that load previews
       """|Discordbot|WhatsApp""" +
       // http libs
@@ -127,7 +129,7 @@ object HTTPRequest:
   def acceptsCsv(req: RequestHeader) = accepts(req) contains "text/csv"
   def isEventSource(req: RequestHeader): Boolean = accepts(req) contains "text/event-stream"
   def isProgrammatic(req: RequestHeader) =
-    !isSynchronousHttp(req) || isFishnet(req) || isApi(req) ||
+    !isSynchronousHttp(req) || isFishnet(req) || isApi(req) || isPrometheus(req) ||
       accepts(req).exists(startsWithLichobileAccepts)
 
   def actionName(req: RequestHeader): String =

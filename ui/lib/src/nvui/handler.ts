@@ -28,7 +28,7 @@ export function positionJumpHandler() {
   };
 }
 
-export function pieceJumpingHandler(selectSound: () => void, errorSound: () => void) {
+export function pieceJumpingHandler(selectSound: () => void, errorSound: () => void, isAntichess = false) {
   return (ev: KeyboardEvent): void => {
     const $currBtn = $(ev.target as HTMLElement);
 
@@ -37,8 +37,10 @@ export function pieceJumpingHandler(selectSound: () => void, errorSound: () => v
       const $moveBox = $('input.move');
       const $boardLive = $('.boardstatus');
       const promotionPiece = ev.key.toLowerCase();
-      if (!promotionPiece.match(/^[qnrb]$/)) {
-        $boardLive.text('Invalid promotion piece. q for queen, n for knight, r for rook, b for bishop');
+      const promotionChoice = isAntichess ? /^[kqnrb]$/ : /^[qnrb]$/;
+      if (!promotionPiece.match(promotionChoice)) {
+        const msg = 'Invalid promotion piece. q for queen, n for knight, r for rook, b for bishop';
+        $boardLive.text(msg + (isAntichess ? ', k for king' : ''));
         return;
       }
       $moveBox.val($moveBox.val() + promotionPiece);
@@ -81,12 +83,13 @@ export function arrowKeyHandler(pov: Color, borderSound: () => void) {
   };
 }
 
-export function selectionHandler(getOpponentColor: () => Color, selectSound: () => void) {
+export function selectionHandler(getOpponentColor: () => Color, isTouchDevice = false, isAntichess = false) {
   return (ev: MouseEvent): void => {
     const opponentColor = getOpponentColor();
     // this depends on the current document structure. This may not be advisable in case the structure wil change.
     const $evBtn = $(ev.target as HTMLElement);
     const rank = $evBtn.attr('rank');
+    const file = $evBtn.attr('file');
     const pos = ($evBtn.attr('file') ?? '') + rank;
     const $boardLive = $('.boardstatus');
     const promotionRank = opponentColor === 'black' ? '8' : '1';
@@ -94,49 +97,110 @@ export function selectionHandler(getOpponentColor: () => Color, selectSound: () 
     if (!$moveBox.length) return;
 
     // user can select their own piece again if they change their mind
-    if ($moveBox.val() !== '' && $evBtn.attr('color') === opposite(opponentColor)) {
+    if (
+      $moveBox.val() !== '' &&
+      $evBtn.attr('color') === opposite(opponentColor) &&
+      !$evBtn.attr('promoteTo')
+    ) {
       $moveBox.val('');
     }
 
-    // if no move in box yet
     if ($moveBox.val() === '') {
-      // if user selects another's piece first
-      if ($evBtn.attr('color') === opponentColor) return;
-      // as long as the user is selecting a piece and not a blank tile
-      if ($evBtn.text().match(/^[^\-+]+/g)) {
+      if (
+        $evBtn.attr('color') === opponentColor ||
+        $evBtn.attr('piece') === '-' ||
+        $evBtn.attr('piece') === '+'
+      ) {
+        $boardLive.text(keyText(ev.target as HTMLElement) + ' not selectable');
+      } else {
         $moveBox.val(pos);
-        selectSound();
+        clear('selection');
+        $evBtn.addClass('selected');
+        $evBtn.text($evBtn.attr('text') + ' selected');
       }
     } else {
-      const first = $moveBox.val();
-      if (typeof first !== 'string' || !isKey(first)) return;
-      const $firstPiece = $(squareSelector(first[1], first[0]));
-      $moveBox.val($moveBox.val() + pos);
-      // this is coupled to pieceJumpingHandler() noticing that the attribute is set and acting differently. TODO: make cleaner
-      // if pawn promotion
-      if (rank === promotionRank && $firstPiece.attr('piece')?.toLowerCase() === 'p') {
-        $evBtn.attr('promotion', 'true');
-        $boardLive.text('Promote to? q for queen, n for knight, r for rook, b for bishop');
-        return;
+      const input = $moveBox.val();
+      if (typeof input !== 'string') return;
+      if (isKey(input)) {
+        const $firstPiece = $(squareSelector(input[1], input[0]));
+        $moveBox.val($moveBox.val() + pos);
+        // this is coupled to pieceJumpingHandler() noticing that the attribute is set and acting differently.
+        if (rank === promotionRank && file && $firstPiece.attr('piece')?.toLowerCase() === 'p') {
+          $evBtn.attr('promotion', 'true');
+          if (!isTouchDevice) {
+            const msg = 'Promote to: q for queen, n for knight, r for rook, b for bishop';
+            $boardLive.text(msg + (isAntichess ? ', k for king' : ''));
+          } else {
+            const promotions: { role: string; text: string }[] = [
+              { role: 'q', text: 'promote to queen' },
+              { role: 'n', text: 'promote to knight' },
+              { role: 'r', text: 'promote to rook' },
+              { role: 'b', text: 'promote to bishop' },
+            ];
+            if (isAntichess) promotions.push({ role: 'k', text: 'promote to king' });
+            promotions.push({ role: 'x', text: 'cancel' });
+            promotions.forEach(({ role, text }, index) => {
+              const rank = promotionRank === '8' ? 8 - index : 1 + index;
+              const piecePromotionEl = $(squareSelector(rank.toString(), file));
+              piecePromotionEl.attr('promoteTo', role);
+              piecePromotionEl.text(text);
+            });
+          }
+          return;
+        }
+        clear('selection');
+        $('#move-form').trigger('submit');
+      } else {
+        const first = input.substring(0, 2);
+        const second = input.substring(2, 4);
+        if (isKey(first) && isKey(second)) {
+          const promoteTo = $evBtn.attr('promoteTo');
+          if (promoteTo) {
+            if (promoteTo === 'x') {
+              clear('promotion');
+              $moveBox.val('');
+              $boardLive.text('promotion cancelled');
+            } else {
+              $moveBox.val($moveBox.val() + promoteTo);
+              clear('all');
+              $('#move-form').trigger('submit');
+            }
+          }
+        }
       }
-      $('#move-form').trigger('submit');
     }
   };
+}
+
+function clear(what: 'promotion' | 'selection' | 'all') {
+  const $allSquares = $(`.board-wrapper button`);
+  $allSquares.each(function (this: HTMLElement) {
+    if (what === 'promotion' || what === 'all') this.removeAttribute('promoteTo');
+    if (what === 'selection' || what === 'all') this.classList.remove('selected');
+    this.textContent = this.getAttribute('text');
+  });
+}
+
+function keyText(target: HTMLElement) {
+  const color = target.getAttribute('color');
+  const piece = target.getAttribute('piece');
+  const key = keyFromAttrs(target);
+  return key && color && piece && color != 'none' && piece != '-'
+    ? key +
+        ' ' +
+        pieceStr(charToRole(piece)!, color as Color) +
+        (target.classList.contains('selected') ? ' selected' : '')
+    : key
+      ? key
+      : '';
 }
 
 export function boardCommandsHandler() {
   return (ev: KeyboardEvent): void => {
     const target = ev.target as HTMLElement;
-    const key = keyFromAttrs(target);
     const $boardLive = $('.boardstatus');
-    if (ev.key === 'o' && key) {
-      const color = target.getAttribute('color');
-      const piece = target.getAttribute('piece');
-      const keyText =
-        color && piece && color != 'none' && piece != '-'
-          ? ' ' + pieceStr(charToRole(piece)!, color as Color)
-          : '';
-      $boardLive.text(key + '' + keyText);
+    if (ev.key === 'o') {
+      $boardLive.text(keyText(target));
     } else if (ev.key === 'l') $boardLive.text($('p.lastMove').text());
     else if (ev.key === 't') $boardLive.text(`${$('.nvui .botc').text()} - ${$('.nvui .topc').text()}`);
   };

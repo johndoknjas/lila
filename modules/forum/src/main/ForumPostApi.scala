@@ -5,7 +5,6 @@ import lila.core.forum.{ BusForum, ForumCateg as _, ForumPost as _, * }
 import lila.core.perm.Granter as MasterGranter
 import lila.core.shutup.{ PublicSource, ShutupApi }
 import lila.core.timeline.{ ForumPost as TimelinePost, Propagate }
-import lila.core.id.ForumTopicSlug
 import lila.db.dsl.{ *, given }
 
 final class ForumPostApi(
@@ -227,10 +226,8 @@ final class ForumPostApi(
       .one($id(post.id), post.erase)
       .void
 
-  def teamIdOfPostId(postId: ForumPostId): Fu[Option[TeamId]] =
-    postRepo.coll.byId[ForumPost](postId).flatMapz { post =>
-      categRepo.coll.primitiveOne[TeamId]($id(post.categId), "team")
-    }
+  def teamIdOfPost(post: ForumPost): Fu[Option[TeamId]] =
+    categRepo.coll.primitiveOne[TeamId]($id(post.categId), "team")
 
   private def logAnonPost(post: ForumPost, edit: Boolean)(using Me): Funit =
     topicRepo.byId(post.topicId).orFail(s"No such topic ${post.topicId}").flatMap { topic =>

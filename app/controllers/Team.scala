@@ -32,14 +32,17 @@ final class Team(env: Env) extends LilaController(env):
 
   def show(id: TeamId, page: Int, mod: Boolean) = Open:
     Reasonable(page):
-      Found(api.team(id)) { renderTeam(_, page, mod && canEnterModView) }
+      Found(api.team(id)): team =>
+        if !team.notable && HTTPRequest.isCrawler(req).yes
+        then notFound
+        else renderTeam(team, page, mod && canEnterModView)
 
   def members(id: TeamId, page: Int) = Open:
     Reasonable(page, Max(50)):
       Found(api.teamEnabled(id)): team =>
         val canSee =
-          fuccess(team.publicMembers || isGrantedOpt(_.ManageTeam)) >>| ctx.userId.so:
-            api.belongsTo(team.id, _)
+          fuccess(team.publicMembers || isGrantedOpt(_.ManageTeam)) >>|
+            ctx.userId.so(api.belongsTo(team.id, _))
         canSee.flatMap:
           if _ then
             Ok.async:
@@ -67,10 +70,10 @@ final class Team(env: Env) extends LilaController(env):
     members <- paginator.teamMembers(team.team, page)
     log <- (asMod && isGrantedOpt(_.ManageTeam)).so(env.mod.logApi.teamLog(team.id))
     hasChat = canHaveChat(info, asMod)
-    chat <- hasChat.soFu(env.chat.api.userChat.cached.findMine(team.id.into(ChatId)))
+    chat <- hasChat.optionFu(env.chat.api.userChat.cached.findMine(team.id.into(ChatId)))
     _ <- env.user.lightUserApi.preloadMany:
       info.publicLeaders.map(_.user) ::: info.userIds
-    version <- hasChat.soFu(env.team.version(team.id))
+    version <- hasChat.optionFu(env.team.version(team.id))
     page <- renderPage(views.team.show(team, members, info, chat, version, asMod, log))
   yield Ok(page).withCanonical(routes.Team.show(team.id))
 
@@ -118,7 +121,12 @@ final class Team(env: Env) extends LilaController(env):
     WithOwnedTeamEnabled(id, _.Settings): team =>
       bindForm(forms.edit(team))(
         err => BadRequest.async(renderEdit(team, err)),
-        data => api.update(team, data).inject(Redirect(routes.Team.show(team.id)).flashSuccess)
+        data =>
+          for automodText <- api.update(team, data)
+          yield
+            val url = routes.Team.show(team.id)
+            discard { env.report.api.automodComms(automodText, url.url) }
+            Redirect(url).flashSuccess
       )
   }
 
@@ -257,9 +265,11 @@ final class Team(env: Env) extends LilaController(env):
           bindForm(forms.create)(
             err => BadRequest.page(views.team.form.create(err, anyCaptcha)),
             data =>
-              api.create(data, me).map { team =>
-                Redirect(routes.Team.show(team.id))
-              }
+              for team <- api.create(data, me)
+              yield
+                val url = routes.Team.show(team.id)
+                discard { env.report.api.automodComms(team.automodText, url.url) }
+                Redirect(url)
           )
   }
 

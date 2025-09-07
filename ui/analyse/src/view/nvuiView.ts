@@ -247,7 +247,7 @@ function boardEventsHook(
   const fenSteps = () => steps().map(step => step.fen);
   const opponentColor = () => (ctrl.node.ply % 2 === 0 ? 'black' : 'white');
   $buttons.on('blur', leaveSquareHandler($buttons));
-  $buttons.on('click', selectionHandler(opponentColor, selectSound));
+  $buttons.on('click', selectionHandler(opponentColor));
   $buttons.on('keydown', (e: KeyboardEvent) => {
     if (e.shiftKey && e.key.match(/^[ad]$/i)) jumpMoveOrLine(ctrl)(e);
     else if (e.key.match(/^x$/i))
@@ -268,6 +268,8 @@ function boardEventsHook(
     else if (e.key.toLowerCase() === 'm')
       possibleMovesHandler(ctrl.turnColor(), ctrl.chessground, ctrl.data.game.variant.key, ctrl.nodeList)(e);
     else if (e.key.toLowerCase() === 'v') notify.set(renderEvalAndDepth(ctrl));
+    else if (e.key === 'G') ctrl.playBestMove();
+    else if (e.key === 'g') notify.set(renderBestMove({ ctrl, moveStyle } as AnalyseNvuiContext));
   });
 }
 
@@ -290,13 +292,7 @@ const depthInfo = (clientEv: Tree.ClientEval | undefined, isCloud: boolean): str
   clientEv ? `${i18n.site.depthX(clientEv.depth || 0)} ${isCloud ? 'Cloud' : ''}` : '';
 
 const noEvalStr = (ctrl: CevalCtrl) =>
-  !ctrl.allowed()
-    ? 'local evaluation not allowed'
-    : !ctrl.possible
-      ? 'local evaluation not possible'
-      : !ctrl.enabled()
-        ? 'local evaluation not enabled'
-        : '';
+  !ctrl.allowed() ? 'local evaluation not allowed' : !ctrl.enabled() ? 'local evaluation not enabled' : '';
 
 function renderBestMove({ ctrl, moveStyle }: AnalyseNvuiContext): string {
   const noEvalMsg = noEvalStr(ctrl.ceval);

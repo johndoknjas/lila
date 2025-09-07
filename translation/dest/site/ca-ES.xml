@@ -479,7 +479,7 @@
   <string name="openTournaments">Tornejos oberts</string>
   <string name="duration">Durada</string>
   <string name="winner">Guanyador</string>
-  <string name="standing">Resultats</string>
+  <string name="standings">Classificacions</string>
   <string name="createANewTournament">Crea un nou torneig</string>
   <string name="tournamentCalendar">Calendari de tornejos</string>
   <string name="conditionOfEntry">Requisit d\'entrada:</string>
@@ -1009,4 +1009,5 @@ Les despeses de funcionament, desenvolupament i continguts es financen exclusiva
   <string name="accessibility">Accessibilitat</string>
   <string name="enableBlindMode">Activar el mode cec</string>
   <string name="disableBlindMode">Desactivar el mode cec</string>
+  <string name="copyToClipboard">Copia al porta-retalls</string>
 </resources>

@@ -122,9 +122,8 @@ final class Study(
         res <- negotiate(
           Ok.async:
             ctx.userId
-              .soFu(env.study.topicApi.userTopics)
-              .map:
-                views.study.list.topic.show(topic, pag, order, _)
+              .traverse(env.study.topicApi.userTopics)
+              .map(views.study.list.topic.show(topic, pag, order, _))
           ,
           apiStudies(pag)
         )
@@ -157,34 +156,37 @@ final class Study(
   private def showQuery(query: Fu[Option[WithChapter]])(using ctx: Context): Fu[Result] =
     Found(query): oldSc =>
       CanView(oldSc.study) {
-        negotiate(
-          html =
-            val noCrawler = HTTPRequest.isCrawler(ctx.req).no
-            for
-              (sc, data) <- getJsonData(oldSc, withChapters = true)
-              chat <- noCrawler.so(chatOf(sc.study))
-              sVersion <- noCrawler.so(env.study.version(sc.study.id))
-              streamers <- noCrawler.so(streamerCache.get(sc.study.id))
-              page <- renderPage(views.study.show(sc.study, data, chat, sVersion, streamers))
-            yield Ok(page)
-              .withCanonical(routes.Study.chapter(sc.study.id, sc.chapter.id))
-              .enforceCrossSiteIsolation
-          ,
-          json = for
-            (sc, data) <- getJsonData(
-              oldSc,
-              withChapters = getBool("chapters") || HTTPRequest.isLichobile(ctx.req)
-            )
-            loadChat = !HTTPRequest.isXhr(ctx.req)
-            chatOpt <- loadChat.so(chatOf(sc.study))
-            jsChat <- chatOpt.soFu: c =>
-              lila.chat.JsonView.mobile(c.chat, writeable = ctx.userId.so(sc.study.canChat))
-          yield Ok:
-            Json.obj(
-              "study" -> data.study.add("chat" -> jsChat),
-              "analysis" -> data.analysis
-            )
-        )
+        if !oldSc.study.notable && HTTPRequest.isCrawler(req).yes
+        then notFound
+        else
+          negotiate(
+            html =
+              val noCrawler = HTTPRequest.isCrawler(ctx.req).no
+              for
+                (sc, data) <- getJsonData(oldSc, withChapters = true)
+                chat <- noCrawler.so(chatOf(sc.study))
+                sVersion <- noCrawler.so(env.study.version(sc.study.id))
+                streamers <- noCrawler.so(streamerCache.get(sc.study.id))
+                page <- renderPage(views.study.show(sc.study, data, chat, sVersion, streamers))
+              yield Ok(page)
+                .withCanonical(routes.Study.chapter(sc.study.id, sc.chapter.id))
+                .enforceCrossSiteIsolation
+            ,
+            json = for
+              (sc, data) <- getJsonData(
+                oldSc,
+                withChapters = getBool("chapters") || HTTPRequest.isLichobile(ctx.req)
+              )
+              loadChat = !HTTPRequest.isXhr(ctx.req)
+              chatOpt <- loadChat.so(chatOf(sc.study))
+              jsChat <- chatOpt.traverse: c =>
+                lila.chat.JsonView.mobile(c.chat, writeable = ctx.userId.so(sc.study.canChat))
+            yield Ok:
+              Json.obj(
+                "study" -> data.study.add("chat" -> jsChat),
+                "analysis" -> data.analysis
+              )
+          )
       }(privateUnauthorizedFu(oldSc.study), privateForbiddenFu(oldSc.study))
     .dmap(_.noCache)
 
@@ -193,7 +195,7 @@ final class Study(
   ): Fu[(WithChapter, JsData)] =
     for
       (study, chapter) <- env.study.api.maybeResetAndGetChapter(sc.study, sc.chapter)
-      previews <- withChapters.soFu(env.study.preview.jsonList(study.id))
+      previews <- withChapters.optionFu(env.study.preview.jsonList(study.id))
       _ <- env.user.lightUserApi.preloadMany(study.members.ids.toList)
       fedNames <- env.study.preview.federations.get(sc.study.id)
       pov = userAnalysisC.makePov(chapter.root.fen.some, chapter.setup.variant)
@@ -247,7 +249,7 @@ final class Study(
 
   private[controllers] def chatOf(study: lila.study.Study)(using ctx: Context) = {
     ctx.kid.no && ctx.noBot // no public chats for kids and bots
-  }.soFu:
+  }.optionFu:
     env.chat.api.userChat
       .findMine(study.id.into(ChatId))
       .mon(_.chat.fetch("study"))
@@ -393,7 +395,12 @@ final class Study(
           )
 
   private def doPgn(study: StudyModel, flags: Update[WithFlags])(using RequestHeader) =
-    Ok.chunked(env.study.pgnDump.chaptersOf(study, _ => flags(requestPgnFlags)).throttle(20, 1.second))
+    def makeStudySource = env.study.pgnDump.chaptersOf(study, _ => flags(requestPgnFlags))
+    val pgnSource = akka.stream.scaladsl.Source.futureSource:
+      if study.isRelay
+      then env.relay.pgnStream.ofStudy(study).map(_ | makeStudySource)
+      else fuccess(makeStudySource)
+    Ok.chunked(pgnSource.throttle(20, 1.second))
       .asAttachmentStream(s"${env.study.pgnDump.filename(study)}.pgn")
       .as(pgnContentType)
       .withDateHeaders(lastModified(study.updatedAt))
@@ -421,13 +428,17 @@ final class Study(
     env.study.api
       .byIdWithChapter(id, chapterId)
       .flatMap:
-        _.fold(studyNotFound) { case WithChapter(study, chapter) =>
+        _.fold(studyNotFound) { case sc @ WithChapter(study, chapter) =>
           CanView(study) {
-            env.study.pgnDump.ofChapter(study, requestPgnFlags)(chapter).map { pgn =>
+            def makeChapterPgn = env.study.pgnDump.ofChapter(study, requestPgnFlags)(chapter)
+            val pgnFu =
+              if study.isRelay
+              then env.relay.pgnStream.ofChapter(sc).getOrElse(makeChapterPgn)
+              else makeChapterPgn
+            pgnFu.map: pgn =>
               Ok(pgn.toString)
                 .asAttachment(s"${env.study.pgnDump.filename(study, chapter)}.pgn")
                 .as(pgnContentType)
-            }
           }(studyUnauthorized(study), studyForbidden(study))
         }
 
@@ -485,13 +496,16 @@ final class Study(
         import lila.common.Json.given
         env.study.topicApi.findLike(term, getUserStr("user").map(_.id)).map { JsonOk(_) }
 
-  def topics = Open:
-    env.study.topicApi
-      .popular(50)
-      .zip(ctx.userId.soFu(env.study.topicApi.userTopics))
-      .flatMap: (popular, mine) =>
-        val form = mine.map(StudyForm.topicsForm)
-        Ok.page(views.study.list.topic.index(popular, mine, form))
+  def topics = OpenOrScoped():
+    for
+      popular <- env.study.topicApi.popular(50)
+      ofUser = ctx.userId.ifTrue(ctx.isWebAuth || ctx.oauth.exists(_.has(_.Study.Read)))
+      mine <- ofUser.traverse(env.study.topicApi.userTopics)
+      result <- negotiate(
+        Ok.page(views.study.list.topic.index(popular, mine, mine.map(StudyForm.topicsForm))),
+        Ok(Json.obj("popular" -> popular).add("mine" -> mine))
+      )
+    yield result
 
   def setTopics = AuthBody { ctx ?=> me ?=>
     bindForm(StudyForm.topicsForm)(
@@ -540,4 +554,4 @@ final class Study(
     Found(play.api.i18n.Lang.get(lang)): lang =>
       JsonOk:
         lila.study.JsonView.glyphs(using env.translator.to(lang))
-      .withHeaders(CACHE_CONTROL -> "max-age=3600")
+      .headerCacheSeconds(3600)

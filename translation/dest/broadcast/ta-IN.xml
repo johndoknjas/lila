@@ -6,6 +6,10 @@
     <item quantity="one">%s ஒளிபரப்பு</item>
     <item quantity="other">%s ஒளிபரப்புகள்</item>
   </plurals>
+  <plurals name="nbViewers">
+    <item quantity="one">%s பார்வையாளர்</item>
+    <item quantity="other">%s பார்வையாளர்கள்</item>
+  </plurals>
   <string name="liveBroadcasts">நேரலை பந்தய ஒளிபரப்புகள்</string>
   <string name="broadcastCalendar">ஒளிபரப்பு நாட்காட்டி</string>
   <string name="newBroadcast">புதிய நேரலை ஒளிபரப்பு</string>
@@ -59,13 +63,10 @@
   <string name="startVerySoon">மிக விரைவில் ஒளிபரப்பு துவங்கும்.</string>
   <string name="notYetStarted">ஒளிபரப்பு இன்னும் துவங்கவில்லை.</string>
   <string name="officialWebsite">அதிகாரப்பூர்வ இணையதளம்</string>
-  <string name="standings">நிலைகள்</string>
   <string name="officialStandings">அதிகாரப்பூர்வ நிலைகள்</string>
   <string name="iframeHelp" comment="%s is 'webmasters page'">%s இல் கூடுதல் தேர்வுரிமை</string>
   <string name="webmastersPage">இணையவல்லுநர் பக்கம்</string>
-  <string name="pgnSourceHelp" comment="%s is 'streaming API'">இந்தச் சுற்றுக்கான பொது, நிகழ்நேர PGN ஆதாரம். வேகமான மற்றும் திறமையான ஒத்திசைவுக்கு நாங்கள் %s ஐ வழங்குகிறோம்.</string>
   <string name="embedThisBroadcast">இந்த ஒளிபரப்பை உங்கள் இணையதளத்தில் உட்பொதிக்கவும்</string>
-  <string name="embedThisRound">உங்கள் இணையதளத்தில் %s ஐ உட்பொதிக்கவும்</string>
   <string name="ratingDiff">மதிப்பீடு வேறுபாடு</string>
   <string name="gamesThisTournament">இப்பந்தயத்தில்லுள்ள ஆட்டங்கள்</string>
   <string name="score">மதிப்பெண்</string>
@@ -80,4 +81,7 @@
   <string name="allBroadcastsByMonth">மாதம்தோறும் அனைத்து ஒளிபரப்புகளையும் பார்க்க</string>
   <string name="backToLiveMove">நேரலை நகர்வுக்குத் திரும்பு</string>
   <string name="sinceHideResults">நீங்கள் முடிவையை மறைத்ததால் முன்னோட்ட பலகை எல்லாம் காலியாக இருக்கின்றன.</string>
+  <string name="liveboard">நேரடி பலகை</string>
+  <string name="communityBroadcast">சமூக ஒளிபரப்பு</string>
+  <string name="createdAndManagedBy">%s ஆல் உருவாக்கப்பட்டு நிர்வகிக்கப்படுகிறது.</string>
 </resources>

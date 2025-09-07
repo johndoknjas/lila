@@ -179,7 +179,7 @@ final class User(
           then
             (
               ctx.userId.so(relationApi.fetchBlocks(user.id, _)),
-              ctx.userId.soFu(env.game.crosstableApi(user.id, _)),
+              ctx.userId.traverse(env.game.crosstableApi(user.id, _)),
               ctx.isAuth.so(env.pref.api.followable(user.id))
             ).flatMapN: (blocked, crosstable, followable) =>
               negotiate(
@@ -187,7 +187,7 @@ final class User(
                   pov <- ctx.isnt(user).so(env.round.currentlyPlaying.exec(user.user.id))
                   ping = env.socket.isOnline.exec(user.id).so(env.socket.getLagRating(user.id))
                   snip <- Ok.snip(views.user.mini(user, pov, blocked, followable, relation, ping, crosstable))
-                yield snip.withHeaders(CACHE_CONTROL -> "max-age=5"),
+                yield snip.headerCacheSeconds(5),
                 json =
                   import lila.game.JsonView.given
                   Ok:
@@ -268,12 +268,21 @@ final class User(
       JsonOk(leaderboards)
     }
 
-  def topNb(nb: Int, perfKey: PerfKey) = Open:
-    topNbUsers(nb, perfKey).flatMap: (users, perfType) =>
-      negotiate(
-        (nb == 200).so(Ok.page(views.user.list.top(perfType, users))),
-        topNbJson(users)
-      )
+  // redirect /player/top/200/:perfKey to /user/top/:perfKey
+  // TODO move to a NotFound general handler?
+  // to avoid adding (yet another) route
+  def topBcRedirect(@annotation.unused nb: Int, perfKey: PerfKey) = Anon:
+    Redirect(routes.User.top(perfKey))
+
+  def top(perfKey: PerfKey, page: Int) = Open:
+    Reasonable(page, Max(20)):
+      env.user.cached
+        .topPerfPager(perfKey, page)
+        .flatMap: pager =>
+          negotiate(
+            Ok.page(views.user.list.top(perfKey, pager)),
+            topNbJson(pager.currentPageResults)
+          )
 
   def topNbApi(nb: Int, perfKey: PerfKey) = Anon:
     if nb == 1 && perfKey == PerfKey.standard then
@@ -282,22 +291,11 @@ final class User(
         import lila.user.JsonView.leaderboardStandardTopOneWrites
         JsonOk(leaderboards)
       }
-    else topNbUsers(nb, perfKey).flatMap { users => topNbJson(users._1) }
+    else env.user.cached.topPerfFirstPage.get(perfKey).dmap(_.take(nb)).map(topNbJson)
 
-  private def topNbUsers(nb: Int, perfKey: PerfKey): Fu[(List[LightPerf], PerfType)] =
-    env.user.cached.top200Perf
-      .get(perfKey.id)
-      .dmap:
-        _.take(nb.atLeast(1).atMost(200)) -> PerfType(perfKey)
-
-  private def topNbJson(users: List[LightPerf]) =
+  private def topNbJson(users: Seq[LightPerf]) =
     given OWrites[LightPerf] = OWrites(env.user.jsonView.lightPerfIsOnline)
     Ok(Json.obj("users" -> users))
-
-  def topWeek = Open:
-    negotiateJson:
-      env.user.cached.topWeek.map: users =>
-        Ok(Json.toJson(users.map(env.user.jsonView.lightPerfIsOnline)))
 
   def mod(username: UserStr) = Secure(_.UserModView) { ctx ?=> _ ?=>
     modZoneOrRedirect(username)
@@ -551,7 +549,7 @@ final class User(
         ,
         JsonOk:
           getBool("graph")
-            .soFu:
+            .optionFu:
               env.history.ratingChartApi.singlePerf(data.user.user, data.stat.perfType.key)
             .map: graph =>
               env.perfStat.jsonView(data).add("graph", graph)

@@ -51,6 +51,7 @@ import type { EvalHitMulti, EvalHitMultiArray } from '../interfaces';
 import { MultiCloudEval } from './multiCloudEval';
 import { pubsub } from 'lib/pubsub';
 import { alert } from 'lib/view/dialogs';
+import { displayColumns } from 'lib/device';
 
 interface Handlers {
   path(d: WithWhoAndPos): void;
@@ -157,7 +158,7 @@ export default class StudyCtrl {
       () => this.data.federations,
       this.ctrl,
     );
-    this.multiCloudEval = ctrl.ceval.possible
+    this.multiCloudEval = ctrl.ceval.allowed()
       ? new MultiCloudEval(this.redraw, this.chapters.list, this.send)
       : undefined;
     if (relayData) this.relay = new RelayCtrl(this, relayData);
@@ -497,7 +498,7 @@ export default class StudyCtrl {
       await this.xhrReload();
       componentCallbacks(id);
     }
-    window.scrollTo(0, 0);
+    if (displayColumns() > 2) window.scrollTo(0, 0);
     return true;
   };
 

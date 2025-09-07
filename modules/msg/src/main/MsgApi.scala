@@ -88,7 +88,7 @@ final class MsgApi(
             msgs <- threadMsgsFor(threadId, me, before)
             relations <- relationApi.fetchRelations(me, userId)
             postable <- security.may.post(me, userId, isNew = msgs.headOption.isEmpty)
-            details <- Granter(_.PublicMod).soFu(fetchContactDetailsForMods(userId))
+            details <- Granter(_.PublicMod).optionFu(fetchContactDetailsForMods(userId))
           yield MsgConvo(contact, msgs, relations, postable, details).some
         }
 
@@ -132,7 +132,7 @@ final class MsgApi(
             val msg =
               if verdict == MsgSecurity.Spam
               then
-                logger.branch("spam").warn(s"$orig->$dest $msgPre.text")
+                logger.branch("spam").warn(s"$orig -> $dest $msgPre.text")
                 msgPre.copy(text = spam.replace(msgPre.text))
               else msgPre
             val msgWrite = colls.msg.insert.one(writeMsg(msg, threadId))
@@ -176,11 +176,9 @@ final class MsgApi(
   def lastDirectMsg(threadId: MsgThread.Id, maskFor: UserId): Fu[Option[Msg.Last]] =
     colls.thread
       .one[MsgThread]($id(threadId))
-      .map:
-        case Some(doc) =>
-          if doc.maskFor.contains(maskFor) then doc.maskWith
-          else Some(doc.lastMsg)
-        case None => None
+      .mapz: doc =>
+        if doc.maskFor.contains(maskFor) then doc.maskWith
+        else Some(doc.lastMsg)
 
   def setRead(userId: UserId, contactId: UserId): Funit =
     val threadId = MsgThread.id(userId, contactId)
@@ -227,7 +225,7 @@ final class MsgApi(
           UnwindField("users"),
           Match($doc("users".$ne(user.id))),
           PipelineOperator:
-            $lookup.pipeline(
+            $lookup.simple(
               from = colls.msg,
               as = "msgs",
               local = "_id",
@@ -240,12 +238,7 @@ final class MsgApi(
             )
           ,
           PipelineOperator:
-            $lookup.simple(
-              from = userRepo.coll,
-              as = "contact",
-              local = "users",
-              foreign = "_id"
-            )
+            $lookup.simple(from = userRepo.coll, as = "contact", local = "users", foreign = "_id")
           ,
           UnwindField("contact")
         )
@@ -296,14 +289,6 @@ final class MsgApi(
       )
       .flatMap: res =>
         (res.nModified > 0).so(notifier.onRead(threadId, me.id, contactId))
-
-  private val hasUnreadLichessMessageSelect = $doc(
-    "lastMsg.read" -> false,
-    "lastMsg.text" -> $doc("$not" -> $doc("$regex" -> "^Welcome!"))
-  )
-  def hasUnreadLichessMessage(userId: UserId): Fu[Boolean] =
-    colls.thread.secondary.exists:
-      $id(MsgThread.id(userId, UserId.lichess)) ++ hasUnreadLichessMessageSelect
 
   def allMessagesOf(userId: UserId): Source[(String, Instant), ?] =
     colls.thread

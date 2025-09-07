@@ -1,5 +1,6 @@
 package lila.ui
 
+import scala.annotation.targetName
 import chess.{ PlayerTitle, IntRating }
 import chess.rating.{ IntRatingDiff, RatingProvisional }
 
@@ -253,11 +254,17 @@ trait UserHelper:
   val lineIconChar = Icon.Disc
 
   val lineIcon: Frag = i(cls := "line")
+
   def patronIcon(using Translate): Frag =
-    i(cls := "line patron", title := trans.patron.lichessPatron.txt())
+    i(cls := s"line patron", title := trans.patron.lichessPatron.txt())
+
   val moderatorIcon: Frag = i(cls := "line moderator", title := "Lichess Mod")
-  private def lineIcon(patron: Boolean)(using Translate): Frag = if patron then patronIcon else lineIcon
-  private def lineIcon(user: Option[LightUser])(using Translate): Frag = lineIcon(user.exists(_.isPatron))
+  @targetName("lineIconPatron")
+  private def lineIcon(isPatron: Boolean)(using Translate): Frag =
+    if isPatron then patronIcon else lineIcon
+  @targetName("lineIconUser")
+  private def lineIcon(user: Option[LightUser])(using Translate): Frag =
+    lineIcon(user.exists(_.isPatron))
   def lineIcon(user: LightUser)(using Translate): Frag = lineIcon(user.isPatron)
   def lineIcon(user: User)(using Translate): Frag = lineIcon(user.isPatron)
   def lineIconChar(user: User): Icon = if user.isPatron then patronIconChar else lineIconChar

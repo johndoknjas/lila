@@ -46,7 +46,7 @@ object page:
     val pageFrag = frag(
       doctype,
       htmlTag(
-        (ctx.data.inquiry.isEmpty && ctx.impersonatedBy.isEmpty && !ctx.blind)
+        (ctx.impersonatedBy.isEmpty && !ctx.blind)
           .option(cls := ctx.pref.themeColorClass),
         topComment,
         head(
@@ -91,7 +91,8 @@ object page:
           p.withHrefLangs.map(hrefLangs),
           sitePreload(p.i18nModules, ctx.data.inquiry.isDefined.option(Esm("mod.inquiry")) :: allModules),
           lichessFontFaceCss,
-          (ctx.pref.bg === lila.pref.Pref.Bg.SYSTEM).so(systemThemeScript(ctx.nonce))
+          (ctx.pref.bg === lila.pref.Pref.Bg.SYSTEM || ctx.impersonatedBy.isDefined)
+            .so(systemThemeScript(ctx.nonce))
         ),
         st.body(
           cls := {
@@ -139,17 +140,19 @@ object page:
               frag(cssTag("bits.email-confirm"), views.auth.checkYourEmailBanner(u.username, u.email))
             ),
           zenable.option(zenZone),
-          ui.siteHeader(
-            zenable = zenable,
-            isAppealUser = ctx.isAppealUser,
-            challenges = ctx.nbChallenges,
-            notifications = ctx.nbNotifications.value,
-            error = ctx.data.error,
-            topnav = topnav(
-              hasClas = ctx.hasClas,
-              hasDgt = ctx.pref.hasDgt
+          Option.unless(p.flags(PageFlags.noHeader)):
+            ui.siteHeader(
+              zenable = zenable,
+              isAppealUser = ctx.isAppealUser,
+              challenges = ctx.nbChallenges,
+              notifications = ctx.nbNotifications.value,
+              error = ctx.data.error,
+              topnav = topnav(
+                hasClas = ctx.hasClas,
+                hasDgt = ctx.pref.hasDgt
+              )
             )
-          ),
+          ,
           div(
             id := "main-wrap",
             cls := List(

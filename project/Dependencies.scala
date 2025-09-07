@@ -16,17 +16,18 @@ object Dependencies {
 
   val cats = "org.typelevel" %% "cats-core" % "2.13.0"
   val alleycats = "org.typelevel" %% "alleycats-core" % "2.13.0"
+  val catsMtl = "org.typelevel" %% "cats-mtl" % "1.6-6ad7882-SNAPSHOT"
   val hasher = "com.roundeights" %% "hasher" % "1.3.1"
   val compression = "com.github.lichess-org" % "compression" % "3.1.1"
   val maxmind = "com.maxmind.geoip2" % "geoip2" % "4.0.1"
   val caffeine = "com.github.ben-manes.caffeine" % "caffeine" % "3.2.2" % "compile"
   val scaffeine = "com.github.blemale" %% "scaffeine" % "5.3.0" % "compile"
-  val googleOAuth = "com.google.auth" % "google-auth-library-oauth2-http" % "1.37.1"
+  val googleOAuth = "com.google.auth" % "google-auth-library-oauth2-http" % "1.38.0"
   val galimatias = "io.mola.galimatias" % "galimatias" % "0.2.2-NF"
   val scalatags = "com.lihaoyi" %% "scalatags" % "0.13.1"
-  val lettuce = "io.lettuce" % "lettuce-core" % "6.7.1.RELEASE"
+  val lettuce = "io.lettuce" % "lettuce-core" % "6.8.0.RELEASE"
   val nettyTransport =
-    ("io.netty" % s"netty-transport-native-$notifier" % "4.2.3.Final").classifier(s"$os-$arch")
+    ("io.netty" % s"netty-transport-native-$notifier" % "4.2.4.Final").classifier(s"$os-$arch")
   val lilaSearch = "com.github.lichess-org.lila-search" %% "client" % "3.2.0"
   val munit = "org.scalameta" %% "munit" % "1.1.1" % Test
   val uaparser = "org.uaparser" %% "uap-scala" % "0.20.0"
@@ -43,7 +44,7 @@ object Dependencies {
   }
 
   object chess {
-    val version = "17.9.1"
+    val version = "17.9.5"
     val core = "com.github.lichess-org.scalachess" %% "scalachess" % version
     val testKit = "com.github.lichess-org.scalachess" %% "scalachess-test-kit" % version % Test
     val playJson = "com.github.lichess-org.scalachess" %% "scalachess-play-json" % version
@@ -80,9 +81,8 @@ object Dependencies {
   }
 
   object reactivemongo {
-    val driver = ("org.reactivemongo" %% "reactivemongo" % "1.1.0-RC13")
-      .exclude("org.scala-lang.modules", "scala-java8-compat_2.13")
-    val stream = "org.reactivemongo" %% "reactivemongo-akkastream" % "1.1.0-RC15"
+    val driver = ("org.reactivemongo" %% "reactivemongo" % "1.1.0-RC16")
+    val stream = "org.reactivemongo" %% "reactivemongo-akkastream" % "1.1.0-RC16"
     val shaded = "org.reactivemongo" % s"reactivemongo-shaded-native-$os-$dashArch" % "1.1.0-RC15"
     // val kamon  = "org.reactivemongo" %% "reactivemongo-kamon"         % "1.0.8"
     def bundle = Seq(driver, stream)

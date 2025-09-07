@@ -24,6 +24,7 @@ import smithy4s.Timestamp
 final class GameApiV2(
     pgnDump: PgnDump,
     gameRepo: lila.game.GameRepo,
+    gameCache: lila.game.Cached,
     gameJsonView: lila.game.JsonView,
     pairingRepo: lila.tournament.PairingRepo,
     playerRepo: lila.tournament.PlayerRepo,
@@ -34,7 +35,8 @@ final class GameApiV2(
     gameProxy: GameProxyRepo,
     division: Divider,
     bookmarkApi: lila.bookmark.BookmarkApi,
-    gameSearch: GameSearchApi
+    gameSearch: GameSearchApi,
+    crosstableApi: lila.game.CrosstableApi
 )(using Executor, akka.actor.ActorSystem):
 
   import GameApiV2.*
@@ -139,6 +141,23 @@ final class GameApiV2(
       .via(upgradeOngoingGame)
       .via(preparationFlow(config))
 
+  def mobileRecent(user: User)(using Option[Me]): Fu[JsArray] = for
+    games <- gameRepo.recentFinishedGamesFromSecondary(user, Max(10))
+    config = MobileRecentConfig(user)
+    enriched <- games.sequentially(enrich(config.flags))
+    jsons <- enriched.sequentially: (game, fen, analysis) =>
+      toJson(game, fen, analysis, config)
+  yield JsArray(jsons)
+
+  def mobileCurrent(user: User)(using Option[Me]): Fu[Option[JsObject]] =
+    gameCache
+      .lastPlayedPlayingId(user.id)
+      .flatMapz(gameProxy.gameIfPresentOrFetch)
+      .flatMapz: game =>
+        val config = OneConfig(GameApiV2.Format.JSON, false, WithFlags())
+        enrich(config.flags)(game).flatMap: (game, fen, analysis) =>
+          toJson(game, fen, analysis, config).dmap(some)
+
   def exportByIds(config: ByIdsConfig): Source[String, ?] =
     gameRepo
       .sortedCursor(
@@ -233,6 +252,9 @@ final class GameApiV2(
       .documentSource()
       .via(preparationFlow(config))
 
+  def crosstableWith(user: User)(me: Me): Fu[JsObject] =
+    crosstableApi.withMatchup(me.userId, user.id).map(Json.toJsObject)
+
   private val upgradeOngoingGame =
     Flow[Game].mapAsync(4)(gameProxy.upgradeIfPresent)
 
@@ -276,7 +298,7 @@ final class GameApiV2(
   ): Fu[JsObject] = for
     lightUsers <- gameLightUsers(g)
     flags = config.flags
-    pgn <- config.flags.pgnInJson.soFu:
+    pgn <- config.flags.pgnInJson.optionFu:
       pgnDump(g, initialFen, analysisOption, config.flags).map(annotator.toPgnString)
     bookmarked <- config.flags.bookmark.so(bookmarkApi.exists(g, config.by.map(_.userId)))
     accuracy = analysisOption
@@ -442,3 +464,9 @@ object GameApiV2:
       perSecond: MaxPerSecond
   )(using val by: Option[Me])
       extends Config
+
+  case class MobileRecentConfig(user: User)(using val by: Option[Me]) extends Config:
+    val format = GameApiV2.Format.JSON
+    val flags =
+      WithFlags(clocks = false, moves = false, evals = false, opening = true, lastFen = true, accuracy = true)
+    val perSecond = MaxPerSecond(20) // unused

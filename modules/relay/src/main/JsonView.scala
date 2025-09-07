@@ -41,10 +41,12 @@ final class JsonView(baseUrl: BaseUrl, markup: RelayMarkup, picfitUrl: PicfitUrl
       .add("dates" -> t.dates)
       .add("image" -> t.image.map(id => RelayTour.thumbnail(picfitUrl, id, _.Size.Large)))
 
-  given OWrites[RelayTour.IdName] = Json.writes
+  given OWrites[RelayTour.TourPreview] = Json.writes
 
   given OWrites[RelayGroup.WithTours] = OWrites: g =>
     Json.obj(
+      "id" -> g.group.id,
+      "slug" -> g.group.name.toSlug,
       "name" -> g.group.name,
       "tours" -> g.withShorterTourNames.tours
     )
@@ -212,3 +214,14 @@ object JsonView:
         case Sync.Upstream.Urls(urls) => Json.obj("urls" -> urls)
         case Sync.Upstream.Ids(ids) => Json.obj("ids" -> ids)
         case Sync.Upstream.Users(users) => Json.obj("users" -> users)
+
+  private given OWrites[chess.format.pgn.Tags] = OWrites: tags =>
+    Json.obj(tags.value.map(t => (t.name.name, t.value))*)
+
+  given OWrites[RelayPush.Results] = OWrites: results =>
+    Json.obj:
+      "games" -> results.map:
+        _.fold(
+          fail => Json.obj("tags" -> fail.tags, "error" -> fail.error),
+          pass => Json.obj("tags" -> pass.tags, "moves" -> pass.moves)
+        )

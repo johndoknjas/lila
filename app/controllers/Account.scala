@@ -11,6 +11,8 @@ import lila.core.id.SessionId
 import lila.security.SecurityForm.Reopen
 import lila.web.AnnounceApi
 import lila.core.user.KidMode
+import lila.security.IsPwned
+import lila.core.security.ClearPassword
 
 final class Account(
     env: Env,
@@ -68,7 +70,7 @@ final class Account(
         povs <- env.round.proxyRepo.urgentGames(me)
         nbChallenges <- env.challenge.api.countInFor.get(me)
         playban <- env.playban.api.currentBan(me)
-        perfs <- ctx.pref.showRatings.soFu(env.user.perfsRepo.perfsOf(me))
+        perfs <- ctx.pref.showRatings.optionFu(env.user.perfsRepo.perfsOf(me))
       yield Ok:
         env.user.jsonView
           .full(me, perfs, withProfile = false) ++ Json
@@ -82,7 +84,7 @@ final class Account(
           .add("troll" -> me.marks.troll)
           .add("playban" -> playban)
           .add("announce" -> AnnounceApi.get.map(_.json))
-      .withHeaders(CACHE_CONTROL -> "max-age=15")
+      .headerCacheSeconds(15)
   }
 
   def nowPlaying = Auth { _ ?=> _ ?=>
@@ -141,15 +143,19 @@ final class Account(
     auth.HasherRateLimit:
       env.security.forms.passwdChange.flatMap: form =>
         FormFuResult(form)(err => renderPage(pages.password(err))): data =>
-          env.security.authenticator.setPassword(me, lila.core.security.ClearPassword(data.newPasswd1)) >>
-            refreshSessionId(Redirect(routes.Account.passwd).flashSuccess)
+          val newPass = ClearPassword(data.newPasswd1)
+          for
+            _ <- env.security.authenticator.setPassword(me, newPass)
+            pwned <- env.security.pwned.isPwned(newPass)
+            res <- refreshSessionId(Redirect(routes.Account.passwd).flashSuccess, pwned)
+          yield res
   }
 
-  private def refreshSessionId(result: Result)(using ctx: Context, me: Me): Fu[Result] = for
+  private def refreshSessionId(result: Result, pwned: IsPwned)(using ctx: Context, me: Me): Fu[Result] = for
     _ <- env.security.store.closeAllSessionsOf(me)
     _ <- env.push.webSubscriptionApi.unsubscribeByUser(me)
     _ <- env.push.unregisterDevices(me)
-    sessionId <- env.security.api.saveAuthentication(me, ctx.mobileApiVersion)
+    sessionId <- env.security.api.saveAuthentication(me, ctx.mobileApiVersion, pwned)
   yield result.withCookies(env.security.lilaCookie.session(env.security.api.sessionIdKey, sessionId.value))
 
   private def emailForm(using me: Me) =
@@ -191,6 +197,7 @@ final class Account(
         _ <- prevEmail.exists(_.isNoReply).so(env.clas.api.student.release(user))
         res <- auth.authenticateUser(
           user,
+          pwned = IsPwned.No,
           remember = true,
           result =
             if prevEmail.exists(_.isNoReply)
@@ -228,8 +235,10 @@ final class Account(
     auth.HasherRateLimit:
       env.security.forms.setupTwoFactor.flatMap: form =>
         FormFuResult(form)(err => renderPage(views.account.twoFactor.setup(err))): data =>
-          env.user.repo.setupTwoFactor(me, lila.user.TotpSecret.decode(data.secret)) >>
-            refreshSessionId(Redirect(routes.Account.twoFactor).flashSuccess)
+          for
+            _ <- env.user.repo.setupTwoFactor(me, lila.user.TotpSecret.decode(data.secret))
+            res <- refreshSessionId(Redirect(routes.Account.twoFactor).flashSuccess, pwned = IsPwned.No)
+          yield res
   }
 
   def disableTwoFactor = AuthBody { ctx ?=> me ?=>
@@ -333,7 +342,7 @@ final class Account(
 
   def signout(sessionId: String) = Auth { _ ?=> me ?=>
     if sessionId == "all"
-    then refreshSessionId(Redirect(routes.Account.security).flashSuccess)
+    then refreshSessionId(Redirect(routes.Account.security).flashSuccess, pwned = IsPwned.No)
     else
       for
         _ <- env.security.store.closeUserAndSessionId(me, SessionId(sessionId))
@@ -388,7 +397,7 @@ final class Account(
         case Some(user) =>
           for
             _ <- env.report.api.reopenReports(lila.report.Suspect(user))
-            result <- auth.authenticateUser(user, remember = true)
+            result <- auth.authenticateUser(user, remember = true, pwned = IsPwned.No)
             _ = lila.mon.user.auth.reopenConfirm("success").increment()
           yield result
 

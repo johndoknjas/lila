@@ -1,6 +1,5 @@
 package lila.api
 
-import scala.annotation.nowarn
 import akka.actor.*
 import akka.stream.scaladsl.*
 import play.api.i18n.Lang
@@ -13,6 +12,8 @@ import lila.common.Json.given
 import lila.core.game.{ FinishGame, StartGame }
 import lila.game.Rematches
 import lila.user.{ LightUserApi, Me, UserRepo }
+import lila.bot.OnlineApiUsers.*
+import lila.core.net.Bearer
 
 final class EventStream(
     challengeJsonView: lila.challenge.JsonView,
@@ -23,57 +24,58 @@ final class EventStream(
     gameJsonView: lila.game.JsonView,
     rematches: Rematches,
     lightUserApi: LightUserApi
-)(using system: ActorSystem)(using Executor, Scheduler, lila.core.i18n.Translator):
-
-  private case object SetOnline
+)(using system: ActorSystem, scheduler: Scheduler)(using Executor, lila.core.i18n.Translator):
 
   private val blueprint =
     Source.queue[Option[JsObject]](32, akka.stream.OverflowStrategy.dropHead)
 
   def apply(
       gamesInProgress: List[Game],
-      challenges: List[Challenge]
+      challenges: List[Challenge],
+      bearer: Bearer
   )(using me: Me): Source[Option[JsObject], ?] =
 
     given Lang = me.realLang | lila.core.i18n.defaultLang
 
     // kill previous one if any
-    Bus.publishDyn(PoisonPill, s"eventStreamFor:${me.userId}")
+    val killChannel = s"eventStreamForBearer:$bearer"
+    Bus.publishDyn(PoisonPill, killChannel)
 
     blueprint.mapMaterializedValue: queue =>
       gamesInProgress.map { gameJson(_, "gameStart") }.foreach(queue.offer)
       challenges.map(challengeJson("challenge")).map(some).foreach(queue.offer)
 
-      val actor = system.actorOf(Props(mkActor(queue)))
+      val actor = system.actorOf(Props(mkActor(queue, killChannel)))
 
       queue.watchCompletion().addEffectAnyway { actor ! PoisonPill }
 
-  private def mkActor(queue: SourceQueueWithComplete[Option[JsObject]])(using me: Me)(using Lang): Actor =
+  private def mkActor(queue: SourceQueueWithComplete[Option[JsObject]], killChannel: String)(using
+      me: Me
+  )(using Lang): Actor =
     new:
 
-      val classifiers = List(
+      val channels = List(
         s"userStartGame:${me.userId}",
         s"userFinishGame:${me.userId}",
         s"rematchFor:${me.userId}",
-        s"eventStreamFor:${me.userId}"
+        killChannel
       )
 
-      @nowarn var lastSetSeenAt = me.seenAt | me.createdAt
-      @nowarn var online = true
+      @scala.annotation.nowarn
+      var lastSetSeenAt = me.seenAt | me.createdAt
 
       override def preStart(): Unit =
         super.preStart()
-        Bus.subscribeActorRefDyn(self, classifiers)
+        Bus.subscribeActorRefDyn(self, channels)
         Bus.subscribeActorRef[lila.core.challenge.PositiveEvent](self)
         Bus.subscribeActorRef[NegativeEvent](self)
 
       override def postStop() =
         super.postStop()
-        classifiers.foreach(Bus.unsubscribeActorRefDyn(self, _))
+        channels.foreach(Bus.unsubscribeActorRefDyn(self, _))
         Bus.subscribeActorRef[lila.core.challenge.PositiveEvent](self)
         Bus.subscribeActorRef[NegativeEvent](self)
         queue.complete()
-        online = false
 
       self ! SetOnline
 
@@ -86,12 +88,11 @@ final class EventStream(
             userRepo.setSeenAt(me)
             lastSetSeenAt = nowInstant
 
-          context.system.scheduler
-            .scheduleOnce(6.second):
-              if online then
-                // gotta send a message to check if the client has disconnected
-                queue.offer(None)
-                self ! SetOnline
+          scheduler.scheduleOnce(7.second, self, CheckOnline)
+
+        case CheckOnline =>
+          queue.offer(None) // prevents the client and intermediate proxies from closing the idle stream
+          self ! SetOnline
 
         case StartGame(game) => queue.offer(gameJson(game, "gameStart"))
 

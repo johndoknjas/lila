@@ -269,8 +269,6 @@ interface I18n {
     editRoundStudy: string;
     /** Embed this broadcast in your website */
     embedThisBroadcast: string;
-    /** Embed %s in your website */
-    embedThisRound: I18nFormat;
     /** Federation */
     federation: string;
     /** FIDE federations */
@@ -323,8 +321,6 @@ interface I18n {
     overview: string;
     /** Past broadcasts */
     pastBroadcasts: string;
-    /** A public, real-time PGN source for this round. We also offer a %s for faster and more efficient synchronisation. */
-    pgnSourceHelp: I18nFormat;
     /** Rating diff */
     ratingDiff: string;
     /** Recent tournaments */
@@ -349,8 +345,6 @@ interface I18n {
     sourceSingleUrl: string;
     /** URL that Lichess will check to get PGN updates. It must be publicly accessible from the Internet. */
     sourceUrlHelp: string;
-    /** Standings */
-    standings: string;
     /** Optional, if you know when the event starts */
     startDateHelp: string;
     /** Start date in the tournament local timezone: %s */
@@ -3137,6 +3131,8 @@ interface I18n {
     copyMainLinePgn: string;
     /** Copy and paste the above text and send it to %s */
     copyTextToEmail: I18nFormat;
+    /** Copy to clipboard */
+    copyToClipboard: string;
     /** Copy variation PGN */
     copyVariationPgn: string;
     /** Correspondence */
@@ -3311,7 +3307,7 @@ interface I18n {
     'error.minLength': I18nFormat;
     /** Please don't use your username as your password. */
     'error.namePassword': string;
-    /** Please provide at least one link to a cheated game. */
+    /** Please provide at least one link to a game with suspected cheating. */
     'error.provideOneCheatedGameLink': string;
     /** This field is required */
     'error.required': string;
@@ -4155,8 +4151,8 @@ interface I18n {
     standard: string;
     /** Stand by %s, pairing players, get ready! */
     standByX: I18nFormat;
-    /** Standing */
-    standing: string;
+    /** Standings */
+    standings: string;
     /** started streaming */
     startedStreaming: string;
     /** Starting: */

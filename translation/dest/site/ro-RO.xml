@@ -515,7 +515,7 @@
   <string name="openTournaments">Turnee deschise</string>
   <string name="duration">Durată</string>
   <string name="winner">Câștigător</string>
-  <string name="standing">Clasament</string>
+  <string name="standings">Clasament</string>
   <string name="createANewTournament">Creați un turneu nou</string>
   <string name="tournamentCalendar">Calendarul competiției</string>
   <string name="conditionOfEntry">Condiții de intrare:</string>
@@ -1054,4 +1054,5 @@ Toate costurile de operare și de dezvoltare sunt finanțate doar din donațiile
   <string name="accessibility">Accesibilitate</string>
   <string name="enableBlindMode">Activează modul fără vedere</string>
   <string name="disableBlindMode">Dezactivează modul fără vedere</string>
+  <string name="copyToClipboard">Copiază în memorie</string>
 </resources>

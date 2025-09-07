@@ -129,14 +129,13 @@ final class Api(env: Env, gameC: => Game) extends LilaController(env):
   def crosstable(name1: UserStr, name2: UserStr) = ApiRequest:
     limit.crosstable(req.ipAddress, fuccess(ApiResult.Limited), cost = 1):
       val (u1, u2) = (name1.id, name2.id)
-      env.game.crosstableApi(u1, u2).flatMap { ct =>
-        (ct.results.nonEmpty && getBool("matchup"))
-          .so:
-            env.game.crosstableApi.getMatchup(u1, u2)
-          .map: matchup =>
-            toApiResult:
-              lila.game.JsonView.crosstable(ct, matchup).some
-      }
+      import lila.game.JsonView.given
+      for
+        ct <- env.game.crosstableApi(u1, u2)
+        matchup <- (ct.results.nonEmpty && getBool("matchup"))
+          .so(env.game.crosstableApi.getMatchup(u1, u2))
+        both = lila.game.Crosstable.WithMatchup(ct, matchup)
+      yield toApiResult(Json.toJsObject(both).some)
 
   def currentTournaments = ApiRequest:
     env.tournament.api.fetchVisibleTournaments
@@ -275,14 +274,13 @@ final class Api(env: Env, gameC: => Game) extends LilaController(env):
     Scoped(_.Bot.Play, _.Board.Play, _.Challenge.Read) { _ ?=> me ?=>
       def limited = rateLimited:
         "Please don't poll this endpoint, it is intended to be streamed. See https://lichess.org/api#tag/Board/operation/apiStreamEvent."
-      limit.eventStream(me, limited):
-        env.round.proxyRepo
-          .urgentGames(me)
-          .flatMap: povs =>
-            env.challenge.api
-              .createdByDestId(me)
-              .map: challenges =>
-                jsOptToNdJson(env.api.eventStream(povs.map(_.game), challenges))
+      HTTPRequest.bearer(ctx.req).so { bearer =>
+        limit.eventStream(bearer, limited, msg = s"${me.username} ${HTTPRequest.printClient(req)}"):
+          for
+            povs <- env.round.proxyRepo.urgentGames(me)
+            challenges <- env.challenge.api.createdByDestId(me)
+          yield jsOptToNdJson(env.api.eventStream(povs.map(_.game), challenges, bearer))
+      }
     }
 
   def activity(name: UserStr) = ApiRequest:
@@ -321,6 +319,41 @@ final class Api(env: Env, gameC: => Game) extends LilaController(env):
     val ids = get("ids").so(_.split(',').take(50).toList).map(GameId.take)
     ids.nonEmpty.so:
       env.round.roundSocket.getMany(ids).flatMap(env.round.mobile.online).map(JsonOk)
+  }
+
+  /* aggregates, for the new mobile app:
+   * /api/games/user/:user
+   * /api/account?playban=1
+   * /api/account/playing
+   * /tournament/featured
+   * /inbox/unread-count
+   * /api/challenge
+   */
+  def mobileHome = AnonOrScoped(_.Web.Mobile) { ctx ?=>
+    limit.apiMobileHome(ctx.userId | ctx.ip, rateLimited):
+      JsonOk(env.api.mobile.home)
+  }
+
+  /* aggregates, for the new mobile app:
+   * /api/broadcast/top?page=1
+   * /api/tv/channels
+   * /api/streamer/live
+   */
+  def mobileWatch = Anon { _ ?=>
+    JsonOk(env.api.mobile.watch)
+  }
+
+  /* aggregates, for the new mobile app:
+   * /api/account?playban=1 or /api/user/:username?challenge=1
+   * /api/user/status?ids=:username
+   * /api/user/$id/activity
+   * /api/games/user/:user
+   * /api/user/:id/current-game
+   * /api/crosstable/:id1/:id2
+   */
+  def mobileProfile(username: UserStr) = AnonOrScoped(_.Web.Mobile) { _ ?=>
+    Found(meOrFetch(username)): user =>
+      JsonOk(env.api.mobile.profile(user))
   }
 
   def ApiRequest(js: Context ?=> Fu[ApiResult]) = Anon:

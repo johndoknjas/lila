@@ -1,7 +1,6 @@
 package controllers
 
 import chess.format.pgn.{ PgnStr, Tag }
-import play.api.libs.json.{ Json, OWrites }
 import play.api.mvc.*
 
 import scala.annotation.nowarn
@@ -163,8 +162,8 @@ final class RelayRound(
           group <- env.relay.api.withTours.get(rt.tour.id)
           previews <- env.study.preview.jsonList.withoutInitialEmpty(study.id)
           targetRound <- env.relay.api.officialTarget(rt.round)
-          isSubscribed <- ctx.me.soFu(me => env.relay.api.isSubscribed(rt.tour.id, me.userId))
-          sVersion <- HTTPRequest.isLichessMobile(ctx.req).soFu(env.study.version(study.id))
+          isSubscribed <- ctx.userId.traverse(env.relay.api.isSubscribed(rt.tour.id, _))
+          sVersion <- HTTPRequest.isLichessMobile(ctx.req).optionFu(env.study.version(study.id))
         yield JsonOk:
           env.relay.jsonView
             .withUrlAndPreviews(rt.withStudy(study), previews, group, targetRound, isSubscribed, sVersion)
@@ -215,17 +214,10 @@ final class RelayRound(
     Found(env.relay.api.byIdWithTourAndStudy(id)): rt =>
       if !rt.study.canContribute(me) then forbiddenJson()
       else
-        given OWrites[List[Tag]] = OWrites(tags => Json.obj(tags.map(t => (t.name.name, t.value))*))
+        import lila.relay.JsonView.given
         env.relay
           .push(rt.withTour, PgnStr(ctx.body.body))
-          .map: results =>
-            JsonOk:
-              Json.obj:
-                "games" -> results.map:
-                  _.fold(
-                    fail => Json.obj("tags" -> fail.tags.value, "error" -> fail.error),
-                    pass => Json.obj("tags" -> pass.tags.value, "moves" -> pass.moves)
-                  )
+          .map(JsonOk)
   }
 
   def teamsView(id: RelayRoundId) = Open:
@@ -273,8 +265,7 @@ final class RelayRound(
         (sc, studyData) <- studyC.getJsonData(oldSc, withChapters = true)
         rounds <- env.relay.api.byTourOrdered(rt.tour)
         group <- env.relay.api.withTours.get(rt.tour.id)
-        isSubscribed <- ctx.me.soFu: me =>
-          env.relay.api.isSubscribed(rt.tour.id, me.userId)
+        isSubscribed <- ctx.userId.traverse(env.relay.api.isSubscribed(rt.tour.id, _))
         videoUrls <- embed match
           case VideoEmbed.Stream(userId) =>
             env.streamer.api

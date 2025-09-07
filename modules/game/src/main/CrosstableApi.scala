@@ -17,10 +17,10 @@ final class CrosstableApi(
       _.delete.one($doc("_id".$startsWith(s"${del.id}/"))).void
 
   def apply(game: Game): Fu[Option[Crosstable]] =
-    game.twoUserIds.soFu(apply.tupled)
+    game.twoUserIds.traverse(apply.tupled)
 
   def withMatchup(game: Game): Fu[Option[Crosstable.WithMatchup]] =
-    game.twoUserIds.soFu(withMatchup.tupled)
+    game.twoUserIds.traverse(withMatchup.tupled)
 
   def apply(u1: UserId, u2: UserId): Fu[Crosstable] =
     justFetch(u1, u2).dmap(_ | Crosstable.empty(u1, u2))
@@ -28,8 +28,10 @@ final class CrosstableApi(
   def justFetch(u1: UserId, u2: UserId): Fu[Option[Crosstable]] =
     coll.one[Crosstable](select(u1, u2))
 
-  def withMatchup(u1: UserId, u2: UserId): Fu[Crosstable.WithMatchup] =
-    apply(u1, u2).zip(getMatchup(u1, u2)).dmap(Crosstable.WithMatchup.apply.tupled)
+  def withMatchup(u1: UserId, u2: UserId): Fu[Crosstable.WithMatchup] = for
+    ct <- apply(u1, u2)
+    matchup <- ct.results.nonEmpty.so(getMatchup(u1, u2))
+  yield Crosstable.WithMatchup(ct, matchup)
 
   def nbGames(u1: UserId, u2: UserId): Fu[Int] =
     coll

@@ -1,6 +1,6 @@
 package lila.web
 
-import lila.core.net.IpAddress
+import lila.core.net.{ IpAddress, Bearer }
 import lila.core.socket.Sri
 import lila.memo.RateLimit
 
@@ -30,6 +30,7 @@ final class Limiters(using Executor, lila.core.config.RateLimit):
   val forumTopic = RateLimit[IpAddress](credits = 2, duration = 5.minutes, key = "forum.topic")
 
   val apiMe = RateLimit[UserId](30, 5.minutes, "api.account.user")
+  val apiMobileHome = RateLimit[UserId | IpAddress](30, 3.minutes, "api.mobile.home")
 
   val apiUsers = RateLimit.composite[IpAddress](
     key = "users.api.ip"
@@ -52,7 +53,7 @@ final class Limiters(using Executor, lila.core.config.RateLimit):
     RateLimit[IpAddress](credits = 10 * 10, duration = 24.hour, key = "broadcast.tournament.ip")
   )
 
-  val eventStream = RateLimit[UserId](30, 10.minutes, "api.stream.event.user")
+  val eventStream = RateLimit[Bearer](30, 10.minutes, "api.stream.event.bearer")
 
   val userActivity = RateLimit[IpAddress](credits = 15, duration = 2.minutes, key = "user_activity.api.ip")
 

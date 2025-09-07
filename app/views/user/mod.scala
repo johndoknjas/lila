@@ -70,10 +70,12 @@ object mod:
       )
     )
 
-  def otherUsers(u: User, data: UserLogins.TableData[UserWithModlog], appeals: List[Appeal])(using
-      ctx: Context,
-      renderIp: lila.mod.IpRender.RenderIp
-  ): Tag =
+  def otherUsers(
+      u: User,
+      data: UserLogins.TableData[UserWithModlog],
+      appeals: List[Appeal],
+      readOnly: Boolean = false
+  )(using ctx: Context, renderIp: lila.mod.IpRender.RenderIp): Tag =
     import data.*
     val canLocate = Granter.opt(_.Admin)
     mzSection("others")(
@@ -82,12 +84,8 @@ object mod:
           tr(
             th(
               pluralize("linked user", userLogins.otherUsers.size),
-              (max < 1000 || othersPartiallyLoaded).option(
-                frag(
-                  nbsp,
-                  a(cls := "more-others")("Load more")
-                )
-              )
+              ((max < 1000 || othersPartiallyLoaded) && !readOnly).option:
+                frag(nbsp, a(cls := "more-others")("Load more"))
             ),
             Granter.opt(_.Admin).option(th("Email")),
             thSortNumber(dataSortDefault)("Same"),
@@ -103,7 +101,7 @@ object mod:
             thSortNumber(iconTag(Icon.InkQuill))(cls := "i", title := "Appeals"),
             thSortNumber("Created"),
             thSortNumber("Active"),
-            ModUserTableUi.selectAltAll
+            readOnly.not.option(ModUserTableUi.selectAltAll)
           )
         ),
         tbody(
@@ -111,6 +109,7 @@ object mod:
             val userNotes = notes.filter: n =>
               n.to.is(o.id) && (ctx.me.exists(n.isFrom) || Granter.opt(_.Admin))
             val userAppeal = appeals.find(_.isAbout(o.id))
+            val closedInfo = log.closed
             tr(
               dataTags := List(
                 other.ips.map(renderIp),
@@ -139,10 +138,15 @@ object mod:
               markTd(o.marks.troll.so(1), shadowban, log.dateOf(_.troll)),
               markTd(o.marks.boost.so(1), boosting, log.dateOf(_.booster)),
               markTd(o.marks.engine.so(1), engine, log.dateOf(_.engine)),
-              markTd(o.enabled.no.so(1), closed, log.dateOf(_.closeAccount)),
+              closedInfo.fold(markTd(0, closed)): c =>
+                markTd(
+                  1,
+                  if c.byMod then modClosed else closed,
+                  c.at.some
+                )(title := (if c.byMod then "Closed by mod" else "Self closed")),
               markTd(o.marks.reportban.so(1), reportban, log.dateOf(_.reportban)),
               userNotes.nonEmpty
-                .option {
+                .option:
                   td(dataSort := userNotes.size)(
                     a(href := s"${routes.User.show(o.username)}?notes")(
                       notesText(
@@ -152,7 +156,6 @@ object mod:
                       userNotes.size
                     )
                   )
-                }
                 .getOrElse(td(dataSort := 0)),
               userAppeal match
                 case None => td(dataSort := 0)
@@ -171,7 +174,7 @@ object mod:
               ,
               td(dataSort := o.createdAt.toMillis)(momentFromNowServer(o.createdAt)),
               td(dataSort := o.seenAt.map(_.toMillis.toString))(o.seenAt.map(momentFromNowServer)),
-              ModUserTableUi.userCheckboxTd(o.marks.alt)
+              readOnly.not.option(ModUserTableUi.userCheckboxTd(o.marks.alt))
             )
           }
         )

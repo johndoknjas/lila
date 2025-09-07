@@ -44,6 +44,12 @@ case class Team(
 
   def data = TeamData(id, name, description, nbMembers, createdBy)
 
+  def daysOld = daysBetween(createdAt, nowInstant)
+
+  def notable = open && (nbMembers > 10 || (nbMembers > 1 && daysOld > 7))
+
+  def automodText = s"$name\n${~intro}\n$description"
+
 object Team:
 
   case class WithLeaders(team: Team, leaders: List[TeamMember]):

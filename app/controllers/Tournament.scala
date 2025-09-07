@@ -58,7 +58,7 @@ final class Tournament(env: Env, apiC: => Api)(using akka.stream.Materializer) e
             isGrantedOpt(_.ChatTimeout)) // private tournament that I joined or has ChatTimeout
 
   private def loadChat(tour: Tour, json: JsObject)(using Context): Fu[Option[lila.chat.UserChat.Mine]] =
-    canHaveChat(tour, json.some).soFu:
+    canHaveChat(tour, json.some).optionFu:
       env.chat.api.userChat.cached
         .findMine(tour.id.into(ChatId))
         .map(_.copy(locked = !env.api.chatFreshness.of(tour)))
@@ -101,7 +101,7 @@ final class Tournament(env: Env, apiC: => Api)(using akka.stream.Materializer) e
           .fold[Fu[Result]](notFoundJson("No such tournament")): tour =>
             for
               playerInfoExt <- getUserStr("playerInfo").map(_.id).so(api.playerInfo(tour, _))
-              socketVersion <- getBool("socketVersion").soFu(env.tournament.version(tour.id))
+              socketVersion <- getBool("socketVersion").optionFu(env.tournament.version(tour.id))
               partial = getBool("partial")
               json <- jsonView(
                 tour = tour,
@@ -115,17 +115,18 @@ final class Tournament(env: Env, apiC: => Api)(using akka.stream.Materializer) e
                 addReloadEndpoint = env.tournament.lilaHttp.handles.some
               )
               chatOpt <- partial.not.so(loadChat(tour, json))
-              jsChat <- chatOpt.soFu: c =>
+              jsChat <- chatOpt.traverse: c =>
                 lila.chat.JsonView.mobile(c.chat)
             yield Ok(json.add("chat" -> jsChat)).noCache
           .monSuccess(_.tournament.apiShowPartial(getBool("partial"), HTTPRequest.clientName(ctx.req)))
       )
 
-  def apiShow(id: TourId) = AnonOrScoped(): _ ?=>
+  def apiShow(id: TourId) = AnonOrScoped(): ctx ?=>
     env.tournament.tournamentRepo
       .byId(id)
       .flatMapz: tour =>
-        val page = (getInt("page") | 1).atLeast(1).atMost(200)
+        val maxPage = if ctx.isMobileOauth then 5_000 else 200
+        val page = (getInt("page") | 1).atLeast(1).atMost(maxPage)
         given GetMyTeamIds = me => env.team.cached.teamIdsList(me.userId)
         for
           data <- env.tournament.jsonView(
@@ -139,8 +140,8 @@ final class Tournament(env: Env, apiC: => Api)(using akka.stream.Materializer) e
             withAllowList = true
           )
           chatOpt <- getBool("chat").so(loadChat(tour, data))
-          jsChat <- chatOpt.soFu(c => lila.chat.JsonView.mobile(c.chat))
-          socketVersion <- getBool("socketVersion").soFu(env.tournament.version(tour.id))
+          jsChat <- chatOpt.traverse(c => lila.chat.JsonView.mobile(c.chat))
+          socketVersion <- getBool("socketVersion").optionFu(env.tournament.version(tour.id))
         yield data
           .add("chat", jsChat)
           .add("socketVersion" -> socketVersion)
@@ -272,11 +273,13 @@ final class Tournament(env: Env, apiC: => Api)(using akka.stream.Materializer) e
               api
                 .createTournament(setup, teams, andJoin = ctx.isWebAuth)
                 .flatMap: tour =>
+                  val tourUrl = routes.Tournament.show(tour.id)
+                  discard { env.report.api.automodComms(setup.automodText, tourUrl.url) }
                   given GetMyTeamIds = _ => fuccess(teams.map(_.id))
                   negotiate(
                     html = Redirect {
                       if tour.isTeamBattle then routes.Tournament.teamBattleEdit(tour.id)
-                      else routes.Tournament.show(tour.id)
+                      else tourUrl
                     }.flashSuccess,
                     json = jsonView(
                       tour,
@@ -299,8 +302,9 @@ final class Tournament(env: Env, apiC: => Api)(using akka.stream.Materializer) e
             jsonFormError,
             data =>
               given GetMyTeamIds = _ => fuccess(teams.map(_.id))
-              api.apiUpdate(tour, data).flatMap { tour =>
-                jsonView(
+              for
+                tour <- api.apiUpdate(tour, data)
+                json <- jsonView(
                   tour,
                   none,
                   none,
@@ -309,8 +313,10 @@ final class Tournament(env: Env, apiC: => Api)(using akka.stream.Materializer) e
                   withScores = true,
                   withAllowList = true,
                   withDescription = true
-                ).map { Ok(_) }
-              }
+                )
+              yield
+                discard { env.report.api.automodComms(data.automodText, routes.Tournament.show(tour.id).url) }
+                Ok(json)
           )
         }
       }
@@ -382,15 +388,9 @@ final class Tournament(env: Env, apiC: => Api)(using akka.stream.Materializer) e
       case _ => BadRequest(jsonError("Can't update that tournament."))
   }
 
-  def featured = Open:
+  def featured = OpenOrScoped():
     negotiateJson:
-      WithMyPerfs:
-        for
-          teamIds <- ctx.userId.so(env.team.cached.teamIdsList)
-          tours <- env.tournament.featuring.homepage.get(teamIds)
-          spotlight = lila.tournament.Spotlight.select(tours, 4)
-          json <- env.tournament.apiJsonView.featured(spotlight)
-        yield Ok(json)
+      JsonOk(env.api.mobile.tournaments)
 
   def shields = Open:
     for

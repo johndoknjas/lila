@@ -32,24 +32,12 @@ import { watchers } from 'lib/view/watchers';
 import type StudyCtrl from './studyCtrl';
 import { verticalResize } from 'lib/view/verticalResize';
 import { isTouchDevice, displayColumns, shareIcon } from 'lib/device';
-import {
-  viewContext,
-  renderBoard,
-  renderMain,
-  renderControls,
-  renderTools,
-  renderUnderboard,
-} from '../view/components';
+import { viewContext, renderBoard, renderMain, renderTools, renderUnderboard } from '../view/components';
+import { renderControls } from '../view/controls';
 
 export function studyView(ctrl: AnalyseCtrl, study: StudyCtrl, deps: typeof studyDeps): VNode {
   const ctx = viewContext(ctrl, deps);
   const { gamebookPlayView, gaugeOn } = ctx;
-
-  let oldColumns = displayColumns();
-  window.addEventListener('resize', () => {
-    if (oldColumns !== displayColumns()) ctrl.redraw();
-    oldColumns = displayColumns();
-  });
   return renderMain(
     ctx,
     ctrl.keyboardHelp && keyboardView(ctrl),
@@ -343,7 +331,7 @@ function sideTrailerNodes(study: StudyCtrl): LooseVNodes {
         id: resizeId,
         min: () => 28,
         max: () => 28 * 64,
-        initialMaxHeight: 28 * 6,
+        initialMaxHeight: () => 28 * 6,
       }),
     showChat && renderChat(study.ctrl.chatCtrl!),
     showChat &&
@@ -353,7 +341,7 @@ function sideTrailerNodes(study: StudyCtrl): LooseVNodes {
         id: resizeId,
         min: () => 34,
         max: () => window.innerHeight,
-        initialMaxHeight: window.innerHeight / 3,
+        initialMaxHeight: () => window.innerHeight / 3,
       }),
     hl('div.chat__members.none', { hook: onInsert(watchers) }),
   ];

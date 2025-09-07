@@ -57,6 +57,7 @@ POST  /rel/follow/:user                controllers.Relation.followBc(user: UserS
 GET   /@/:username/following           controllers.Relation.following(username: UserStr, page: Int ?= 1)
 GET   /@/:username/followers           controllers.Relation.followers(username: UserStr, page: Int ?= 1)
 GET   /rel/blocks                      controllers.Relation.blocks(page: Int ?= 1)
+POST  /rel/:action/:user               controllers.Relation.bcAction(action: String, user: UserStr)
 
 # Insight
 POST  /insights/refresh/:username      controllers.Insight.refresh(username: UserStr)
@@ -87,9 +88,9 @@ GET   /player/myself                   controllers.User.myself
 GET   /player/opponents                controllers.User.opponents
 GET   /player/search/:term             controllers.User.search(term: String)
 GET   /player                          controllers.User.list
-GET   /player/top/:nb/:perfKey         controllers.User.topNb(nb: Int, perfKey: PerfKey)
+GET   /player/top/:nb/:perfKey         controllers.User.topBcRedirect(nb: Int, perfKey: PerfKey)
+GET   /player/top/:perfKey             controllers.User.top(perfKey: PerfKey, page: Int ?= 1)
 GET   /api/player/top/:nb/:perfKey     controllers.User.topNbApi(nb: Int, perfKey: PerfKey)
-GET   /player/top/week                 controllers.User.topWeek
 GET   /player/online                   controllers.User.online
 GET   /api/player/autocomplete         controllers.User.autocomplete
 GET   /api/player                      controllers.User.apiList
@@ -209,6 +210,7 @@ GET   /$lang<\w\w\w?>/storm             controllers.Storm.homeLang(lang: Languag
 GET   /racer                            controllers.Racer.home
 POST  /racer                            controllers.Racer.create
 POST  /api/racer                        controllers.Racer.apiCreate
+GET   /api/racer/:id                    controllers.Racer.apiGet(id)
 GET   /racer/:id                        controllers.Racer.show(id)
 GET   /racer/:id/rematch                controllers.Racer.rematch(id)
 POST  /racer/lobby                      controllers.Racer.lobby
@@ -333,8 +335,6 @@ GET   /features                        controllers.Plan.features
 # Practice
 GET   /practice                                   controllers.Practice.index
 GET   /practice/load/:studyId/:chapterId          controllers.Practice.chapter(studyId: StudyId, chapterId: StudyChapterId)
-GET   /practice/config                            controllers.Practice.config
-POST  /practice/config                            controllers.Practice.configSave
 POST  /practice/reset                             controllers.Practice.reset
 GET   /practice/:sectionId                        controllers.Practice.showSection(sectionId)
 GET   /practice/:sectionId/:studySlug             controllers.Practice.showStudySlug(sectionId, studySlug)
@@ -361,8 +361,9 @@ POST  /streamer/:username/check        controllers.Streamer.checkOnline(username
 
 # Private Play
 
-GET   /bots                            controllers.JsBot.index
+GET   /bots                           controllers.JsBot.index
 GET   /bots/assets                    controllers.JsBot.assetKeys
+# GET   /bots/test                      controllers.JsBot.test
 GET   /bots/dev                       controllers.JsBot.devIndex
 GET   /bots/dev/history               controllers.JsBot.devBotHistory(id: Option[UserStr])
 POST  /bots/dev/bot                   controllers.JsBot.devPostBot
@@ -655,7 +656,7 @@ POST  /inbox/new                       controllers.Msg.compatCreate
 # Msg
 GET   /inbox                           controllers.Msg.home
 GET   /inbox/search                    controllers.Msg.search(q)
-GET   /inbox/unread-count              controllers.Msg.unreadCountBC
+GET   /inbox/unread-count              controllers.Msg.unreadCount
 GET   /inbox/:username                 controllers.Msg.convo(username: UserStr, before: Option[Long] ?= None)
 DELETE /inbox/:username                controllers.Msg.convoDelete(username: UserStr)
 # Msg API/compat
@@ -680,6 +681,12 @@ GET   /import/master/$id<\w{8}>/:color controllers.Importer.masterGame(id: GameI
 GET   /editor.json                     controllers.Editor.data
 GET   /editor/*urlFen                  controllers.Editor.load(urlFen)
 GET   /editor                          controllers.Editor.index
+
+# Lichess Mobile
+GET   /api/mobile/home                 controllers.Api.mobileHome
+GET   /api/mobile/watch                controllers.Api.mobileWatch
+GET   /api/mobile/profile/:username    controllers.Api.mobileProfile(username:  UserStr)
+GET   /api/mobile/my-games             controllers.Api.mobileGames
 
 ->    /team                            team.Routes
 ->    /appeal                          appeal.Routes
@@ -768,9 +775,6 @@ POST  /api/bulk-pairing/:id/start-clocks  controllers.BulkPairing.startClocks(id
 GET   /api/games/user/:username        controllers.Game.apiExportByUser(username: UserStr)
 GET   /api/games/export/imports        controllers.Game.apiExportByUserImportedGames()
 GET   /api/games/export/bookmarks      controllers.Game.apiExportByUserBookmarks()
-
-# Lichess Mobile
-GET   /api/mobile/my-games             controllers.Api.mobileGames
 
 # External engine
 GET   /api/external-engine             controllers.Analyse.externalEngineList

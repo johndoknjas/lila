@@ -12,20 +12,23 @@ import { render as renderKeyboardMove } from 'keyboardMove';
 import type * as studyDeps from '../study/studyDeps';
 import { relayView } from '../study/relay/relayView';
 import { studyView } from '../study/studyView';
-import {
-  viewContext,
-  renderBoard,
-  renderMain,
-  renderControls,
-  renderTools,
-  renderUnderboard,
-} from './components';
+import { viewContext, renderBoard, renderMain, renderTools, renderUnderboard } from './components';
 import { wikiToggleBox } from '../wiki';
 import { watchers } from 'lib/view/watchers';
 import { renderChat } from 'lib/chat/renderChat';
+import { displayColumns } from 'lib/device';
+import { renderControls } from './controls';
+
+let resizeCache: {
+  columns: number;
+  chat: HTMLElement | null;
+  board: HTMLElement | null;
+  meta: HTMLElement | null;
+};
 
 export default function (deps?: typeof studyDeps) {
   return function (ctrl: AnalyseCtrl): VNode {
+    resizeCache ??= resizeHandler(ctrl);
     if (ctrl.nvui) return ctrl.nvui.render(deps);
     else if (deps && ctrl.study?.relay) return relayView(ctrl, ctrl.study, ctrl.study.relay, deps);
     else if (deps && ctrl.study) return studyView(ctrl, ctrl.study, deps);
@@ -76,7 +79,28 @@ function analyseView(ctrl: AnalyseCtrl, deps?: typeof studyDeps): VNode {
           ),
       ],
     ),
-    ctrl.chatCtrl && renderChat(ctrl.chatCtrl),
+    ctrl.chatCtrl && renderChat(ctrl.chatCtrl, { insert: v => fixChatHeight(v.elm) }),
     hl('div.chat__members.none', { hook: onInsert(watchers) }),
   );
+}
+
+function resizeHandler(ctrl: AnalyseCtrl) {
+  window.addEventListener('resize', () => {
+    if (resizeCache.columns !== displayColumns()) ctrl.redraw();
+    resizeCache.columns = displayColumns();
+
+    if (ctrl.study || resizeCache.columns < 3) return;
+
+    resizeCache.chat ??= document.querySelector<HTMLElement>('.mchat');
+    fixChatHeight(resizeCache.chat);
+  });
+  return { columns: displayColumns(), chat: null, board: null, meta: null };
+}
+
+function fixChatHeight(el: Node | null | undefined) {
+  if (!(el instanceof HTMLElement)) return;
+  resizeCache.board ??= document.querySelector<HTMLElement>('.analyse__board .cg-wrap');
+  resizeCache.meta ??= document.querySelector<HTMLElement>('.game__meta');
+  if (!resizeCache.board || !resizeCache.meta) return;
+  el.style.height = `${resizeCache.board.offsetHeight - resizeCache.meta.offsetHeight - 16}px`;
 }

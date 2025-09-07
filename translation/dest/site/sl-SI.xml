@@ -551,7 +551,7 @@
   <string name="openTournaments">Odprti turnirji</string>
   <string name="duration">Trajanje</string>
   <string name="winner">Zmagovalec</string>
-  <string name="standing">Lestvica</string>
+  <string name="standings">Lestvica</string>
   <string name="createANewTournament">Ustvari turnir</string>
   <string name="tournamentCalendar">Turnirski koledar</string>
   <string name="conditionOfEntry">Vstopni pogoji:</string>
@@ -1099,4 +1099,5 @@ Vsi operativni stroški, razvoj in vsebina se financirajo izključno iz donacij 
   <string name="accessibility">Dostopnost</string>
   <string name="enableBlindMode">Vključite slepi način</string>
   <string name="disableBlindMode">Izključite slepi način</string>
+  <string name="copyToClipboard">Kopiraj v odložišče</string>
 </resources>

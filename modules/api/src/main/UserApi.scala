@@ -31,6 +31,8 @@ final class UserApi(
     net: NetConfig
 )(using Executor, lila.core.i18n.Translator):
 
+  export userApi.withPerfs
+
   def one(u: UserWithPerfs | LightUser, joinedAt: Option[Instant] = None): JsObject = {
     val (light, userJson) = u match
       case u: UserWithPerfs => (u.user.light, jsonView.full(u.user, u.perfs.some, withProfile = false))
@@ -68,16 +70,16 @@ final class UserApi(
           (
             gameProxyRepo.urgentGames(u).dmap(_.headOption),
             as.filter(u !=).so(me => crosstableApi.nbGames(me.userId, u.id)),
-            withFollows.soFu(relationApi.countFollowing(u.id)),
+            withFollows.optionFu(relationApi.countFollowing(u.id)),
             as.isDefined.so(prefApi.followable(u.id)),
             as.map(_.userId).so(relationApi.fetchRelation(_, u.id)),
             bookmarkApi.countByUser(u.user),
             gameCache.nbPlaying(u.id),
             gameCache.nbImportedBy(u.id),
-            (withTrophies && !u.lame).soFu(getTrophiesAndAwards(u.user)),
+            (withTrophies && !u.lame).optionFu(getTrophiesAndAwards(u.user)),
             streamerApi.listed(u.user),
             withCanChallenge.so(challengeGranter.mayChallenge(u.user).dmap(some)),
-            forWiki.soFu(userRepo.email(u.id)),
+            forWiki.optionFu(userRepo.email(u.id)),
             withPlayban.so(playbanApi.currentBan(u))
           ).mapN:
             (
@@ -148,6 +150,14 @@ final class UserApi(
                       "blocking" -> relation.exists(!_.isFollow)
                     )
               }.noNull
+
+  def mobile(user: User)(using me: Option[Me])(using Lang) = extended(
+    user,
+    withFollows = false,
+    withTrophies = false,
+    withCanChallenge = me.exists(_.isnt(user)),
+    withPlayban = me.exists(_.is(user))
+  )
 
   def getTrophiesAndAwards(u: User) =
     (trophyApi.findByUser(u), shieldApi.active(u), revolutionApi.active(u)).mapN:

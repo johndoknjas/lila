@@ -50,9 +50,9 @@ final class Env(
 
   private val colls = wire[RelayColls]
 
-  private lazy val roundRepo = RelayRoundRepo(colls.round)
-
   private lazy val tourRepo = RelayTourRepo(colls.tour)
+
+  private lazy val roundRepo = RelayRoundRepo(colls.round, tourRepo)
 
   private lazy val groupRepo = RelayGroupRepo(colls.group)
 
@@ -96,6 +96,8 @@ final class Env(
 
   def top(page: Int): Fu[(List[RelayCard], Paginator[WithLastRound])] =
     (page == 1).so(listing.active).zip(pager.inactive(page))
+
+  val topJson = (page: Int) => (_: JsonView.Config) ?=> top(page).map(jsonView.top)
 
   private lazy val sync = wire[RelaySync]
 

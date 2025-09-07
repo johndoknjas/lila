@@ -10,7 +10,7 @@ import lila.common.Form.{ cleanText, cleanNonEmptyText, formatter, into, typeIn,
 import lila.core.perm.Granter
 import lila.core.fide.FideTC
 import lila.core.study.Visibility
-import chess.tiebreak.{ Tiebreak, CutModifier, LimitModifier }
+import chess.tiebreak.Tiebreak
 
 final class RelayTourForm(langList: lila.core.i18n.LangList, groupForm: RelayGroupForm):
 
@@ -76,6 +76,10 @@ final class RelayTourForm(langList: lila.core.i18n.LangList, groupForm: RelayGro
       "pinnedStream" -> optional(pinnedStreamMapping),
       "note" -> optional(nonEmptyText(maxLength = 20_000))
     )(Data.apply)(unapply)
+      .verifying(
+        "Tiebreaks submitted without automatic scoring enabled",
+        tour => tour.tiebreaks.forall(_ => tour.showScores)
+      )
   ).fill(Data.empty)
 
   def create = form

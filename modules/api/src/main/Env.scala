@@ -57,8 +57,12 @@ final class Env(
     cacheApi: lila.memo.CacheApi,
     webConfig: lila.web.WebConfig,
     manifest: lila.web.AssetManifest,
-    tokenApi: lila.oauth.AccessTokenApi
-)(using val mode: Mode, scheduler: Scheduler)(using
+    tokenApi: lila.oauth.AccessTokenApi,
+    tv: lila.tv.Tv,
+    activityRead: lila.activity.ActivityReadApi,
+    activityJson: lila.activity.JsonView
+)(using scheduler: Scheduler)(using
+    Mode,
     Executor,
     ActorSystem,
     akka.stream.Materializer,
@@ -94,6 +98,8 @@ final class Env(
 
   lazy val cli = wire[Cli]
 
+  lazy val mobile = wire[MobileApi]
+
   private lazy val linkCheck = wire[LinkCheck]
   lazy val chatFreshness = wire[ChatFreshness]
 
@@ -106,9 +112,8 @@ final class Env(
   Bus.sub[Lpv]:
     case Lpv.AllPgnsFromText(text, max, p) => p.completeWith(textLpvExpand.allPgnsFromText(text, max))
     case Lpv.LinkRenderFromText(text, p) => p.completeWith(textLpvExpand.linkRenderFromText(text))
-  Bus.sub[lila.core.security.GarbageCollect]:
-    case lila.core.security.GarbageCollect(userId) =>
-      accountTermination.garbageCollect(userId)
+  Bus.sub[lila.core.security.GarbageCollect]: gc =>
+    accountTermination.garbageCollect(gc.userId)
   Bus.sub[lila.core.playban.RageSitClose]: close =>
     accountTermination.lichessDisable(close.userId)
 
