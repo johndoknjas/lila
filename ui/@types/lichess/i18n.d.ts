@@ -3075,6 +3075,8 @@ interface I18n {
     clearBoard: string;
     /** Clear moves */
     clearSavedMoves: string;
+    /** Clear search */
+    clearSearch: string;
     /** Click here to read it */
     clickHereToReadIt: string;
     /** Click on the board to make your move, and prove you are human. */
@@ -3235,8 +3237,6 @@ interface I18n {
     drawn: string;
     /** Draw offer accepted */
     drawOfferAccepted: string;
-    /** Draw offer cancelled */
-    drawOfferCanceled: string;
     /** Draw offer sent */
     drawOfferSent: string;
     /** Draw rate */
@@ -3787,12 +3787,16 @@ interface I18n {
     numberMistakes: I18nPlural;
     /** Offer draw */
     offerDraw: string;
+    /** offline */
+    offline: string;
     /** OK */
     ok: string;
     /** One day */
     oneDay: string;
     /** One URL per line. */
     oneUrlPerLine: string;
+    /** online */
+    online: string;
     /** Online bots */
     onlineBots: string;
     /** Online players */
@@ -3955,6 +3959,8 @@ interface I18n {
     rating: string;
     /** Rating range */
     ratingRange: string;
+    /** Rating filters are locked because your rating is not stable. Playing rated games will increase stability. */
+    ratingRangeIsDisabledBecauseYourRatingIsProvisional: string;
     /** Rating stats */
     ratingStats: string;
     /** %1$s rating over %2$s games */
@@ -4057,6 +4063,8 @@ interface I18n {
     screenshotCurrentPosition: string;
     /** Scroll over computer variations to preview them. */
     scrollOverComputerVariationsToPreviewThem: string;
+    /** Search */
+    search: string;
     /** Search or start new conversation */
     searchOrStartNewDiscussion: string;
     /** Security */
@@ -4179,6 +4187,8 @@ interface I18n {
     success: string;
     /** Switch sides */
     switchSides: string;
+    /** Tags */
+    tags: string;
     /** Takeback */
     takeback: string;
     /** Takeback sent */
@@ -4849,6 +4859,8 @@ interface I18n {
     contributors: string;
     /** Copy PGN */
     copyChapterPgn: string;
+    /** Copy Raw PGN */
+    copyRawChapterPgn: string;
     /** Counterplay */
     counterplay: string;
     /** Create chapter */
@@ -5693,6 +5705,44 @@ interface I18n {
     xPublishedY: I18nFormat;
     /** You are blocked by the blog author. */
     youBlockedByBlogAuthor: string;
+  };
+  video: {
+    /** All %s video tags */
+    allNbVideoTags: I18nFormat;
+    /** All videos are free for everyone. */
+    allVideosAreFree: string;
+    /** Chess videos */
+    chessVideos: string;
+    /** Free chess videos */
+    freeChessVideos: string;
+    /** free for all */
+    freeForAll: string;
+    /** %s videos found */
+    nbVideosFound: I18nPlural;
+    /** No videos for these tags: */
+    noVideosForTheseTags: string;
+    /** Select tags to filter the videos. */
+    selectTagsToFilter: string;
+    /** That's all we got for these tags: */
+    thatsAllWeGotForTheseTags: string;
+    /** That's all we got for this search: "%s" */
+    thatsAllWeGotForThisSearchX: I18nFormat;
+    /** There are no results for "%s" */
+    thereAreNoResultsForX: I18nFormat;
+    /** Video not found! */
+    videoNotFound: string;
+    /** View more tags */
+    viewMoreTags: string;
+    /** We have carefully selected %s videos so far! */
+    weHaveCarefullySelectedX: I18nFormat;
+    /** %1$s by %2$s */
+    xByY: I18nFormat;
+    /** %s curated chess videos */
+    xCuratedChessVideos: I18nFormat;
+    /** %s free, carefully curated chess videos */
+    xFreeCarefullyCurated: I18nFormat;
+    /** %1$s with tags %2$s */
+    xWithTagsY: I18nFormat;
   };
   voiceCommands: {
     /** Cancel timer or deny a request */

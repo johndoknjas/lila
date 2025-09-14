@@ -36,7 +36,8 @@ final class Api(env: Env, gameC: => Game) extends LilaController(env):
     env.security.ipTrust.rateLimit(8_000, 1.day, "user.show.api.ip", _.proxyMultiplier(4))
 
   def user(name: UserStr) = OpenOrScoped(): ctx ?=>
-    userShowApiRateLimit(rateLimited, cost = if env.socket.isOnline.exec(name.id) then 1 else 2):
+    val cost = (if env.socket.isOnline.exec(name.id) then 1 else 2) + ctx.isAnon.so(1)
+    userShowApiRateLimit(rateLimited, cost = cost):
       userApi
         .extended(
           name,
@@ -378,7 +379,7 @@ final class Api(env: Env, gameC: => Game) extends LilaController(env):
     GlobalConcurrencyLimitPerIP.download(req.ipAddress)(makeSource)(sourceToCsv)
 
   private def sourceToCsv(source: Source[String, ?]): Result =
-    Ok.chunked(source.map(_ + "\n")).as(csvContentType).pipe(noProxyBuffer)
+    Ok.chunked(source.map(_ + "\n")).as(csvContentType).noProxyBuffer
 
   private[controllers] object GlobalConcurrencyLimitPerIP:
     val events = lila.web.ConcurrencyLimit[IpAddress](
