@@ -40,7 +40,7 @@ function getKeysOnRay(originKey: Key, direction: Direction, pov: Color): Key[] {
         break;
     }
     if (possibleKey[0] > -1 && possibleKey[0] < 8 && possibleKey[1] > -1 && possibleKey[1] < 8)
-      result.push(pos2key(possibleKey as Pos));
+      result.push(pos2key(possibleKey as Pos)!);
     else break;
   }
   return result;
