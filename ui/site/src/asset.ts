@@ -77,5 +77,5 @@ export const loadEsmPage = async (name: string) => {
 };
 
 export function embedChessground() {
-  return import(url('npm/chessground.min.js'));
+  return import(url('npm/chessground.js'));
 }
