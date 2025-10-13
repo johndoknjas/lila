@@ -10,22 +10,6 @@ import ScalatagsTemplate.{ *, given }
 final class UserShow(helpers: Helpers, bits: UserBits):
   import helpers.{ *, given }
 
-  def userDom(u: User)(using ctx: Context) =
-    span(
-      cls := userClass(u.id, none, withOnline = !u.isPatron, withPowerTip = false),
-      dataHref := userUrl(u.username)
-    )(
-      (!u.isPatron).so(lineIcon(u)),
-      titleTag(u.title),
-      u.username,
-      ctx.blind.so(
-        if isOnline.exec(u.id) then s" : ${trans.site.online.txt()}" else s" : ${trans.site.offline.txt()}"
-      ),
-      userFlair(u).map: flair =>
-        if ctx.isAuth then a(href := routes.Account.profile, title := trans.site.setFlair.txt())(flair)
-        else flair
-    )
-
   def mini(
       u: UserWithPerfs,
       playing: Option[Frag],
@@ -48,7 +32,7 @@ final class UserShow(helpers: Helpers, bits: UserBits):
               cls := "upt__info__top__flag",
               title := (!hasRoomForNameText).option(c.name)
             )(
-              img(cls := "flag", src := assetUrl(s"images/flags/${c.code}.png")),
+              img(cls := "flag", src := assetUrl(s"flags/${c.code}.png")),
               hasRoomForNameText.option(c.shortName)
             )
           ,

@@ -19,13 +19,14 @@ interface Site {
     baseUrl(): string;
     url(url: string, opts?: AssetUrlOpts): string;
     flairSrc(flair: Flair): string;
-    loadCss(href: string): Promise<void>;
+    loadCss(href: string, key?: string): Promise<void>;
     loadCssPath(key: string): Promise<void>;
     removeCss(href: string): void;
     removeCssPath(key: string): void;
     jsModule(name: string): string;
     loadIife(path: string, opts?: AssetUrlOpts): Promise<void>;
     loadEsm<T>(key: string, opts?: EsmModuleOpts): Promise<T>;
+    loadPieces: Promise<void>;
   };
   unload: { expected: boolean };
   redirect(o: RedirectTo, beep?: boolean): void;
@@ -50,6 +51,7 @@ interface EsmModuleOpts extends AssetUrlOpts {
 type PairOf<T> = [T, T];
 
 type Flair = string;
+type PatronColor = number;
 type Redraw = () => void;
 type RedirectTo = string | { url: string; cookie: Cookie };
 
@@ -197,6 +199,7 @@ interface LightUserNoId {
   title?: string;
   flair?: Flair;
   patron?: boolean;
+  patronColor?: PatronColor;
 }
 
 interface LightUser extends LightUserNoId {

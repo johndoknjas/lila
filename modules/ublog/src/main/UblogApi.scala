@@ -9,6 +9,7 @@ import lila.core.timeline as tl
 import lila.core.LightUser
 import lila.db.dsl.{ *, given }
 import lila.memo.PicfitApi
+import lila.memo.CacheApi.buildAsyncTimeout
 import lila.core.user.KidMode
 import lila.core.ublog.{ BlogsBy, Quality }
 import lila.core.timeline.{ Propagate, UblogPostLike }
@@ -22,13 +23,26 @@ final class UblogApi(
     shutupApi: ShutupApi,
     irc: lila.core.irc.IrcApi,
     automod: UblogAutomod,
-    config: UblogConfig
+    config: UblogConfig,
+    settingStore: lila.memo.SettingStore.Builder,
+    cacheApi: lila.memo.CacheApi
 )(using Executor, Scheduler)
     extends lila.core.ublog.UblogApi:
 
   import UblogBsonHandlers.{ *, given }
   import UblogBlog.Tier
   import UblogAutomod.Assessment
+
+  lazy val carouselSizeSetting =
+    settingStore[Int]("carouselSize", default = 9, text = "Homepage blog carousel size".some)
+
+  private val carouselCache = cacheApi.unit[List[UblogPost.PreviewPost]]:
+    _.refreshAfterWrite(10.seconds).buildAsyncTimeout(): _ =>
+      fetchCarouselFromDb().map(_.shuffled)
+
+  def myCarousel(using kid: KidMode) =
+    for posts <- carouselCache.get({})
+    yield posts.filter(_.isLichess || kid.no).take(carouselSizeSetting.get())
 
   def create(data: UblogForm.UblogPostData, author: User): Fu[UblogPost] =
     val post = data.create(author)
@@ -106,7 +120,7 @@ final class UblogApi(
         .find($doc("live" -> true, "featured.until" -> $gte(nowInstant)), previewPostProjection.some)
         .sort($doc("featured.until" -> -1))
         .cursor[UblogPost.PreviewPost](ReadPref.sec)
-        .list(config.carouselSize)
+        .list(carouselSizeSetting.get())
 
       queue <- colls.post
         .find(
@@ -115,7 +129,7 @@ final class UblogApi(
         )
         .sort($doc("featured.at" -> -1))
         .cursor[UblogPost.PreviewPost](ReadPref.sec)
-        .list(config.carouselSize - pinned.size)
+        .list(carouselSizeSetting.get() - pinned.size)
     yield UblogPost.CarouselPosts(pinned, queue)
 
   def postPreview(id: UblogPostId) =

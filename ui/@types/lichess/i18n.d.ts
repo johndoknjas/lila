@@ -331,8 +331,6 @@ interface I18n {
     resetRound: string;
     /** Round name */
     roundName: string;
-    /** Round number */
-    roundNumber: string;
     /** Score */
     score: string;
     /** Show players scores based on game results */
@@ -395,7 +393,7 @@ interface I18n {
     challengeDeclined: string;
     /** Challenges: %1$s */
     challengesX: I18nFormat;
-    /** Challenge to a game */
+    /** Challenge */
     challengeToPlay: string;
     /** Please send me a casual challenge instead. */
     declineCasual: string;
@@ -439,6 +437,10 @@ interface I18n {
     addStudent: string;
     /** A link to the class will be automatically added at the end of the message, so you don't need to include it yourself. */
     aLinkToTheClassWillBeAdded: string;
+    /** Allow messages between students */
+    allowMessagingBetweenStudents: string;
+    /** This only applies to the accounts you have created for your students. */
+    allowMessagingBetweenStudentsDesc: string;
     /** An invitation has been sent to %s */
     anInvitationHasBeenSentToX: I18nFormat;
     /** Apply to be a Lichess Teacher */
@@ -1935,8 +1937,6 @@ interface I18n {
     racerWrite: string;
     /** So you remember what this token is for */
     rememberTokenUse: string;
-    /** The scope codes can be found in the HTML code of the form. */
-    scopesCanBeFound: string;
     /** Read private studies and broadcasts */
     studyRead: string;
     /** Create, update, delete studies and broadcasts */
@@ -3035,6 +3035,10 @@ interface I18n {
     casual: string;
     /** Casual */
     casualTournament: string;
+    /** Challenge a friend */
+    challengeAFriend: string;
+    /** Challenge %s */
+    challengeX: I18nFormat;
     /** Change email */
     changeEmail: string;
     /** Change password */
@@ -3103,7 +3107,7 @@ interface I18n {
     collapseVariations: string;
     /** Community */
     community: string;
-    /** Compose message */
+    /** Message */
     composeMessage: string;
     /** Computer */
     computer: string;
@@ -3155,6 +3159,8 @@ interface I18n {
     createANewTournament: string;
     /** Newly created simuls */
     createdSimuls: string;
+    /** Create lobby game */
+    createLobbyGame: string;
     /** Create the game */
     createTheGame: string;
     /** Create the topic */
@@ -3377,10 +3383,14 @@ interface I18n {
     gameAsGIF: string;
     /** You have a game in progress with %s. */
     gameInProgress: I18nFormat;
+    /** Game mode */
+    gameMode: string;
     /** Game Over */
     gameOver: string;
     /** Games */
     games: string;
+    /** Game setup */
+    gameSetup: string;
     /** Games played */
     gamesPlayed: string;
     /** Game vs %1$s */
@@ -3431,11 +3441,9 @@ interface I18n {
     importedByX: I18nFormat;
     /** Import game */
     importGame: string;
-    /** Variations will be erased. To keep them, import the PGN via a study. */
-    importGameCaveat: string;
     /** This PGN can be accessed by the public. To import a game privately, use a study. */
     importGameDataPrivacyWarning: string;
-    /** Paste a game PGN to get a browsable replay, computer analysis, game chat and public shareable URL. */
+    /** Paste a game PGN to get a browsable replay of the main line, computer analysis, game chat and public shareable URL. */
     importGameExplanation: string;
     /** Import PGN */
     importPgn: string;
@@ -3867,6 +3875,8 @@ interface I18n {
     pieceSet: string;
     /** Play */
     play: string;
+    /** Play against computer */
+    playAgainstComputer: string;
     /** Play chess everywhere */
     playChessEverywhere: string;
     /** Play chess in style */
@@ -3887,10 +3897,6 @@ interface I18n {
     playSelectedMove: string;
     /** Play a variation to create conditional premoves */
     playVariationToCreateConditionalPremoves: string;
-    /** Play with a friend */
-    playWithAFriend: string;
-    /** Play with the computer */
-    playWithTheMachine: string;
     /** Play %s */
     playX: I18nFormat;
     /** We aim to provide a pleasant chess experience for everyone. */
@@ -3957,8 +3963,8 @@ interface I18n {
     ratedTournament: string;
     /** Rating */
     rating: string;
-    /** Rating range */
-    ratingRange: string;
+    /** Rating filter */
+    ratingFilter: string;
     /** Rating filters are locked because your rating is not stable. Playing rated games will increase stability. */
     ratingRangeIsDisabledBecauseYourRatingIsProvisional: string;
     /** Rating stats */
@@ -4341,7 +4347,7 @@ interface I18n {
     user: string;
     /** %1$s is better than %2$s of %3$s players. */
     userIsBetterThanPercentOfPerfTypePlayers: I18nFormat;
-    /** User name */
+    /** Username */
     username: string;
     /** This username is already in use, please try another one. */
     usernameAlreadyUsed: string;
@@ -4351,7 +4357,7 @@ interface I18n {
     usernameCharsInvalid: string;
     /** We couldn't find any user by this name: %s. */
     usernameNotFound: I18nFormat;
-    /** User name or email */
+    /** Username or email */
     usernameOrEmail: string;
     /** The username must start with a letter. */
     usernamePrefixInvalid: string;
@@ -4549,6 +4555,8 @@ interface I18n {
     youHaveJoinedTeamX: I18nFormat;
     /** You need an account to do that */
     youNeedAnAccountToDoThat: string;
+    /** You play as */
+    youPlayAs: string;
     /** You play the black pieces */
     youPlayTheBlackPieces: string;
     /** You play the white pieces */
@@ -4573,6 +4581,8 @@ interface I18n {
     yourQuestionMayHaveBeenAnswered: I18nFormat;
     /** Your rating */
     yourRating: string;
+    /** Your rating is %s */
+    yourRatingIsX: I18nFormat;
     /** Your score: %s */
     yourScore: I18nFormat;
     /** Your top weekly %1$s rating (%2$s) is too high */
@@ -4957,8 +4967,6 @@ interface I18n {
     loadAGameByUrl: string;
     /** Load games from PGN */
     loadAGameFromPgn: string;
-    /** Load games from %1$s or %2$s */
-    loadAGameFromXOrY: I18nFormat;
     /** Load a position from FEN */
     loadAPositionFromFen: string;
     /** Paste a lichess game URL<br>(like lichess.org/7fHIU0XI)<br>to load the game moves in the chapter. */
@@ -5425,8 +5433,6 @@ interface I18n {
     teamIntroductionHelp: string;
     /** Team leaders */
     teamLeaders: I18nPlural;
-    /** Team page */
-    teamPage: string;
     /** Recent members */
     teamRecentMembers: string;
     /** Teams */

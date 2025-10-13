@@ -16,20 +16,20 @@ object Dependencies {
 
   val cats = "org.typelevel" %% "cats-core" % "2.13.0"
   val alleycats = "org.typelevel" %% "alleycats-core" % "2.13.0"
-  val catsMtl = "org.typelevel" %% "cats-mtl" % "1.6-6ad7882-SNAPSHOT"
+  val catsMtl = "org.typelevel" %% "cats-mtl" % "1.6.0"
   val hasher = "com.roundeights" %% "hasher" % "1.3.1"
   val compression = "com.github.lichess-org" % "compression" % "3.1.1"
   val maxmind = "com.maxmind.geoip2" % "geoip2" % "4.0.1"
   val caffeine = "com.github.ben-manes.caffeine" % "caffeine" % "3.2.2" % "compile"
   val scaffeine = "com.github.blemale" %% "scaffeine" % "5.3.0" % "compile"
-  val googleOAuth = "com.google.auth" % "google-auth-library-oauth2-http" % "1.39.0"
+  val googleOAuth = "com.google.auth" % "google-auth-library-oauth2-http" % "1.39.1"
   val galimatias = "io.mola.galimatias" % "galimatias" % "0.2.2-NF"
   val scalatags = "com.lihaoyi" %% "scalatags" % "0.13.1"
   val lettuce = "io.lettuce" % "lettuce-core" % "6.8.1.RELEASE"
   val nettyTransport =
     ("io.netty" % s"netty-transport-native-$notifier" % "4.2.6.Final").classifier(s"$os-$arch")
-  val lilaSearch = "com.github.lichess-org.lila-search" %% "client" % "3.2.0"
-  val munit = "org.scalameta" %% "munit" % "1.1.1" % Test
+  val lilaSearch = "com.github.lichess-org.lila-search" %% "client" % "3.2.4"
+  val munit = "org.scalameta" %% "munit" % "1.2.0" % Test
   val uaparser = "org.uaparser" %% "uap-scala" % "0.20.0"
   val apacheText = "org.apache.commons" % "commons-text" % "1.14.0"
   val apacheMath = "org.apache.commons" % "commons-math3" % "3.6.1"
@@ -44,7 +44,7 @@ object Dependencies {
   }
 
   object chess {
-    val version = "17.9.6"
+    val version = "17.12.3"
     val core = "com.github.lichess-org.scalachess" %% "scalachess" % version
     val testKit = "com.github.lichess-org.scalachess" %% "scalachess-test-kit" % version % Test
     val playJson = "com.github.lichess-org.scalachess" %% "scalachess-play-json" % version
@@ -54,7 +54,7 @@ object Dependencies {
   }
 
   object scalalib {
-    val version = "11.9.0"
+    val version = "11.9.1"
     val core = "com.github.lichess-org.scalalib" %% "scalalib-core" % version
     val model = "com.github.lichess-org.scalalib" %% "scalalib-model" % version
     val playJson = "com.github.lichess-org.scalalib" %% "scalalib-play-json" % version

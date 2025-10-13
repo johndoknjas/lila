@@ -8,6 +8,7 @@ export interface RelayData {
   pinned?: { name: string; redirect: string; text?: string };
   note?: string;
   lcc?: boolean;
+  delayedUntil?: number;
 }
 
 export interface RelayGroup {
@@ -23,7 +24,8 @@ export type RoundId = string;
 export interface RelayTourPreview {
   id: TourId;
   name: string;
-  live?: boolean;
+  active: boolean; // see modules/relay/src/main/RelayTour.scala
+  live?: boolean; // see modules/relay/src/main/RelayTour.scala
 }
 
 export interface RelayRound {

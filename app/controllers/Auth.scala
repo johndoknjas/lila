@@ -28,7 +28,7 @@ final class Auth(env: Env, accountC: => Account) extends LilaController(env):
     )
 
   private def getReferrerOption(using ctx: Context): Option[String] =
-    get("referrer").flatMap(env.web.referrerRedirect.valid).orElse(ctx.req.session.get(api.AccessUri))
+    env.web.referrerRedirect.fromReq.orElse(ctx.req.session.get(api.AccessUri))
 
   private def getReferrer(using Context): String = getReferrerOption | routes.Lobby.home.url
 
@@ -76,7 +76,7 @@ final class Auth(env: Env, accountC: => Account) extends LilaController(env):
   def loginLang = LangPage(routes.Auth.login)(serveLogin)
 
   private def serveLogin(using ctx: Context) = NoBot:
-    val referrer = get("referrer").flatMap(env.web.referrerRedirect.valid)
+    val referrer = env.web.referrerRedirect.fromReq
     val switch = get("switch").orElse(get("as"))
     referrer.ifTrue(ctx.isAuth).ifTrue(switch.isEmpty) match
       case Some(url) => Redirect(url) // redirect immediately if already logged in
@@ -176,11 +176,11 @@ final class Auth(env: Env, accountC: => Account) extends LilaController(env):
     forms.signup.website.flatMap: form =>
       Ok.page(views.auth.signup(form))
 
-  private def authLog(user: UserName, email: Option[EmailAddress], msg: String)(using ctx: Context) =
-    env.security.ip2proxy
-      .ofReq(ctx.req)
-      .foreach: proxy =>
-        lila.log("auth").info(s"$proxy $user ${email.fold("-")(_.value)} $msg")
+  private def authLog(user: UserName, email: Option[EmailAddress], msg: String)(using ctx: Context) = for
+    proxy <- env.security.ip2proxy.ofReq(ctx.req)
+    creationApi <- env.user.repo.createdWithApiVersion(user.id)
+    cav = creationApi.fold("-")(_.toString)
+  do lila.log("auth").info(s"$proxy $user ${email.fold("-")(_.value)} cav:$cav $msg")
 
   def signupPost = OpenBody:
     NoTor:

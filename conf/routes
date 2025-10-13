@@ -114,6 +114,7 @@ GET   /blog/topic/:topic               controllers.Ublog.topic(topic, filter: Op
 GET   /blog/monthly                    controllers.Ublog.thisMonth(filter: Option[BlogQualityFilter] ?= None, by: BlogsBy ?= BlogsBy.newest, page: Int ?= 1)
 GET   /blog/monthly/:year/:month       controllers.Ublog.byMonth(year: Int, month: Int, filter: Option[BlogQualityFilter] ?= None, by: BlogsBy ?= BlogsBy.newest, page: Int ?= 1)
 GET   /blog.atom                       controllers.Main.movedPermanently(to = "/@/Lichess/blog.atom")
+GET   /api/blog/carousel               controllers.Ublog.apiCarousel
 GET   /blog/friends                    controllers.Ublog.friends(page: Int ?= 1)
 GET   /blog/liked                      controllers.Ublog.liked(page: Int ?= 1)
 GET   /blog/search                     controllers.Ublog.search(text ?= "", by: BlogsBy ?= BlogsBy.score, page: Int ?= 1)
@@ -136,6 +137,7 @@ POST  /ublog/:blogId/tier              controllers.Ublog.modBlog(blogId: String)
 POST  /ublog/$id<\w{8}>/adjust         controllers.Ublog.modPost(id: UblogPostId)
 POST  /ublog/$id<\w{8}>/pull           controllers.Ublog.modPull(id: UblogPostId)
 POST  /ublog/$id<\w{8}>/assess         controllers.Ublog.modAssess(id: UblogPostId)
+POST  /ublog/carousel/size             controllers.Ublog.modSetCarouselSize
 GET   /ublog/carousel                  controllers.Ublog.modShowCarousel
 POST  /upload/image/ublog/$id<\w{8}>   controllers.Ublog.image(id: UblogPostId)
 
@@ -321,6 +323,7 @@ GET   /$lang<\w\w\w?>/learn            controllers.Learn.indexLang(lang: Languag
 GET   /patron                          controllers.Plan.index(page: Int ?= 1)
 GET   /patron/thanks                   controllers.Plan.thanks
 GET   /patron/list                     controllers.Plan.list
+POST  /patron/style                    controllers.Plan.style
 POST  /patron/switch                   controllers.Plan.switch
 POST  /patron/cancel                   controllers.Plan.cancel
 POST  /patron/webhook                  controllers.Plan.webhook

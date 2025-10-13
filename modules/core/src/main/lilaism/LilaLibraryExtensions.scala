@@ -23,6 +23,14 @@ trait LilaLibraryExtensions extends CoreExports:
   val fuTrue = fuccess(true)
   val fuFalse = fuccess(false)
 
+  /* Raise error if the condition met */
+  inline def raiseIf[E, A](cond: Boolean, e: => E)(fa: => Fu[A]): FuRaise[E, A] =
+    if cond then e.raise else fa
+
+  /* Raise error if the condition not met */
+  inline def raiseUnless[E, A](cond: Boolean, e: => E)(fa: => Fu[A]): FuRaise[E, A] =
+    raiseIf(!cond, e)(fa)
+
   /* library-agnostic way to run a future after a delay */
   given (using sched: Scheduler, ec: Executor): FutureAfter =
     [A] => (duration: FiniteDuration) => (fua: () => Future[A]) => akka.pattern.after(duration, sched)(fua())
@@ -35,6 +43,12 @@ trait LilaLibraryExtensions extends CoreExports:
     def toTry(err: => String): Try[A] = toTryWith(LilaException(err))
 
     def err(message: => String): A = self.getOrElse(sys.error(message))
+
+    inline def raiseIfNone[E](err: => E): FuRaise[E, A] =
+      self.fold(err.raise)(fuccess)
+
+    inline def raiseIfSome[B](f: => Fu[B]): FuRaise[A, B] =
+      self.fold(f)(_.raise)
 
   extension (self: Boolean)
     def not: Boolean = !self
@@ -55,6 +69,8 @@ trait LilaLibraryExtensions extends CoreExports:
         err match
           case e: Exception => Future.failed(e)
           case _ => fufail(err.toString)
+
+    inline def raiseIfLeft: FuRaise[A, B] = v.fold(_.raise, fuccess)
 
   extension [A, B](v: (A, B)) def map2[C](f: B => C): (A, C) = (v._1, f(v._2))
 

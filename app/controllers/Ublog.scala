@@ -28,6 +28,10 @@ final class Ublog(env: Env) extends LilaController(env):
           posts <- canViewBlogOf(user, blog).so(env.ublog.paginator.byUser(user, true, page))
         yield views.ublog.ui.blogPage(user, blog, posts)
 
+  def apiCarousel = AnonOrScoped():
+    import env.ublog.jsonView.given
+    JsonOk(env.ublog.api.myCarousel)
+
   def drafts(username: UserStr, page: Int) = Auth { ctx ?=> me ?=>
     NotForKids:
       WithBlogOf(username, _.draft): (user, blog) =>
@@ -213,7 +217,18 @@ final class Ublog(env: Env) extends LilaController(env):
     env.ublog.api
       .fetchCarouselFromDb()
       .flatMap: carousel =>
-        Ok.page(views.ublog.ui.modShowCarousel(carousel))
+        Ok.page(views.ublog.ui.modShowCarousel(carousel, env.ublog.api.carouselSizeSetting.get()))
+  }
+
+  def modSetCarouselSize = SecureBody(_.ModerateBlog) { _ ?=> _ ?=>
+    bindForm(lila.ublog.UblogForm.carouselSize)(
+      _ => Redirect(routes.Ublog.modShowCarousel),
+      size =>
+        for
+          _ <- env.ublog.api.carouselSizeSetting.set(size)
+          _ <- env.mod.logApi.setCarouselSize(size)
+        yield Redirect(routes.Ublog.modShowCarousel)
+    )
   }
 
   def modPull(postId: UblogPostId) = Secure(_.ModerateBlog) { ctx ?=> me ?=>

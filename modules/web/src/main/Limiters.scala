@@ -17,7 +17,7 @@ final class Limiters(using Executor, lila.core.config.RateLimit):
     ("slow", 300, 1.day)
   )
 
-  val setupBotAi = RateLimit[UserId](50, 1.day, key = "setup.post.bot.ai")
+  val setupBotAi = RateLimit[UserId](20, 1.day, key = "setup.post.bot.ai")
 
   val boardApiConcurrency = ConcurrencyLimit[Either[Sri, UserId]](
     name = "Board API hook Stream API concurrency per user",
@@ -63,11 +63,6 @@ final class Limiters(using Executor, lila.core.config.RateLimit):
     500,
     10.minute,
     key = "challenge.create.ip"
-  )
-  val challengeBot = RateLimit[IpAddress](
-    400,
-    1.day,
-    key = "challenge.bot.create.ip"
   )
   val challengeUser = RateLimit.composite[UserId](
     key = "challenge.create.user"

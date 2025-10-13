@@ -110,6 +110,8 @@ final class Env(
 
   private lazy val delay = wire[RelayDelay]
 
+  export delay.delayedUntil
+
   // eager init to start the scheduler
   private val stats = wire[RelayStatsApi]
   export stats.getJson as statsJson
@@ -173,9 +175,12 @@ final class Env(
   Bus.sub[lila.study.StudyMembers.OnChange]: change =>
     studyPropagation.onStudyMembersChange(change.study)
 
-  Bus.sub[lila.core.study.GetRelayCrowd]:
-    case lila.core.study.GetRelayCrowd(studyId, promise) =>
+  Bus.sub[lila.core.relay.GetCrowd]:
+    case lila.core.relay.GetCrowd(studyId, promise) =>
       roundRepo.currentCrowd(studyId.into(RelayRoundId)).map(_.orZero).foreach(promise.success)
+
+  Bus.sub[lila.core.relay.GetActiveRounds]:
+    _.promise.completeWith(listing.active.map(_.map(_.asIdName)))
 
 private final class RelayColls(mainDb: lila.db.Db, yoloDb: lila.db.AsyncDb @@ lila.db.YoloDb):
   val round = mainDb(CollName("relay"))

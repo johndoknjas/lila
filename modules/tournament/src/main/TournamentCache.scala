@@ -10,7 +10,8 @@ final class TournamentCache(
     playerRepo: PlayerRepo,
     pairingRepo: PairingRepo,
     tournamentRepo: TournamentRepo,
-    cacheApi: CacheApi
+    cacheApi: CacheApi,
+    lightUserApi: lila.core.user.LightUserApi
 )(using Executor, Scheduler)(using translator: lila.core.i18n.Translator):
 
   object tourCache:
@@ -62,12 +63,11 @@ final class TournamentCache(
 
     val teamStanding =
       cacheApi[TourId, List[TeamBattle.RankedTeam]](32, "tournament.teamStanding"):
-        _.expireAfterWrite(1.second)
-          .buildAsyncFuture: id =>
-            tournamentRepo
-              .teamBattleOf(id)
-              .flatMapz:
-                playerRepo.bestTeamIdsByTour(id, _)
+        _.expireAfterWrite(1.second).buildAsyncFuture: id =>
+          tournamentRepo
+            .teamBattleOf(id)
+            .flatMapz:
+              playerRepo.bestTeamIdsByTour(id, _)
 
   private[tournament] object sheet:
 
@@ -89,7 +89,13 @@ final class TournamentCache(
       val key = keyOf(tour, userId)
       cache.getIfPresent(key).fold(recompute(tour, userId)) { prev =>
         val next = prev.map:
-          _.addResult(userId, pairing, Sheet.Version.V2, Sheet.Streakable(tour.streakable))
+          _.addResult(
+            userId,
+            pairing,
+            Sheet.Version.V2,
+            Sheet.Streakable(tour.streakable),
+            lightUserApi.isBotSync
+          )
         cache.put(key, next)
         next
       }
@@ -112,7 +118,14 @@ final class TournamentCache(
       pairingRepo
         .finishedByPlayerChronological(key.tourId, key.userId)
         .map:
-          arena.Sheet.buildFromScratch(key.userId, _, key.version, key.streakable, key.variant)
+          arena.Sheet.buildFromScratch(
+            key.userId,
+            _,
+            key.version,
+            key.streakable,
+            key.variant,
+            lightUserApi.isBotSync
+          )
 
     private val cache = cacheApi[SheetKey, Sheet](32_768, "tournament.sheet"):
       _.expireAfterAccess(4.minutes)

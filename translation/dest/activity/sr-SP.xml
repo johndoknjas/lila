@@ -3,9 +3,9 @@
   <string name="activity">Активност</string>
   <string name="hostedALiveStream">Одржали пренос уживо</string>
   <plurals name="supportedNbMonths">
-    <item quantity="one">Подржали lichess.org на %1$s месец као %2$s</item>
-    <item quantity="few">Подржали lichess.org на %1$s месеца као %2$s</item>
-    <item quantity="other">Подржали lichess.org на %1$s месеци као %2$s</item>
+    <item quantity="one">Подржаo/ла lichess.org на %1$s месец као %2$s</item>
+    <item quantity="few">Подржаo/ла lichess.org на %1$s месеца као %2$s</item>
+    <item quantity="other">Подржаo/ла lichess.org на %1$s месеци као %2$s</item>
   </plurals>
   <plurals name="practicedNbPositions">
     <item quantity="one">Вежбаo/ла %1$s позицију на %2$s</item>
@@ -28,9 +28,9 @@
     <item quantity="other">Поставио/ла %1$s порука у %2$s</item>
   </plurals>
   <plurals name="playedNbMoves">
-    <item quantity="one">Одиграли %1$s потез</item>
-    <item quantity="few">Одиграли %1$s потеза</item>
-    <item quantity="other">Одиграли %1$s потеза</item>
+    <item quantity="one">Одиграо/ла %1$s потез</item>
+    <item quantity="few">Одиграо/ла %1$s потеза</item>
+    <item quantity="other">Одиграо/ла %1$s потеза</item>
   </plurals>
   <plurals name="inNbCorrespondenceGames">
     <item quantity="one">у %1$s дописној партији</item>
@@ -73,15 +73,15 @@
     <item quantity="other">Такмичио/ла се у %s Арена турнира</item>
   </plurals>
   <plurals name="rankedInTournament">
-    <item quantity="one">Рангиран #%1$s (првих %2$s%%) са %3$s партијом у %4$s</item>
-    <item quantity="few">Рангиран #%1$s (првих %2$s%%) са %3$s партије у %4$s</item>
-    <item quantity="other">Рангиран #%1$s (првих %2$s%%) са %3$s партија у %4$s</item>
+    <item quantity="one">Рангиран/а #%1$s (првих %2$s%%) са %3$s партијом у %4$s</item>
+    <item quantity="few">Рангиран/а #%1$s (првих %2$s%%) са %3$s партије у %4$s</item>
+    <item quantity="other">Рангиран/а #%1$s (првих %2$s%%) са %3$s партија у %4$s</item>
   </plurals>
   <string name="rankedInSwissTournament">Рангиран #%1$s у %2$s</string>
   <string name="signedUp">Пријавио/ла се за lichess.org</string>
   <plurals name="joinedNbTeams">
-    <item quantity="one">Ушли у %s тим</item>
-    <item quantity="few">Ушли у %s тима</item>
-    <item quantity="other">Ушли у %s тимова</item>
+    <item quantity="one">Придружио/ла се %s тиму</item>
+    <item quantity="few">Придружио/ла се %s тима</item>
+    <item quantity="other">Придружио/ла се %s тимова</item>
   </plurals>
 </resources>

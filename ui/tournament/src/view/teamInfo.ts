@@ -25,7 +25,7 @@ export default function (ctrl: TournamentController): VNode | undefined {
       hook: bind('click', () => ctrl.showTeamInfo(data.id), ctrl.redraw),
     }),
     h('div.stats', [
-      h('h2', [teamTag]),
+      h('h2', h('a', { attrs: { href: `/team/${data.id}` } }, teamTag)),
       h('table', [
         numberRow(i18n.site.players, data.nbPlayers),
         ...(data.rating
@@ -39,8 +39,19 @@ export default function (ctrl: TournamentController): VNode | undefined {
                 : []),
             ]
           : []),
-        h('tr', h('th', h('a', { attrs: { href: '/team/' + data.id } }, i18n.team.teamPage))),
       ]),
+      data.joined
+        ? 'You are part of this team'
+        : h(
+            'form',
+            {
+              attrs: {
+                method: 'post',
+                action: `/team/${data.id}/join?referrer=${location.pathname}#team/${data.id}`,
+              },
+            },
+            [h('button.button.button-empty', { attrs: { type: 'submit' } }, i18n.team.joinTeam)],
+          ),
     ]),
     h('div', [
       h(

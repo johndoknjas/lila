@@ -380,11 +380,11 @@ final class JsonView(
           "teams" -> teams
         )
 
-  private val teamStandingJsonCache = cacheApi[TourId, JsArray](16, "tournament.teamStanding"):
+  private val teamStandingJsonCache = cacheApi[TourId, JsArray](16, "tournament.teamStandingJson"):
     _.expireAfterWrite(500.millis)
       .buildAsyncFuture(fetchAndRenderTeamStandingJson(TeamBattle.displayTeams))
 
-  private val bigTeamStandingJsonCache = cacheApi[TourId, JsArray](4, "tournament.teamStanding.big"):
+  private val bigTeamStandingJsonCache = cacheApi[TourId, JsArray](4, "tournament.teamStandingJson.big"):
     _.expireAfterWrite(2.seconds)
       .buildAsyncFuture(fetchAndRenderTeamStandingJson(TeamBattle.maxTeams))
 
@@ -401,7 +401,7 @@ final class JsonView(
       "score" -> rt.score,
       "players" -> rt.leaders.map: p =>
         Json.obj(
-          "user" -> lightUserApi.sync(p.userId),
+          "user" -> lightUserApi.syncFallback(p.userId),
           "score" -> p.score
         )
     )
@@ -445,8 +445,10 @@ final class JsonView(
                               .add("fire" -> p.fire)
                   )
 
-  def teamInfo(tour: Tournament, teamId: TeamId): Fu[Option[JsObject]] =
-    tour.isTeamBattle.optionFu(teamInfoCache.get(tour.id -> teamId))
+  def teamInfo(tour: Tournament, teamId: TeamId, joined: Boolean): Fu[Option[JsObject]] =
+    tour.isTeamBattle
+      .optionFu(teamInfoCache.get(tour.id -> teamId))
+      .map2(_.add("joined", joined))
 
   private[tournament] def commonTournamentJson(
       tour: Tournament,

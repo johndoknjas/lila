@@ -10,7 +10,7 @@ import lila.ui.*
 import lila.core.LightUser
 import lila.plan.PlanPricingApi.pricingWrites
 
-final class PlanUi(helpers: Helpers)(contactEmail: EmailAddress):
+final class PlanUi(helpers: Helpers)(style: PlanStyle, contactEmail: EmailAddress):
   import helpers.{ *, given }
   import trans.patron as trp
 
@@ -68,26 +68,27 @@ final class PlanUi(helpers: Helpers)(contactEmail: EmailAddress):
             )
           ),
           div(cls := "page-menu__content box")(
-            patron
-              .ifTrue(ctx.me.so(_.isPatron))
-              .map { p =>
-                div(cls := "banner one_time_active")(
-                  iconTag(patronIconChar),
-                  div(
-                    h1(cls := "box__top")(trp.thankYou()),
-                    if p.isLifetime then trp.youHaveLifetime()
-                    else
-                      p.expiresAt.map: expires =>
-                        frag(
-                          trp.patronUntil(showDate(expires)),
-                          br,
-                          trp.ifNotRenewedThenAccountWillRevert()
-                        )
+            patron.match
+              case Some(patron) =>
+                frag(
+                  div(cls := "banner one_time_active")(
+                    iconTag(patronIconChar),
+                    div(
+                      h1(cls := "box__top")(trp.thankYou()),
+                      if ctx.me.exists(_.plan.lifetime) then trp.youHaveLifetime()
+                      else
+                        patron.expiresAt.map: expires =>
+                          frag(
+                            trp.patronUntil(showDate(expires)),
+                            br,
+                            trp.ifNotRenewedThenAccountWillRevert()
+                          )
+                    ),
+                    iconTag(patronIconChar)
                   ),
-                  iconTag(patronIconChar)
+                  style.selector.map(_(cls := "box__pad"))
                 )
-              }
-              .getOrElse(
+              case None =>
                 div(cls := "banner moto")(
                   iconTag(patronIconChar),
                   div(
@@ -95,8 +96,7 @@ final class PlanUi(helpers: Helpers)(contactEmail: EmailAddress):
                     p(trp.noAdsNoSubs())
                   ),
                   iconTag(patronIconChar)
-                )
-              ),
+                ),
             div(cls := "box__pad")(
               div(cls := "wrapper")(
                 div(cls := "text")(
@@ -173,9 +173,9 @@ final class PlanUi(helpers: Helpers)(contactEmail: EmailAddress):
                           tpe := "radio",
                           name := "freq",
                           id := "freq_lifetime",
-                          patron.exists(_.isLifetime).option(disabled),
+                          ctx.me.exists(_.plan.lifetime).option(disabled),
                           value := "lifetime",
-                          cls := List("lifetime-check" -> patron.exists(_.isLifetime))
+                          cls := List("lifetime-check" -> ctx.me.exists(_.plan.lifetime))
                         ),
                         label(`for` := "freq_lifetime")(trp.lifetime())
                       )
@@ -319,7 +319,6 @@ final class PlanUi(helpers: Helpers)(contactEmail: EmailAddress):
 
   def indexPayPal(
       me: User,
-      patron: Patron,
       subscription: PayPalSubscription,
       gifts: List[Charge.Gift]
   )(using Context) =
@@ -331,10 +330,11 @@ final class PlanUi(helpers: Helpers)(contactEmail: EmailAddress):
             h1(
               userLink(me),
               " • ",
-              if patron.isLifetime then strong(trp.lifetimePatron())
+              if me.plan.lifetime then strong(trp.lifetimePatron())
               else trp.patronForMonths(me.plan.months)
             )
           ),
+          style.selector,
           table(cls := "all")(
             tbody(
               tr(
@@ -397,7 +397,6 @@ final class PlanUi(helpers: Helpers)(contactEmail: EmailAddress):
 
   def indexStripe(
       me: User,
-      patron: Patron,
       info: CustomerInfo.Monthly,
       stripePublicKey: String,
       pricing: PlanPricing,
@@ -413,10 +412,11 @@ final class PlanUi(helpers: Helpers)(contactEmail: EmailAddress):
             h1(
               userLink(me),
               " • ",
-              if patron.isLifetime then strong(trp.lifetimePatron())
+              if me.plan.lifetime then strong(trp.lifetimePatron())
               else trp.patronForMonths(me.plan.months)
             )
           ),
+          style.selector,
           table(cls := "all")(
             tbody(
               tr(

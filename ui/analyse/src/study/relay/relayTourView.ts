@@ -4,7 +4,14 @@ import * as licon from 'lib/licon';
 import { bind, dataIcon, onInsert, hl, type LooseVNode } from 'lib/snabbdom';
 import type { VNode } from 'snabbdom';
 import { innerHTML, richHTML } from 'lib/richText';
-import type { RelayData, RelayGroup, RelayRound, RelayTourDates, RelayTourInfo } from './interfaces';
+import type {
+  RelayData,
+  RelayGroup,
+  RelayRound,
+  RelayTourDates,
+  RelayTourInfo,
+  RelayTourPreview,
+} from './interfaces';
 import { view as multiBoardView } from '../multiBoard';
 import { defined, memoize } from 'lib';
 import type StudyCtrl from '../studyCtrl';
@@ -46,7 +53,10 @@ export const tourSide = (ctx: RelayViewContext, kid: LooseVNode) => {
   const { ctrl, study, relay } = ctx;
   const empty = study.chapters.list.looksNew();
   const resizeId =
-    !isTouchDevice() && displayColumns() > (ctx.hasRelayTour ? 1 : 2) && `relayTour/${relay.data.tour.id}`;
+    !ctrl.isEmbed &&
+    !isTouchDevice() &&
+    displayColumns() > (ctx.hasRelayTour ? 1 : 2) &&
+    `relayTour/${relay.data.tour.id}`;
   return hl(
     'aside.relay-tour__side',
     {
@@ -68,7 +78,7 @@ export const tourSide = (ctx: RelayViewContext, kid: LooseVNode) => {
               hl(
                 'button.relay-tour__side__name',
                 { hook: bind('mousedown', relay.tourShow.toggle, relay.redraw) },
-                relay.roundName(),
+                relay.round.name,
               ),
               !ctrl.isEmbed &&
                 hl('button.streamer-show.data-count', {
@@ -116,7 +126,7 @@ export const tourSide = (ctx: RelayViewContext, kid: LooseVNode) => {
 };
 
 const startCountdown = (relay: RelayCtrl) => {
-  const round = relay.currentRound(),
+  const round = relay.round,
     startsAt = defined(round.startsAt) && new Date(round.startsAt),
     date = startsAt && hl('time', commonDateFormat(startsAt));
   return hl('div.relay-tour__side__empty', { attrs: dataIcon(licon.RadioTower) }, [
@@ -208,7 +218,7 @@ const share = (ctx: RelayViewContext) => {
       copyMeInput(path.startsWith('/') ? `${baseUrl()}${path}` : path),
       help,
     ]);
-  const roundName = ctx.relay.roundName();
+  const roundName = ctx.relay.round.name;
   const { tour, group } = ctx.relay.data;
   return hl(
     'div.relay-tour__share-all',
@@ -287,16 +297,11 @@ const groupSelect = (ctx: RelayViewContext, group: RelayGroup) => {
                 class: {
                   current: tour.id === ctx.relay.data.tour.id,
                   ['ongoing-tour']: !!tour.live,
+                  ['finished-tour']: !!tour.live,
                 },
                 attrs: { href: ctx.study.embeddablePath(`/broadcast/-/${tour.id}`) },
               },
-              [
-                tour.name,
-                tour.live &&
-                  hl('span.tour-state.ongoing', {
-                    attrs: { ...dataIcon(licon.DiscBig), title: i18n.broadcast.ongoing },
-                  }),
-              ],
+              [tour.name, tourStateIcon(tour, false)],
             ),
           ),
         ),
@@ -305,10 +310,23 @@ const groupSelect = (ctx: RelayViewContext, group: RelayGroup) => {
   );
 };
 
+const tourStateIcon = (tour: RelayTourPreview, titleAsText: boolean) =>
+  tour.live
+    ? hl('span.tour-state.ongoing', {
+        attrs: { ...dataIcon(licon.DiscBig), title: i18n.broadcast.ongoing },
+      })
+    : tour.active === false
+      ? hl(
+          'span.tour-state.finished',
+          { attrs: { ...dataIcon(licon.Checkmark), title: !titleAsText && i18n.site.finished } },
+          titleAsText && i18n.site.finished,
+        )
+      : undefined;
+
 const roundSelect = (relay: RelayCtrl, study: StudyCtrl) => {
   const toggle = relay.roundSelectShow;
   const clickHook = { hook: bind('click', toggle.toggle, relay.redraw) };
-  const round = relay.currentRound();
+  const round = relay.round;
   const icon = roundStateIcon(round, true);
   return hl(
     'div.mselect.relay-tour__mselect.relay-tour__round-select',
@@ -387,18 +405,15 @@ const roundSelect = (relay: RelayCtrl, study: StudyCtrl) => {
 const games = (ctx: RelayViewContext) => [
   header(ctx),
   ctx.study.chapters.list.looksNew()
-    ? hl(
-        'div.relay-tour__note',
-        hl('div', [
-          hl('div', i18n.broadcast.noBoardsYet),
-          ctx.study.members.myMember() &&
-            hl(
-              'small',
-              i18n.broadcast.boardsCanBeLoaded.asArray(
-                hl('a', { attrs: { href: '/broadcast/app' } }, 'Broadcaster App'),
-              ),
+    ? renderNote(
+        hl('div', i18n.broadcast.noBoardsYet),
+        ctx.study.members.myMember() &&
+          hl(
+            'small',
+            i18n.broadcast.boardsCanBeLoaded.asArray(
+              hl('a', { attrs: { href: '/broadcast/app' } }, 'Broadcaster App'),
             ),
-        ]),
+          ),
       )
     : multiBoardView(ctx.study.multiBoard, ctx.study),
   !ctx.ctrl.isEmbed && showSource(ctx.relay.data),
@@ -410,6 +425,8 @@ const teams = (ctx: RelayViewContext) => [
 ];
 
 const stats = (ctx: RelayViewContext) => [header(ctx), statsView(ctx.relay.stats)];
+
+const renderNote = (title: VNode, desc?: VNode) => hl('div.relay-tour__note', hl('div', [title, desc]));
 
 const header = (ctx: RelayViewContext) => {
   const { ctrl, relay } = ctx;
@@ -430,23 +447,29 @@ const header = (ctx: RelayViewContext) => {
     ]),
     studyD && hl('div.relay-tour__note.pinned', hl('div', [hl('div', { hook: richHTML(studyD, false) })])),
     d.tour.communityOwner &&
-      hl(
-        'div.relay-tour__note',
-        hl('div', [
-          hl('div', i18n.broadcast.communityBroadcast),
-          hl('small', i18n.broadcast.createdAndManagedBy.asArray(userLink(d.tour.communityOwner))),
-        ]),
+      renderNote(
+        hl('div', i18n.broadcast.communityBroadcast),
+        hl('small', i18n.broadcast.createdAndManagedBy.asArray(userLink(d.tour.communityOwner))),
       ),
     d.note &&
-      hl(
-        'div.relay-tour__note',
-        hl('div', [
-          hl('div', { hook: richHTML(d.note, false) }),
-          hl('small', 'This note is visible to contributors only.'),
-        ]),
+      renderNote(
+        hl('div', { hook: richHTML(d.note, false) }),
+        hl('small', 'This note is visible to contributors only.'),
       ),
+    delayedUntil(ctx),
     hl('div.relay-tour__nav', [makeTabs(ctrl), subscribe(relay, ctrl)]),
   ];
+};
+
+const delayedUntil = (ctx: RelayViewContext) => {
+  const date = ctx.relay.data.delayedUntil;
+  return (
+    date &&
+    renderNote(
+      hl('div', ['Transmission will start ', date > Date.now() ? timeago(date) : 'momentarily']),
+      hl('small', 'The tournament organizers have requested that moves be delayed.'),
+    )
+  );
 };
 
 const subscribe = (relay: RelayCtrl, ctrl: AnalyseCtrl) =>

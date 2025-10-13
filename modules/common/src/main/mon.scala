@@ -254,6 +254,7 @@ object mon:
     private val userSegment = timer("user.segment")
     def segment(seg: String) = userSegment.withTag("segment", seg)
     def leaderboardCompute = future("user.leaderboard.compute")
+    def weeklyStableRanking(perf: PerfKey) = future("user.weeklyStableRanking", perf.value)
   object actor:
     def queueSize(name: String) = gauge("trouper.queueSize").withTag("name", name)
   object mod:
@@ -305,10 +306,14 @@ object mon:
           "proxy" -> proxy.getOrElse("none")
         )
     val dedup = counter("relay.fetch.dedup").withoutTags()
-    def push(name: String, user: UserName, client: String)(moves: Int, errors: Int) =
-      val ts = tags("name" -> name.escape, "user" -> user, "client" -> client.escape)
-      histogram("relay.push.moves").withTags(ts).record(moves)
-      histogram("relay.push.errors").withTags(ts).record(errors)
+    def push(name: String, user: UserName, client: String)(games: Int, moves: Int, errors: Int) =
+      val histogramTags = tags("name" -> name.escape, "user" -> user, "client" -> client.escape)
+      val counterTags = tags("name" -> name.escape, "user" -> user)
+      histogram("relay.push.games").withTags(histogramTags).record(games)
+      histogram("relay.push.moves").withTags(histogramTags).record(moves)
+      histogram("relay.push.errors").withTags(histogramTags).record(errors)
+      counter("relay.push.games.nb").withTags(counterTags).increment(games)
+      counter("relay.push.moves.nb").withTags(counterTags).increment(moves)
 
   object bot:
     def moves(username: String) = counter("bot.moves").withTag("name", username)
@@ -689,6 +694,7 @@ object mon:
   object ublog:
     def create(user: UserId) = counter("ublog.create").withTag("user", user)
     def view = counter("ublog.view").withoutTags()
+    def pgnsFromText = future("ublog.pgnsFromText")
     object automod:
       val request = future("ublog.automod.request")
       def quality(q: String) = counter("ublog.automod.quality").withTag("quality", q)

@@ -26,7 +26,7 @@ case class RelayGame(
   def withoutMoves = copy(root = root.withoutChildren)
 
   def resetToSetup = withoutMoves.copy(
-    tags = tags.copy(value = tags.value.filter(_.name != Tag.Result)),
+    tags = tags - Tag.Result,
     points = None
   )
 
@@ -67,6 +67,7 @@ private object RelayGame:
   val fideIdTags: TagNames = List(_.WhiteFideId, _.BlackFideId)
   val whiteTags: TagNames = List(_.White, _.WhiteFideId)
   val blackTags: TagNames = List(_.Black, _.BlackFideId)
+  val unplayedTag = Tag(_.Termination, "Unplayed")
 
   def fromChapter(c: lila.study.Chapter) = RelayGame(
     tags = c.tags,
@@ -77,17 +78,17 @@ private object RelayGame:
 
   def fromStudyImport(res: lila.study.StudyPgnImport.Result): RelayGame =
     val fixedTags = cleanOrRemovePlayerNames:
-      removeDateTag:
-        Tags:
-          // remove wrong ongoing result tag if the board has a mate on it
-          if res.ending.isDefined && res.tags(_.Result).has("*") then
-            res.tags.value.filter(_ != Tag(_.Result, "*"))
-          // normalize result tag (e.g. 0.5-0 ->  1/2-0)
-          else
-            res.tags.value.map: tag =>
-              if tag.name == Tag.Result
-              then tag.copy(value = Outcome.showPoints(Outcome.pointsFromResult(tag.value)))
-              else tag
+      // remove wrong ongoing result tag if the board has a mate on it
+      if res.ending.isDefined && res.tags(_.Result).has("*") then
+        res.tags.map(_.filter(_ != Tag(_.Result, "*")))
+      // normalize result tag (e.g. 0.5-0 ->  1/2-0)
+      else
+        res.tags.map(_.map: tag =>
+          if tag.name == Tag.Result
+          then tag.copy(value = Outcome.showPoints(Outcome.pointsFromResult(tag.value)))
+          else tag)
+    .pipe(_ - Tag.Date) // trust the chapter date, not the source date
+      .pipe(toggleUnplayedTermination(_, res))
     RelayGame(
       tags = fixedTags,
       variant = res.variant,
@@ -98,18 +99,18 @@ private object RelayGame:
       points = res.ending.map(_.points)
     ).applyTagClocksToLastMoves
 
-  private def cleanOrRemovePlayerNames(tags: Tags) = tags.copy(
-    value = tags.value.flatMap: tag =>
+  private def cleanOrRemovePlayerNames(tags: Tags) = tags.map:
+    _.flatMap: tag =>
       if tag.name != Tag.White && tag.name != Tag.Black then tag.some
       else
         val clean = tag.value.trim
         Option.when(clean.size > 1 && clean.toLowerCase != "unknown"):
           tag.copy(value = clean)
-  )
 
-  // trust the chapter date, not the source date
-  private def removeDateTag(tags: Tags) =
-    tags.copy(value = tags.value.filterNot(_.name == Tag.Date))
+  private def toggleUnplayedTermination(tags: Tags, res: lila.study.StudyPgnImport.Result) =
+    if res.ending.isDefined && res.root.mainline.sizeIs < 2
+    then tags + unplayedTag
+    else tags.map(_.filter(_ != unplayedTag))
 
   import scalalib.Iso
   import chess.format.pgn.InitialComments
