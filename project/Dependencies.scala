@@ -29,7 +29,7 @@ object Dependencies {
   val nettyTransport =
     ("io.netty" % s"netty-transport-native-$notifier" % "4.2.6.Final").classifier(s"$os-$arch")
   val lilaSearch = "com.github.lichess-org.lila-search" %% "client" % "3.2.4"
-  val munit = "org.scalameta" %% "munit" % "1.2.0" % Test
+  val munit = "org.scalameta" %% "munit" % "1.2.1" % Test
   val uaparser = "org.uaparser" %% "uap-scala" % "0.20.0"
   val apacheText = "org.apache.commons" % "commons-text" % "1.14.0"
   val apacheMath = "org.apache.commons" % "commons-math3" % "3.6.1"
@@ -45,20 +45,24 @@ object Dependencies {
 
   object chess {
     val version = "17.12.3"
-    val core = "com.github.lichess-org.scalachess" %% "scalachess" % version
-    val testKit = "com.github.lichess-org.scalachess" %% "scalachess-test-kit" % version % Test
-    val playJson = "com.github.lichess-org.scalachess" %% "scalachess-play-json" % version
-    val rating = "com.github.lichess-org.scalachess" %% "scalachess-rating" % version
-    val tiebreak = "com.github.lichess-org.scalachess" %% "scalachess-tiebreak" % version
+    val org = "com.github.lichess-org.scalachess"
+    // val org = "org.lichess" // for publishLocal
+    val core = org %% "scalachess" % version
+    val testKit = org %% "scalachess-test-kit" % version % Test
+    val playJson = org %% "scalachess-play-json" % version
+    val rating = org %% "scalachess-rating" % version
+    val tiebreak = org %% "scalachess-tiebreak" % version
     def bundle = Seq(core, testKit, playJson, rating, tiebreak)
   }
 
   object scalalib {
-    val version = "11.9.1"
-    val core = "com.github.lichess-org.scalalib" %% "scalalib-core" % version
-    val model = "com.github.lichess-org.scalalib" %% "scalalib-model" % version
-    val playJson = "com.github.lichess-org.scalalib" %% "scalalib-play-json" % version
-    val lila = "com.github.lichess-org.scalalib" %% "scalalib-lila" % version
+    val version = "11.9.4"
+    val org = "com.github.lichess-org.scalalib"
+    // val org = "org.lichess" // for publishLocal
+    val core = org %% "scalalib-core" % version
+    val model = org %% "scalalib-model" % version
+    val playJson = org %% "scalalib-play-json" % version
+    val lila = org %% "scalalib-lila" % version
     def bundle = Seq(core, model, playJson, lila)
   }
 
@@ -82,7 +86,7 @@ object Dependencies {
 
   object reactivemongo {
     val driver = ("org.reactivemongo" %% "reactivemongo" % "1.1.0-RC16")
-    val stream = "org.reactivemongo" %% "reactivemongo-akkastream" % "1.1.0-RC16"
+    val stream = "org.reactivemongo" %% "reactivemongo-akkastream" % "1.1.0-RC18"
     val shaded = "org.reactivemongo" % s"reactivemongo-shaded-native-$os-$dashArch" % "1.1.0-RC15"
     // val kamon  = "org.reactivemongo" %% "reactivemongo-kamon"         % "1.0.8"
     def bundle = Seq(driver, stream)
@@ -90,7 +94,7 @@ object Dependencies {
 
   object play {
     val playVersion = "2.8.18-lila_3.22"
-    val json = "org.playframework" %% "play-json" % "3.0.5"
+    val json = "org.playframework" %% "play-json" % "3.0.6"
     val api = "com.typesafe.play" %% "play" % playVersion
     val server = "com.typesafe.play" %% "play-server" % playVersion
     val netty = "com.typesafe.play" %% "play-netty-server" % playVersion

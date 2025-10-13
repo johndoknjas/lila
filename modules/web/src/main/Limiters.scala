@@ -1,8 +1,12 @@
 package lila.web
 
+import play.api.mvc.RequestHeader
+
 import lila.core.net.{ IpAddress, Bearer }
 import lila.core.socket.Sri
+import lila.core.security.IsProxy
 import lila.memo.RateLimit
+import lila.common.HTTPRequest
 
 final class Limiters(using Executor, lila.core.config.RateLimit):
 
@@ -138,9 +142,26 @@ final class Limiters(using Executor, lila.core.config.RateLimit):
   val teamKick =
     RateLimit.composite[IpAddress](key = "team.kick.api.ip")(("fast", 10, 2.minutes), ("slow", 50, 1.day))
 
-  val openingStatsProxy = RateLimit.composite[UserId](
-    key = "opening.stats.proxy.user"
-  )(
-    ("fast", 30, 10.minutes),
-    ("slow", 100, 1.day)
-  )
+  object enumeration:
+
+    private val maxCost = 3
+
+    private val openingLimiter = RateLimit[IsProxy](15 * maxCost, 1.minute, "opening.byKeyAndMoves.proxy")
+    def opening[A]: ProxyLimit[A] = proxyLimit(openingLimiter)
+
+    private val userProfileLimiter = RateLimit[IsProxy](60 * maxCost, 1.minute, "user.profile.page.proxy")
+    def userProfile[A]: ProxyLimit[A] = proxyLimit(userProfileLimiter)
+
+    private type ProxyLimit[A] = (IsProxy, RequestHeader, Option[Me]) ?=> (=> Fu[A]) => (=> Fu[A]) => Fu[A]
+
+    private def proxyLimit[A](limiter: RateLimiter[IsProxy]): ProxyLimit[A] =
+      (proxy, req, me) ?=>
+        default =>
+          f =>
+            if proxy.no || me.isDefined then f
+            else limiter(proxy, default, cost, msg = HTTPRequest.ipAddressStr(req))(f)
+
+    private def cost(using proxy: IsProxy): Int =
+      if proxy.isFloodish then maxCost
+      else if proxy.isVpn then 1
+      else 0
