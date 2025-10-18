@@ -102,7 +102,7 @@ export class LevelCtrl {
         },
       },
       premovable: { enabled: true },
-      drawable: { enabled: true, eraseOnMovablePieceClick: true },
+      drawable: { enabled: true, eraseOnMouchDown: true },
       highlight: { lastMove: true },
       animation: {
         enabled: false, // prevent piece animation during transition
