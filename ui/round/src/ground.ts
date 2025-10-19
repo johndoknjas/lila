@@ -63,6 +63,7 @@ export function makeConfig(ctrl: RoundController): CgConfig {
     premovable: {
       enabled: data.pref.enablePremove,
       showDests: data.pref.destination && !ctrl.blindfold(),
+      castle: data.game.variant.key !== 'antichess',
       events: {
         set: hooks.onPremove,
         unset: hooks.onCancelPremove,
