@@ -10,6 +10,7 @@ body:
     id: url
     attributes:
       label: Exact URL of where the bug happened
+      value: "<br/>"
     validations:
       required: true
   - type: textarea
@@ -27,12 +28,14 @@ body:
     id: expected
     attributes:
       label: What did you expect to happen?
+      value: "<br/>"
     validations:
       required: true
   - type: textarea
     id: outcome
     attributes:
       label: What happened instead?
+      value: "<br/>"
     validations:
       required: true
   - type: input
