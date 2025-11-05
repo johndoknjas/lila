@@ -12,8 +12,8 @@ importers:
         specifier: file:../chessground
         version: file:../chessground
       '@lichess-org/pgn-viewer':
-        specifier: 2.5.2
-        version: 2.5.2
+        specifier: 2.4.7
+        version: 2.4.7
       '@types/lichess':
         specifier: workspace:*
         version: link:ui/@types/lichess
@@ -561,6 +561,9 @@ packages:
     resolution: {integrity: sha512-KHp2IflsnGywDjBWDkR9iEqiWSpc8GIi0lgTT3mOElT0PP1tG26P4tmFI2YvAdzgq9RGyoHZQEIEdZy6Ec5xCA==}
     engines: {node: '>=6.9.0'}
 
+  '@badrap/result@0.2.13':
+    resolution: {integrity: sha512-Qvyzz0dmGY0h8pwvBFo1BznAKf5Y5NXIDiqhPALWtfU7oHbAToCtPu4FlYQ3uysskSWLx8GUiyhe0nv0nDd/7Q==}
+
   '@badrap/result@0.3.1':
     resolution: {integrity: sha512-ECvpsyZYknoRD0peG1K+UkX5llld3TyK1Ot9Cq2epSoWK19nyzpGKVl98sadSmohu5wHNuiDl+Ex9SVdcIjiFg==}
     engines: {node: '>= 22'}
@@ -833,8 +836,8 @@ packages:
   '@lichess-org/chessground@file:../chessground':
     resolution: {directory: ../chessground, type: directory}
 
-  '@lichess-org/pgn-viewer@2.5.2':
-    resolution: {integrity: sha512-RPbq5xOa80/p1B7DkZQe4HDJN18gf7SANn8nXfDOmCi9tmqbVAPEtGs7W+qw62B5EZpU98gXxfomZ3Cr/rOkpA==}
+  '@lichess-org/pgn-viewer@2.4.7':
+    resolution: {integrity: sha512-ybq/ZXvfcVxR+pasCBdQ0BkJGgDdpW84KioexJyD00oT2ERyTpnwMBxDaqL6/3uv1WPUPfBPwbaeaDcknqlvTg==}
 
   '@lichess-org/stockfish-web@0.0.14':
     resolution: {integrity: sha512-GBXBdQ3Sbg7KecFzaq4VnppK7NVwDcvqfVxOKmDonEUNMJ9FyiLfe2yeWUmbGWUnbnWXBCgYjX8QSDLP3OVe3Q==}
@@ -1306,6 +1309,13 @@ packages:
   cheerio@1.1.2:
     resolution: {integrity: sha512-IkxPpb5rS/d1IiLbHMgfPuS0FgiWTtFIm/Nj+2woXDLTZ7fOT2eqzgYbdMlLweqlHbsZjxEChoVK+7iph7jyQg==}
     engines: {node: '>=20.18.1'}
+
+  chessground@9.2.1:
+    resolution: {integrity: sha512-KIdxm0zD69e62XRwdnFB0XUNYSzn5HM3pMazRCwpfruRUowFI8y+1OAK5YSyBff29myeV1/4o5Q8T191+Irbog==}
+    deprecated: Package no longer supported. Contact Support at https://www.npmjs.com/support for more info.
+
+  chessops@0.14.2:
+    resolution: {integrity: sha512-7DghoMODSN8a17L9JHYBWhLBaSKROKS7+NDsvseNJ502UTbuZ7EYueIAmo1oD+f0TeEqh+jo2gsUFRhGRKAR3g==}
 
   chessops@0.15.0:
     resolution: {integrity: sha512-4Ps0O8/UO09tDGbze1mMilUSMZjVYMFtQvrhlCQV385cO0BgdUPUZsq/r1Qrf6UQ4J0i7XcMbRRvFRKu+Ith1w==}
@@ -2485,6 +2495,8 @@ snapshots:
 
   '@babel/runtime@7.28.2': {}
 
+  '@badrap/result@0.2.13': {}
+
   '@badrap/result@0.3.1': {}
 
   '@blakeembrey/deque@1.0.5': {}
@@ -2672,11 +2684,11 @@ snapshots:
 
   '@lichess-org/chessground@file:../chessground': {}
 
-  '@lichess-org/pgn-viewer@2.5.2':
+  '@lichess-org/pgn-viewer@2.4.7':
     dependencies:
-      '@lichess-org/chessground': 9.8.4
-      '@types/node': 24.9.1
-      chessops: 0.15.0
+      '@types/node': 22.17.0
+      chessground: 9.2.1
+      chessops: 0.14.2
       snabbdom: 3.5.1
 
   '@lichess-org/stockfish-web@0.0.14': {}
@@ -2837,6 +2849,7 @@ snapshots:
   '@types/node@24.9.1':
     dependencies:
       undici-types: 7.16.0
+    optional: true
 
   '@types/qrcode@1.5.5':
     dependencies:
@@ -3161,6 +3174,12 @@ snapshots:
       parse5-parser-stream: 7.1.2
       undici: 7.16.0
       whatwg-mimetype: 4.0.0
+
+  chessground@9.2.1: {}
+
+  chessops@0.14.2:
+    dependencies:
+      '@badrap/result': 0.2.13
 
   chessops@0.15.0:
     dependencies:
@@ -4138,7 +4157,8 @@ snapshots:
 
   undici-types@6.21.0: {}
 
-  undici-types@7.16.0: {}
+  undici-types@7.16.0:
+    optional: true
 
   undici-types@7.8.0: {}
 
