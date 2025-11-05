@@ -3917,7 +3917,7 @@ interface I18n {
     practiceWithComputer: string;
     /** Previously on Lichess TV */
     previouslyOnLichessTV: string;
-    /** Ctrl or shift = red, command or alt = blue, fn = yellow. */
+    /** Ctrl = red, shift = yellow, command or alt = blue. */
     primaryColorArrowsHowTo: string;
     /** Privacy */
     privacy: string;
@@ -5063,6 +5063,8 @@ interface I18n {
     readMoreAboutEmbedding: string;
     /** Recently updated */
     recentlyUpdated: string;
+    /** Relevant */
+    relevant: string;
     /** Right under the board */
     rightUnderTheBoard: string;
     /** Save */
