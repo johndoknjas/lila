@@ -53,7 +53,7 @@ final class RelayTour(env: Env, apiC: => Api, roundC: => RelayRound) extends Lil
           .map:
             views.relay.tour.byOwner(_, owner)
 
-  def apiBy(owner: UserStr, page: Int) = Open:
+  def apiBy(owner: UserStr, page: Int) = AnonOrScoped(_.Study.Read, _.Web.Mobile):
     Reasonable(page, Max(20)):
       Found(env.user.lightUser(owner.id)): owner =>
         env.relay.pager
@@ -139,14 +139,12 @@ final class RelayTour(env: Env, apiC: => Api, roundC: => RelayRound) extends Lil
       yield Redirect(routes.RelayTour.by(me.username)).flashSuccess
   }
 
-  def image(id: RelayTourId, tag: Option[String]) = AuthBody(parse.multipartFormData) { ctx ?=> me ?=>
+  def image(id: RelayTourId, tag: Option[String]) = AuthBody(parse.multipartFormData) { ctx ?=> _ ?=>
     WithTourCanUpdate(id): nav =>
       ctx.body.body.file("image") match
         case Some(image) =>
-          limit.imageUpload(ctx.ip, rateLimited):
-            (env.relay.api.image.upload(me, nav.tour, image, tag) >> {
-              Ok
-            }).recover { case e: Exception =>
+          limit.imageUpload(rateLimited):
+            env.relay.api.image.upload(nav.tour, image, tag).inject(Ok).recover { case e: Exception =>
               BadRequest(e.getMessage)
             }
         case None => env.relay.api.image.delete(nav.tour, tag) >> Ok

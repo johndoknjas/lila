@@ -167,17 +167,18 @@ export function view(ctrl: StudyCtrl): VNode {
   const canContribute = ctrl.members.canContribute(),
     current = ctrl.currentChapter();
   function update(vnode: VNode) {
-    const newCount = ctrl.chapters.list.size(),
-      vData = vnode.data!.li!,
+    const isChapterFullyVisible = (listOfChapters: HTMLElement, chapter: HTMLElement): boolean => {
+      const c = chapter.getBoundingClientRect(),
+        l = listOfChapters.getBoundingClientRect();
+      return c.top >= l.top && c.bottom <= l.bottom;
+    };
+    const vData = vnode.data!.li!,
       el = vnode.elm as HTMLElement;
-    if (vData.count !== newCount) {
-      if (current.id !== ctrl.chapters.list.first().id) scrollToInnerSelector(el, '.active');
-    } else if (vData.currentId !== ctrl.data.chapter.id) {
-      vData.currentId = ctrl.data.chapter.id;
-      scrollToInnerSelector(el, '.active');
-    }
-    vData.count = newCount;
-    if (canContribute && newCount > 1 && !vData.sortable) {
+    requestAnimationFrame(() => {
+      const active = el.querySelector('.active') as HTMLElement | null;
+      if (active && !isChapterFullyVisible(el, active)) scrollToInnerSelector(el, '.active');
+    });
+    if (canContribute && ctrl.chapters.list.size() > 1 && !vData.sortable) {
       site.asset.loadEsm<typeof Sortable>('sortable.esm', { npm: true }).then(s => {
         vData.sortable = s.create(el, {
           draggable: '.draggable',
@@ -207,11 +208,8 @@ export function view(ctrl: StudyCtrl): VNode {
             update(vnode);
           },
           postpatch(old, vnode) {
-            const scrollTop = (old.elm as HTMLElement).scrollTop;
             vnode.data!.li = old.data!.li;
             update(vnode);
-            if (old.children?.length === vnode.children?.length)
-              (vnode.elm as HTMLElement).scrollTop = scrollTop;
           },
           destroy: vnode => {
             const sortable: Sortable = vnode.data!.li!.sortable;

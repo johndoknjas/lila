@@ -8,7 +8,6 @@ final class Dev(env: Env) extends LilaController(env):
     env.security.ugcArmedSetting,
     env.security.spamKeywordsSetting,
     env.security.proxy2faSetting,
-    env.security.mobileSignupProxy,
     env.security.alwaysCaptcha,
     env.oAuth.originBlocklistSetting,
     env.mailer.mailerSecondaryPermilleSetting,
@@ -36,10 +35,12 @@ final class Dev(env: Env) extends LilaController(env):
     env.relay.proxyDomainRegex,
     env.relay.proxyHostPort,
     env.relay.proxyCredentials,
-    env.report.api.modelSetting,
-    env.report.api.promptSetting,
-    env.ublog.automod.modelSetting,
-    env.ublog.automod.promptSetting
+    env.report.automod.imageModelSetting,
+    env.report.automod.imagePromptSetting,
+    env.report.api.commsModelSetting,
+    env.report.api.commsPromptSetting,
+    env.ublog.ublogAutomod.modelSetting,
+    env.ublog.ublogAutomod.promptSetting
   )
 
   def settings = Secure(_.Settings) { _ ?=> _ ?=>
