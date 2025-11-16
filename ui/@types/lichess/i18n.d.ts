@@ -2413,6 +2413,8 @@ interface I18n {
     lookupOfPlayer: string;
     /** Mates */
     mates: string;
+    /** Mate themes */
+    mateThemes: string;
     /** Motifs */
     motifs: string;
     /** %s played */
@@ -2527,6 +2529,10 @@ interface I18n {
     backRankMate: string;
     /** Checkmate the king on the home rank, when it is trapped there by its own pieces. */
     backRankMateDescription: string;
+    /** Balestra mate */
+    balestraMate: string;
+    /** A bishop delivers the checkmate, while a queen blocks the remaining escape squares */
+    balestraMateDescription: string;
     /** Bishop endgame */
     bishopEndgame: string;
     /** An endgame with only bishops and pawns. */
@@ -2735,6 +2741,10 @@ interface I18n {
     trappedPiece: string;
     /** A piece is unable to escape capture as it has limited moves. */
     trappedPieceDescription: string;
+    /** Triangle mate */
+    triangleMate: string;
+    /** The queen and rook, one square away from the enemy king, are on the same rank or file, separated by one square, forming a triangle. */
+    triangleMateDescription: string;
     /** Underpromotion */
     underPromotion: string;
     /** Promotion to a knight, bishop, or rook. */
@@ -4075,8 +4085,6 @@ interface I18n {
     search: string;
     /** Search or start new conversation */
     searchOrStartNewDiscussion: string;
-    /** Combine any two primary colours to make a secondary colour. */
-    secondaryColorArrowsHowTo: string;
     /** Security */
     security: string;
     /** See best move */

@@ -44,7 +44,7 @@ object Dependencies {
   }
 
   object chess {
-    val version = "17.12.3"
+    val version = "17.12.4"
     val org = "com.github.lichess-org.scalachess"
     // val org = "org.lichess" // for publishLocal
     val core = org %% "scalachess" % version
@@ -56,7 +56,7 @@ object Dependencies {
   }
 
   object scalalib {
-    val version = "11.9.4"
+    val version = "11.9.5"
     val org = "com.github.lichess-org.scalalib"
     // val org = "org.lichess" // for publishLocal
     val core = org %% "scalalib-core" % version
@@ -85,9 +85,9 @@ object Dependencies {
   }
 
   object reactivemongo {
-    val driver = ("org.reactivemongo" %% "reactivemongo" % "1.1.0-RC16")
-    val stream = "org.reactivemongo" %% "reactivemongo-akkastream" % "1.1.0-RC18"
-    val shaded = "org.reactivemongo" % s"reactivemongo-shaded-native-$os-$dashArch" % "1.1.0-RC15"
+    val driver = "org.reactivemongo" %% "reactivemongo" % "1.1.0-RC19"
+    val stream = "org.reactivemongo" %% "reactivemongo-akkastream" % "1.1.0-RC19"
+    val shaded = "org.reactivemongo" % s"reactivemongo-shaded-native-$os-$dashArch" % "1.1.0-RC19"
     // val kamon  = "org.reactivemongo" %% "reactivemongo-kamon"         % "1.0.8"
     def bundle = Seq(driver, stream)
   }
