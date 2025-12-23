@@ -4,7 +4,7 @@
   <string name="challengeAFriend" comment="be mindful how 'friend' translates in gendered languages. look for a more neutral term if there's an issue, or base your translation on a different phrase like 'invite to a game'. keep it short and convey the button's meaning without offense.">Кинути виклик другові</string>
   <string name="playAgainstComputer">Зіграти проти комп\'ютера</string>
   <string name="gameMode">Режим гри</string>
-  <string name="createLobbyGame" comment="One of three buttons on the home page. Opens the modal to create a game that goes in the lobby.">Створити запит на гру</string>
+  <string name="createLobbyGame">Створити запит на гру</string>
   <string name="youPlayAs">Ви граєте за</string>
   <string name="toInviteSomeoneToPlayGiveThisUrl">Щоб запросити когось до гри, дайте це посилання</string>
   <string name="gameOver">Гру завершено</string>
@@ -544,12 +544,6 @@
   <string name="player">Гравець</string>
   <string name="list">Список</string>
   <string name="graph">Діаграма</string>
-  <plurals name="lessThanNbMinutes">
-    <item quantity="one">Менше %s хвилини</item>
-    <item quantity="few">Менше %s хвилин</item>
-    <item quantity="many">Менше %s хвилин</item>
-    <item quantity="other">Менше %s хвилин</item>
-  </plurals>
   <string name="required">Обов\'язково.</string>
   <string name="openTournaments">Відкриті турніри</string>
   <string name="duration">Тривалість</string>
@@ -808,6 +802,7 @@
   <string name="cyclePreviousOrNextVariation">Прокрутити попередній/наступний варіант</string>
   <string name="toggleGlyphAnnotations">Перемкнути анотації ходів</string>
   <string name="togglePositionAnnotations">Перемкнути анотації позицій</string>
+  <string name="toggleObservationAnnotations">Перемкнути анотації спостереження</string>
   <string name="variationArrowsInfo">Стрілки варіантів дозволяють переміщуватись без використання списку ходів.</string>
   <string name="playSelectedMove">зіграти обраний хід</string>
   <string name="newTournament">Новий турнір</string>

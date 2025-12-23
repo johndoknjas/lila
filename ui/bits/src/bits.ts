@@ -2,7 +2,6 @@ import { text, formToXhr } from 'lib/xhr';
 import flairPickerLoader from './flairPicker';
 import { spinnerHtml } from 'lib/view';
 import { wireCropDialog } from './crop';
-import { debounce } from 'lib/async';
 
 // avoid node_modules and pay attention to imports here. we don't want to force people
 // to download the entire toastui editor library just to do some light form processing.
@@ -35,8 +34,6 @@ export function initModule(args: { fn: string } & any): void {
       return setAssetInfo();
     case 'streamerSubscribe':
       return streamerSubscribe();
-    case 'fidePlayerFollow':
-      return fidePlayerFollow();
     case 'thanksReport':
       return thanksReport();
     case 'titleRequest':
@@ -234,19 +231,6 @@ function streamerSubscribe() {
         );
       });
   });
-}
-
-function fidePlayerFollow() {
-  const el = $('#fide-player-follow');
-  el.on(
-    'change',
-    debounce(
-      () =>
-        text(el.data('action').replace(/follow=[^&]+/, `follow=${el.prop('checked')}`), { method: 'post' }),
-      1000,
-      true,
-    ),
-  );
 }
 
 function titleRequest() {

@@ -4,15 +4,14 @@ import scala.collection.immutable.SeqMap
 import play.api.libs.json.*
 import scalalib.Json.writeAs
 import scalalib.Debouncer
-import chess.{ ByColor, Color, FideId, Outcome, PlayerName, IntRating }
+import chess.{ ByColor, Color, FideId, FideTC, Outcome, PlayerName, IntRating }
 import chess.rating.{ Elo, IntRatingDiff }
 
 import lila.study.{ ChapterPreviewApi, StudyPlayer }
 import lila.study.StudyPlayer.json.given
 import lila.memo.CacheApi
-import lila.core.fide.Player as FidePlayer
+import lila.core.fide.{ PhotosJson, Player as FidePlayer }
 import lila.common.Json.given
-import lila.core.fide.FideTC
 import chess.tiebreak.{ Tiebreak, TiebreakPoint }
 
 // Player in a tournament with current performance rating and list of games
@@ -21,7 +20,7 @@ case class RelayPlayer(
     score: Option[Float],
     ratingDiff: Option[IntRatingDiff],
     performance: Option[IntRating],
-    tiebreaks: Option[SeqMap[Tiebreak, TiebreakPoint]],
+    tiebreaks: Option[Seq[(Tiebreak, TiebreakPoint)]],
     rank: Option[RelayPlayer.Rank],
     games: Vector[RelayPlayer.Game]
 ):
@@ -61,7 +60,7 @@ given Ordering[RelayPlayer] = new Ordering[RelayPlayer]:
   def compare(a: RelayPlayer, b: RelayPlayer): Int =
     val scoreComparison = b.score.compare(a.score)
     lazy val tiebreakComparison = Ordering[Option[List[TiebreakPoint]]]
-      .compare(a.tiebreaks.map(_.values.toList), b.tiebreaks.map(_.values.toList))
+      .compare(a.tiebreaks.map(_._2F.toList), b.tiebreaks.map(_._2F.toList))
     lazy val ratingComparison = b.rating.map(_.value).compare(a.rating.map(_.value))
     if scoreComparison != 0 then scoreComparison
     else if tiebreakComparison != 0 then tiebreakComparison
@@ -72,6 +71,9 @@ object RelayPlayer:
 
   opaque type Rank = Int
   object Rank extends OpaqueInt[Rank]
+
+  def empty(player: StudyPlayer.WithFed) =
+    RelayPlayer(player, None, None, None, None, None, Vector.empty)
 
   case class Game(
       round: RelayRoundId,
@@ -113,12 +115,12 @@ object RelayPlayer:
     yield Elo.Game(pp, opRating.into(Elo))
 
   object json:
-    import JsonView.given
+    import RelayJsonView.given
     given Writes[Outcome] = Json.writes
     given Writes[Outcome.Points] = writeAs(_.show)
     given Writes[Outcome.GamePoints] = writeAs(points => Outcome.showPoints(points.some))
     given Writes[RelayPlayer.Game] = Json.writes
-    given Writes[SeqMap[Tiebreak, TiebreakPoint]] = Writes: tbs =>
+    given Writes[Seq[(Tiebreak, TiebreakPoint)]] = Writes: tbs =>
       Json.toJson:
         tbs.map: (tb, tbv) =>
           Json.obj(
@@ -136,7 +138,7 @@ object RelayPlayer:
         .add("rank" -> p.rank)
     def full(
         tour: RelayTour
-    )(p: RelayPlayer, fidePlayer: Option[FidePlayer], isFollowing: Option[Boolean]): JsObject =
+    )(p: RelayPlayer, fidePlayer: Option[FidePlayer], user: Option[User], follow: Option[Boolean]): JsObject =
       val tc = tour.info.fideTcOrGuess
       lazy val eloPlayer = p.rating
         .map(_.into(Elo))
@@ -146,7 +148,7 @@ object RelayPlayer:
       val gamesJson = p.games.map: g =>
         val rd = tour.showRatingDiffs.so:
           (eloPlayer, g.eloGame).tupled.map: (ep, eg) =>
-            Elo.computeRatingDiff(ep, List(eg))
+            Elo.computeRatingDiff(tc)(ep, List(eg))
         Json
           .obj(
             "round" -> g.round,
@@ -159,8 +161,9 @@ object RelayPlayer:
           .add("ratingDiff" -> rd)
       Json
         .toJsObject(p)
-        .add("fide", fidePlayer)
-        .add("isFollowing" -> isFollowing) ++ Json.obj("games" -> gamesJson)
+        .add("user", user.map(_.light))
+        .add("fide", fidePlayer.map(Json.toJsObject).map(_.add("follow", follow))) ++
+        Json.obj("games" -> gamesJson)
     given OWrites[FidePlayer] = OWrites: p =>
       Json.obj("ratings" -> p.ratingsMap.mapKeys(_.toString), "year" -> p.year)
 
@@ -170,13 +173,14 @@ private final class RelayPlayerApi(
     chapterRepo: lila.study.ChapterRepo,
     chapterPreviewApi: ChapterPreviewApi,
     cacheApi: CacheApi,
-    fidePlayerGet: lila.core.fide.GetPlayer
+    fidePlayerGet: lila.core.fide.GetPlayer,
+    photosJson: PhotosJson.Get
 )(using Executor)(using scheduler: Scheduler):
   import RelayPlayer.*
 
   type RelayPlayers = SeqMap[StudyPlayer.Id, RelayPlayer]
 
-  private val cache = cacheApi[RelayTourId, RelayPlayers](32, "relay.players.data"):
+  private val cache = cacheApi[RelayTourId, RelayPlayers](128, "relay.players.data"):
     _.expireAfterWrite(1.minute).buildAsyncFuture(compute)
 
   private val jsonCache = cacheApi[RelayTourId, JsonStr](32, "relay.players.json"):
@@ -189,6 +193,16 @@ private final class RelayPlayerApi(
 
   export cache.get
   export jsonCache.get as jsonList
+
+  private val photosJsonCache = cacheApi[RelayTourId, PhotosJson](32, "relay.players.photos.json"):
+    _.expireAfterWrite(10.seconds).buildAsyncFuture: tourId =>
+      for
+        studyIds <- roundRepo.studyIdsOf(tourId)
+        fideIds <- chapterRepo.fideIdsOf(studyIds)
+        photos <- photosJson(fideIds)
+      yield photos
+
+  def photosJson(tourId: RelayTourId): Fu[PhotosJson] = photosJsonCache.get(tourId)
 
   def player(tour: RelayTour, str: String): Fu[Option[RelayPlayer]] =
     val id = FideId.from(str.toIntOption) | PlayerName(str)
@@ -242,10 +256,7 @@ private final class RelayPlayerApi(
                             players.updated(
                               playerId,
                               players
-                                .getOrElse(
-                                  playerId,
-                                  RelayPlayer(player, None, None, None, None, None, Vector.empty)
-                                )
+                                .getOrElse(playerId, RelayPlayer.empty(player))
                                 .withGame(game)
                             )
                   }
@@ -253,14 +264,16 @@ private final class RelayPlayerApi(
           withRatingDiff <-
             if tour.showRatingDiffs then computeRatingDiffs(tour.info.fideTcOrGuess, withScore)
             else fuccess(withScore)
-          withTiebreaks = tour.tiebreaks.foldLeft(withRatingDiff)(computeTiebreaks)
+          withTiebreaks = tour.tiebreaks.foldLeft(withRatingDiff)(
+            computeTiebreaks(_, _, lastRoundId = rounds.lastOption.map(_.id))
+          )
         yield withTiebreaks
 
   type StudyPlayers = SeqMap[StudyPlayer.Id, StudyPlayer.WithFed]
   private def fetchStudyPlayers(roundIds: List[RelayRoundId]): Fu[StudyPlayers] =
     roundIds
       .traverse: roundId =>
-        chapterPreviewApi.dataList.uniquePlayers(roundId.into(StudyId))
+        chapterPreviewApi.dataList.uniquePlayers(roundId.studyId)
       .map:
         _.foldLeft(SeqMap.empty: StudyPlayers): (players, roundPlayers) =>
           roundPlayers.foldLeft(players):
@@ -289,24 +302,28 @@ private final class RelayPlayerApi(
               r <- player.rating.map(_.into(Elo)).orElse(fidePlayer.ratingOf(tc))
               p = Elo.Player(r, fidePlayer.kFactorOf(tc))
               games = player.eloGames
-            yield player.copy(ratingDiff = games.nonEmpty.option(Elo.computeRatingDiff(p, games)))
+            yield player.copy(ratingDiff = games.nonEmpty.option(Elo.computeRatingDiff(tc)(p, games)))
           .map: newPlayer =>
             id -> (newPlayer | player)
       .map(_.to(SeqMap))
 
-  private def computeTiebreaks(players: RelayPlayers, tiebreaks: Seq[Tiebreak]): RelayPlayers =
+  private def computeTiebreaks(
+      players: RelayPlayers,
+      tiebreaks: Seq[Tiebreak],
+      lastRoundId: Option[RelayRoundId]
+  ): RelayPlayers =
     val tbGames: Map[String, Tiebreak.PlayerWithGames] =
       players.view.values
         .flatMap: p =>
           p.toTieBreakPlayer.map: tbPlayer =>
             tbPlayer.id -> Tiebreak.PlayerWithGames(tbPlayer, p.games.flatMap(_.toTiebreakGame))
         .toMap
-    val result = Tiebreak.compute(tbGames, tiebreaks.toList)
+    val result = Tiebreak.compute(tbGames, tiebreaks.toList, lastRoundId = lastRoundId.map(_.value))
     players
       .map: (id, rp) =>
         val found = result.find(p => p.player.id == id.toString)
         id -> rp.copy(
-          tiebreaks = found.map(t => tiebreaks.zip(t.tiebreakPoints).to(SeqMap))
+          tiebreaks = found.map(t => tiebreaks.zip(t.tiebreakPoints).to(Seq))
         )
       .toList
       .sortBy(_._2)

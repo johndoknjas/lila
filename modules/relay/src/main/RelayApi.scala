@@ -31,7 +31,7 @@ final class RelayApi(
     playerEnrich: RelayPlayerEnrich,
     studyApi: StudyApi,
     studyRepo: StudyRepo,
-    jsonView: JsonView,
+    jsonView: RelayJsonView,
     formatApi: RelayFormatApi,
     cacheApi: CacheApi,
     players: RelayPlayerApi,
@@ -41,7 +41,7 @@ final class RelayApi(
 )(using Executor, akka.stream.Materializer):
 
   import BSONHandlers.{ readRoundWithTour, given }
-  import JsonView.given
+  import RelayJsonView.given
 
   export groupRepo.byId as groupById
   export tourRepo.byIds as toursByIds
@@ -112,7 +112,7 @@ final class RelayApi(
     tourRepo.oldActiveCursor
       .documentSource()
       .mapAsync(1)(t => denormalizeTour(t.id))
-      .runWith(Sink.ignore)
+      .run()
       .void
 
   private def computeDates(tourId: RelayTourId): Fu[Option[RelayTour.Dates]] =
@@ -398,7 +398,7 @@ final class RelayApi(
         _ <- tourRepo.delete(tour)
         rounds <- roundRepo.idsByTourOrdered(tour.id)
         _ <- roundRepo.deleteByTour(tour)
-        _ <- rounds.map(_.into(StudyId)).sequentiallyVoid(studyApi.deleteById)
+        _ <- rounds.map(_.studyId).sequentiallyVoid(studyApi.deleteById)
         _ <- picfitApi.pullRef(image.markdownRef(tour))
         _ <- picfitApi.pullRef(image.headRef(tour, none))
       yield true
@@ -428,7 +428,7 @@ final class RelayApi(
         .byTourOrderedCursor(from.id)
         .documentSource()
         .mapAsync(1)(cloneWithStudy(_, tour))
-        .runWith(Sink.ignore)
+        .run()
     yield tour
 
   private def cloneWithStudy(from: RelayRound, to: RelayTour)(using me: Me): Fu[RelayRound] =
@@ -555,7 +555,7 @@ final class RelayApi(
 
   private def sendToContributors(id: RelayRoundId, t: String, msg: JsObject): Funit =
     studyApi
-      .members(id.into(StudyId))
+      .members(id.studyId)
       .map:
         _.map(_.contributorIds).withFilter(_.nonEmpty).foreach { userIds =>
           import lila.core.socket.SendTos

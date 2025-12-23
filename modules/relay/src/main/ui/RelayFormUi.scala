@@ -51,7 +51,7 @@ final class RelayFormUi(helpers: Helpers, ui: RelayUi, pageMenu: RelayMenuUi):
               else if r.hasStarted then Icon.DiscBig
               else Icon.DiscOutline
             )
-          )(r.name),
+          )(r.transName),
         a(
           href := routes.RelayRound.create(nav.tour.id),
           cls := List(
@@ -119,16 +119,16 @@ final class RelayFormUi(helpers: Helpers, ui: RelayUi, pageMenu: RelayMenuUi):
         form: Form[RelayRoundForm.Data],
         nav: FormNavigation
     )(using Context) =
-      page(r.name.value, nav):
+      page(r.transName, nav):
         val rt = r.withTour(nav.tour)
         frag(
-          boxTop(h1(a(href := rt.path)(rt.fullName))),
+          boxTop(h1(a(href := rt.path)(rt.transName))),
           standardFlash,
           nav.targetRound.map: tr =>
             flashMessage("success")(
               "Your tournament round is officially broadcasted by Lichess!",
               br,
-              strong(a(href := tr.path, cls := "text", dataIcon := Icon.RadioTower)(tr.fullName)),
+              strong(a(href := tr.path, cls := "text", dataIcon := Icon.RadioTower)(tr.transName)),
               "."
             ),
           inner(form, routes.RelayRound.update(r.id), nav),
@@ -201,7 +201,9 @@ final class RelayFormUi(helpers: Helpers, ui: RelayUi, pageMenu: RelayMenuUi):
           )
         ,
         form3.globalError(form),
-        form3.group(form("name"), trb.roundName())(form3.input(_)(autofocus)),
+        form3.group(form("name"), trb.roundName(), help = trb.defaultRoundNameHelp().some)(
+          form3.input(_)(autofocus)
+        ),
         form3.fieldset("Source", toggle = true.some)(cls := "box-pad")(
           form3.group(
             form("syncSource"),
@@ -217,7 +219,7 @@ final class RelayFormUi(helpers: Helpers, ui: RelayUi, pageMenu: RelayMenuUi):
             nav.sourceRound.map: source =>
               flashMessage("round-push")(
                 "Getting real-time updates from ",
-                strong(a(href := source.path)(source.fullName)),
+                strong(a(href := source.path)(source.transName)),
                 br,
                 "Owner: ",
                 fragList(source.tour.ownerIds.toList.map(u => userIdLink(u.some))),
@@ -328,7 +330,7 @@ final class RelayFormUi(helpers: Helpers, ui: RelayUi, pageMenu: RelayMenuUi):
             )
           )
         ),
-        form3.fieldset("Advanced", toggle = nav.round.exists(r => r.sync.delay.isDefined).some)(
+        form3.fieldset("Advanced", toggle = nav.round.exists(_.sync.delay.isDefined).some)(
           form3.split(
             form3.group(
               form("delay"),
@@ -351,6 +353,23 @@ final class RelayFormUi(helpers: Helpers, ui: RelayUi, pageMenu: RelayMenuUi):
               form3.select(_, Seq("new" -> "New", "started" -> "Started", "finished" -> "Finished"))
           )
         ),
+        form3
+          .fieldset("Game ordering", toggle = nav.round.flatMap(_.sync.reorder).isDefined.some)(
+            cls := "box-pad"
+          )(
+            form3.group(
+              form("reorder"),
+              "Optional: reorder games by player names",
+              help = frag( // do not translate
+                "One line per game, containing one or two player names.",
+                "Example:",
+                pre("""Helmut Kleissl
+Hanna Marie ; Kozul, Zdenko"""),
+                "By default the source game order is used. Extra games are added after the reordered ones."
+              ).some,
+              half = true
+            )(form3.textarea(_)(rows := 7, spellcheck := "false", cls := "monospace"))
+          ),
         (nav.tour.showScores || nav.tour.showRatingDiffs).option(
           form3.fieldset(
             "Custom scoring",
@@ -524,7 +543,7 @@ final class RelayFormUi(helpers: Helpers, ui: RelayUi, pageMenu: RelayMenuUi):
             ):
               form3.select(
                 _,
-                lila.core.fide.FideTC.values.map: tc =>
+                chess.FideTC.values.map: tc =>
                   tc.toString -> tc.toString.capitalize
               )
           ),
@@ -710,7 +729,7 @@ Team Dogs ; Scooby Doo"""),
                   )
                 )
             ),
-            tg.isDefined.option:
+            (tg.isDefined && Granter.opt(_.StudyAdmin)).option:
               form3.fieldset("Pinned stream", toggle = form("pinnedStream.url").value.isDefined.some)(
                 form3.split(
                   form3.group(

@@ -55,7 +55,6 @@ POST  /rel/unfollow/:user              controllers.Relation.unfollowBc(user: Use
 POST  /rel/follow/:user                controllers.Relation.followBc(user: UserStr)
 # end lichobile BC
 GET   /@/:username/following           controllers.Relation.following(username: UserStr, page: Int ?= 1)
-GET   /@/:username/followers           controllers.Relation.followers(username: UserStr, page: Int ?= 1)
 GET   /rel/blocks                      controllers.Relation.blocks(page: Int ?= 1)
 POST  /rel/:action/:user               controllers.Relation.bcAction(action: String, user: UserStr)
 
@@ -103,6 +102,8 @@ GET   /fide/:fideId/:name              controllers.Fide.show(fideId: chess.FideI
 POST  /fide/:fideId/follow             controllers.Fide.follow(fideId: chess.FideId, follow: Boolean)
 GET   /api/fide/player/:id             controllers.Fide.apiShow(id: chess.FideId)
 GET   /api/fide/player                 controllers.Fide.apiSearch(q: String)
+POST  /upload/image/fide/player/:id    controllers.Fide.playerPhoto(id: chess.FideId)
+POST  /fide/player/:id                 controllers.Fide.playerUpdate(id: chess.FideId)
 
 GET   /dasher                          controllers.Dasher.get
 
@@ -351,9 +352,9 @@ POST  /practice/complete/:chapterId/:moves        controllers.Practice.complete(
 GET   /streamer                        controllers.Streamer.index(page: Int ?= 1)
 GET   /api/streamer/featured           controllers.Streamer.featured
 GET   /api/streamer/live               controllers.Streamer.live
- # /api/x indicates xml request payload (PubSubHubub)
-POST  /api/x/streamer/youtube-pubsub   controllers.Streamer.onYouTubeVideo
-GET   /api/x/streamer/youtube-pubsub   controllers.Streamer.youTubePubSubChallenge
+POST  /api/x/streamer/youtube-pubsub   controllers.Streamer.onYoutubeVideo
+GET   /api/x/streamer/youtube-pubsub   controllers.Streamer.youtubePubSubChallenge
+POST  /api/streamer/twitch-eventsub    controllers.Streamer.onTwitchEventSub
 GET   /streamer/live                   controllers.Main.movedPermanently(to = "/api/streamer/live")
 GET   /streamer/edit                   controllers.Streamer.edit
 POST  /streamer/new                    controllers.Streamer.create
@@ -363,6 +364,12 @@ POST  /upload/image/streamer           controllers.Streamer.pictureApply
 GET   /streamer/:username              controllers.Streamer.show(username: UserStr)
 GET   /streamer/:username/redirect     controllers.Streamer.redirect(username: UserStr)
 POST  /streamer/:username/check        controllers.Streamer.checkOnline(username: UserStr)
+GET   /streamer/twitch/oauth/link      controllers.Streamer.oauthLinkTwitch
+GET   /streamer/twitch/oauth/redirect  controllers.Streamer.oauthTwitchRedirect
+GET   /streamer/youtube/oauth/link     controllers.Streamer.oauthLinkYoutube
+GET   /streamer/youtube/oauth/redirect controllers.Streamer.oauthYoutubeRedirect
+POST  /streamer/youtube/oauth/choose/:channelId controllers.Streamer.oauthYoutubeChannel(channelId: String)
+POST  /streamer/$platform<youtube|twitch>/oauth/unlink controllers.Streamer.oauthUnlink(platform: String, user: Option[UserStr] ?= None)
 
 # Private Play
 
@@ -593,7 +600,7 @@ POST  /mod/:username/title             controllers.Mod.setTitle(username: UserSt
 POST  /mod/:username/inquiry           controllers.Mod.spontaneousInquiry(username: UserStr)
 GET   /mod/:username/communication     controllers.Mod.communicationPublic(username: UserStr)
 GET   /mod/:username/communication/private controllers.Mod.communicationPrivate(username: UserStr)
-POST   /mod/:username/communication/full-comms-export controllers.Mod.fullCommsExport(username: UserStr)
+POST  /mod/:username/communication/full-comms-export controllers.Mod.fullCommsExport(username: UserStr)
 POST  /mod/:username/rankban/:v        controllers.Mod.rankban(username: UserStr, v: Boolean)
 POST  /mod/:username/arenaban/:v       controllers.Mod.arenaBan(username: UserStr, v: Boolean)
 POST  /mod/:username/prizeban/:v       controllers.Mod.prizeban(username: UserStr, v: Boolean)
@@ -709,13 +716,13 @@ GET   /api/mobile/my-games             controllers.Api.mobileGames
 GET    /stat/rating/distribution/:perf controllers.User.ratingDistribution(perf: PerfKey, username: Option[UserStr] ?= None)
 
 # API
-GET   /api                             controllers.Api.index
 POST  /api/users                       controllers.Api.usersByIds
 GET   /api/puzzle/daily                controllers.Puzzle.apiDaily
 GET   /api/puzzle/activity             controllers.Puzzle.activity
 GET   /api/puzzle/dashboard/$days<\d+> controllers.Puzzle.apiDashboard(days: Days)
 GET   /api/puzzle/$id<\w{5}>           controllers.Puzzle.apiShow(id: PuzzleId)
 GET   /api/puzzle/next                 controllers.Puzzle.apiNext
+POST  /api/puzzle/vote-themes          controllers.Puzzle.apiBatchVoteThemes
 GET   /api/puzzle/batch/:angle         controllers.Puzzle.apiBatchSelect(angle)
 POST  /api/puzzle/batch/:angle         controllers.Puzzle.apiBatchSolve(angle)
 GET   /api/puzzle/replay/$days<\d+>/:theme controllers.Puzzle.apiReplay(days: Days, theme)
@@ -926,6 +933,8 @@ GET   /dev/cli                         controllers.Dev.cli
 POST  /dev/cli                         controllers.Dev.cliPost
 GET   /dev/settings                    controllers.Dev.settings
 POST  /dev/settings/:id                controllers.Dev.settingsPost(id)
+GET   /dev/ip-tiers                    controllers.Dev.ipTiers
+POST  /dev/ip-tiers                    controllers.Dev.ipTiersPost
 
 GET   /prometheus-metrics/:key         controllers.Main.prometheusMetrics(key: String)
 

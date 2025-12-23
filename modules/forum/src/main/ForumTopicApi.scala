@@ -128,7 +128,7 @@ final private class ForumTopicApi(
   def makeUblogDiscuss(
       slug: ForumTopicSlug,
       name: String,
-      url: String,
+      url: Url,
       ublogId: UblogPostId,
       authorId: UserId
   ): Funit =
@@ -179,7 +179,7 @@ final private class ForumTopicApi(
     topic.closed.so(topicRepo.closedByMod(topic.id))
 
   def toggleSticky(categ: ForumCateg, topic: ForumTopic)(using Me): Funit =
-    topicRepo.sticky(topic.id, !topic.isSticky) >>
+    topicRepo.sticky(topic.id, topic.toggleSticky) >>
       MasterGranter(_.ModerateForum).so:
         modLog.toggleStickyTopic(categ.id, topic.slug, !topic.isSticky)
 

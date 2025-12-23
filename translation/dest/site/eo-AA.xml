@@ -4,7 +4,7 @@
   <string name="challengeAFriend" comment="be mindful how 'friend' translates in gendered languages. look for a more neutral term if there's an issue, or base your translation on a different phrase like 'invite to a game'. keep it short and convey the button's meaning without offense.">Defii geamikon</string>
   <string name="playAgainstComputer">Ludi kontraŭ komputilo</string>
   <string name="gameMode">Tipo de ludo</string>
-  <string name="createLobbyGame" comment="One of three buttons on the home page. Opens the modal to create a game that goes in the lobby.">Krei ludon en atendejo</string>
+  <string name="createLobbyGame">Krei ludon en atendejo</string>
   <string name="youPlayAs">Koloro de viaj pecoj</string>
   <string name="toInviteSomeoneToPlayGiveThisUrl">Por inviti iun al ludo, donu ĉi tiun ligilon</string>
   <string name="gameOver">Ludo finiĝis</string>
@@ -474,10 +474,6 @@
   <string name="player">Ludanto</string>
   <string name="list">Listo</string>
   <string name="graph">Grafo</string>
-  <plurals name="lessThanNbMinutes">
-    <item quantity="one">Malpli ol %s minuto</item>
-    <item quantity="other">Malpli ol %s minutoj</item>
-  </plurals>
   <string name="required">Necesa.</string>
   <string name="openTournaments">Enireblaj turniroj</string>
   <string name="duration">Daŭro</string>
@@ -728,6 +724,7 @@
   <string name="cyclePreviousOrNextVariation">Cickligi antaŭan/sekvan variaĵon</string>
   <string name="toggleGlyphAnnotations">Baskuligi movajn prinotaĵojn</string>
   <string name="togglePositionAnnotations">Baskuligi poziciajn prinotaĵojn</string>
+  <string name="toggleObservationAnnotations">Baskuligi observojn prinotaĵojn</string>
   <string name="variationArrowsInfo">Variaĵaj sagoj lasi vin navigi neutile la movlisto.</string>
   <string name="playSelectedMove">ludi elektan movon</string>
   <string name="newTournament">Nova konkurso</string>

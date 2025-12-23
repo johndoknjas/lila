@@ -4,7 +4,7 @@
   <string name="challengeAFriend" comment="be mindful how 'friend' translates in gendered languages. look for a more neutral term if there's an issue, or base your translation on a different phrase like 'invite to a game'. keep it short and convey the button's meaning without offense.">Desafía a un amigo</string>
   <string name="playAgainstComputer">Jugar contra el ordenador</string>
   <string name="gameMode">Tipo de partida</string>
-  <string name="createLobbyGame" comment="One of three buttons on the home page. Opens the modal to create a game that goes in the lobby.">Crear partida en la sala de espera</string>
+  <string name="createLobbyGame">Crear partida en la sala de espera</string>
   <string name="youPlayAs">Juegas con</string>
   <string name="toInviteSomeoneToPlayGiveThisUrl">Para invitar a alguien a jugar, comparte este enlace</string>
   <string name="gameOver">Fin de la partida</string>
@@ -474,10 +474,6 @@
   <string name="player">Jugador</string>
   <string name="list">Lista</string>
   <string name="graph">Gráfico</string>
-  <plurals name="lessThanNbMinutes">
-    <item quantity="one">Menos de %s minuto</item>
-    <item quantity="other">Menos de %s minutos</item>
-  </plurals>
   <string name="required">Obligatorio.</string>
   <string name="openTournaments">Torneos abiertos</string>
   <string name="duration">Duración</string>
@@ -728,6 +724,7 @@
   <string name="cyclePreviousOrNextVariation">Alterna entre la siguiente variante y la anterior</string>
   <string name="toggleGlyphAnnotations">Activa o desactiva la anotación de figurines</string>
   <string name="togglePositionAnnotations">Activa o desactiva anotaciones de posición</string>
+  <string name="toggleObservationAnnotations">Alternar las anotaciones de observación</string>
   <string name="variationArrowsInfo">Las flechas de variantes te permiten navegar sin usar la lista de movimientos.</string>
   <string name="playSelectedMove">hacer movimiento seleccionado</string>
   <string name="newTournament">Nuevo torneo</string>
@@ -911,6 +908,7 @@
   <string name="agreementPolicy">Me comprometo a seguir las normas de Lichess.</string>
   <string name="searchOrStartNewDiscussion">Buscar o empezar una nueva conversación</string>
   <string name="edit">Editar</string>
+  <string name="ultraBullet" comment="Probably best left untranslated. Leave it as 'UltraBullet' unless your language has a better word for it.">UltraBullet</string>
   <string name="bullet" comment="Probably best left untranslated. Leave it as 'Bullet' unless your language has a better word for it.">Bullet</string>
   <string name="blitz" comment="Probably best left untranslated. Leave it as 'Blitz' unless your language has a better word for it.">Blitz</string>
   <string name="rapid">Rápida</string>

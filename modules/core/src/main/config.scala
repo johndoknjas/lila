@@ -46,6 +46,8 @@ object config:
       case Array(host, port) => port.toIntOption.map(HostPort(host, _))
       case _ => none
 
+  type RouteUrl = play.api.mvc.Call => data.Url
+
   case class NetConfig(
       domain: NetDomain,
       prodDomain: NetDomain,
@@ -60,7 +62,8 @@ object config:
       rateLimit: RateLimit,
       email: EmailAddress,
       logRequests: Boolean
-  )
+  ):
+    def routeUrl(call: play.api.mvc.Call) = data.Url(s"${baseUrl}${call.url}")
 
   opaque type ImageGetOrigin = String
   object ImageGetOrigin extends OpaqueString[ImageGetOrigin]

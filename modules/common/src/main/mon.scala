@@ -368,11 +368,10 @@ object mon:
       val epoch = gauge("security.geoip.epoch").withoutTags()
       val loadTime = gauge("security.geoip.loadTime").withoutTags()
     object login:
-      def attempt(byEmail: Boolean, stuffing: String, pwned: Boolean, result: Boolean) =
+      def attempt(byEmail: Boolean, pwned: Boolean, result: Boolean) =
         counter("security.login.attempt").withTags:
           tags(
             "by" -> (if byEmail then "email" else "name"),
-            "stuffing" -> stuffing,
             "pwned" -> pwned,
             "result" -> result
           )
@@ -706,7 +705,6 @@ object mon:
     val time = future("fide.sync.time")
     val players = gauge("fide.sync.players").withoutTags()
     val updated = gauge("fide.sync.updated").withoutTags()
-    val deleted = gauge("fide.sync.deleted").withoutTags()
   object link:
     def external(tag: String, auth: Boolean) = counter("link.external").withTags:
       tags("tag" -> tag.escape, "auth" -> auth)

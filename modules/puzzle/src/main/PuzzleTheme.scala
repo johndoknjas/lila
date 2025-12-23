@@ -18,6 +18,9 @@ object PuzzleTheme:
   enum VoteError:
     case Fail(msg: String) extends VoteError
     case Unchanged extends VoteError
+    def message: String = this match
+      case Fail(msg) => msg
+      case Unchanged => "unchanged"
 
   val mix = PuzzleTheme(i.mix, i.mixDescription)
   val advancedPawn = PuzzleTheme(i.advancedPawn, i.advancedPawnDescription)
@@ -42,6 +45,7 @@ object PuzzleTheme:
   val deflection = PuzzleTheme(i.deflection, i.deflectionDescription)
   val discoveredAttack =
     PuzzleTheme(i.discoveredAttack, i.discoveredAttackDescription)
+  val discoveredCheck = PuzzleTheme(i.discoveredCheck, i.discoveredCheckDescription)
   val doubleBishopMate =
     PuzzleTheme(i.doubleBishopMate, i.doubleBishopMateDescription)
   val doubleCheck = PuzzleTheme(i.doubleCheck, i.doubleCheckDescription)
@@ -58,6 +62,8 @@ object PuzzleTheme:
   val intermezzo = PuzzleTheme(i.intermezzo, i.intermezzoDescription)
   val kingsideAttack = PuzzleTheme(i.kingsideAttack, i.kingsideAttackDescription)
   val killBoxMate = PuzzleTheme(i.killBoxMate, i.killBoxMateDescription)
+  val pillsburysMate = PuzzleTheme(i.pillsburysMate, i.pillsburysMateDescription)
+  val morphysMate = PuzzleTheme(i.morphysMate, i.morphysMateDescription)
   val vukovicMate = PuzzleTheme(i.vukovicMate, i.vukovicMateDescription)
   val knightEndgame = PuzzleTheme(i.knightEndgame, i.knightEndgameDescription)
   val long = PuzzleTheme(i.long, i.longDescription)
@@ -73,6 +79,7 @@ object PuzzleTheme:
   val middlegame = PuzzleTheme(i.middlegame, i.middlegameDescription)
   val oneMove = PuzzleTheme(i.oneMove, i.oneMoveDescription)
   val opening = PuzzleTheme(i.opening, i.openingDescription)
+  val operaMate = PuzzleTheme(i.operaMate, i.operaMateDescription)
   val pawnEndgame = PuzzleTheme(i.pawnEndgame, i.pawnEndgameDescription)
   val pin = PuzzleTheme(i.pin, i.pinDescription)
   val promotion = PuzzleTheme(i.promotion, i.promotionDescription)
@@ -127,6 +134,7 @@ object PuzzleTheme:
     I18nKey.puzzle.advanced -> List(
       attraction,
       clearance,
+      discoveredCheck,
       defensiveMove,
       deflection,
       interference,
@@ -155,6 +163,9 @@ object PuzzleTheme:
       dovetailMate,
       hookMate,
       killBoxMate,
+      pillsburysMate,
+      morphysMate,
+      operaMate,
       triangleMate,
       vukovicMate,
       smotheredMate

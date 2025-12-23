@@ -204,7 +204,7 @@ export function renderNvui(ctx: AnalyseNvuiContext): VNode {
             .filter(c => !c.invalid?.(ctrl))
             .flatMap(command => [noTrans(`${command.cmd}: `), command.help]),
         ].reduce<VNodeChildren[]>(
-          (acc, curr, i) => (i % 2 != 0 ? addBreaks(acc, curr) : acc.concat(curr)),
+          (acc, curr, i) => (i % 2 !== 0 ? addBreaks(acc, curr) : acc.concat(curr)),
           [],
         ),
       ),
@@ -532,6 +532,7 @@ export function renderCurrentNode({
   if (!node.san || !node.uci) return i18n.nvui.gameStart;
   return [
     plyToTurn(node.ply),
+    node.ply % 2 === 1 ? i18n.site.white : i18n.site.black,
     renderSan(node.san, node.uci, moveStyle.get()),
     renderLineIndex(ctrl),
     !ctrl.retro && renderComments(node, moveStyle.get()),
@@ -655,7 +656,7 @@ function studyDetails(ctrl: AnalyseCtrl) {
               relayGroups.tours.map(t =>
                 hl(
                   'option',
-                  { attrs: { selected: t.id == tour?.id, url: `/broadcast/-/${t.id}#group-select` } },
+                  { attrs: { selected: t.id === tour?.id, url: `/broadcast/-/${t.id}#group-select` } },
                   t.name,
                 ),
               ),
@@ -679,11 +680,11 @@ function studyDetails(ctrl: AnalyseCtrl) {
                   'option',
                   {
                     attrs: {
-                      selected: r.id == study.data.id,
+                      selected: r.id === study.data.id,
                       url: `/broadcast/${tour.slug}/${r.slug}/${r.id}#round-select`,
                     },
                   },
-                  r.name,
+                  study.relay?.round.name,
                 ),
               ),
             ),

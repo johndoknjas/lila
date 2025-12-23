@@ -27,7 +27,7 @@ import { gameLinksListener } from '../studyChapters';
 import { baseUrl } from '@/view/util';
 import { commonDateFormat, timeago } from 'lib/i18n';
 import { renderChat } from 'lib/chat/renderChat';
-import { displayColumns, isTouchDevice } from 'lib/device';
+import { displayColumns } from 'lib/device';
 import { verticalResize } from 'lib/view/verticalResize';
 import { watchers } from 'lib/view/watchers';
 import { userLink } from 'lib/view/userLink';
@@ -53,10 +53,7 @@ export const tourSide = (ctx: RelayViewContext, kid: LooseVNode) => {
   const { ctrl, study, relay } = ctx;
   const empty = study.chapters.list.looksNew();
   const resizeId =
-    !ctrl.isEmbed &&
-    !isTouchDevice() &&
-    displayColumns() > (ctx.hasRelayTour ? 1 : 2) &&
-    `relayTour/${relay.data.tour.id}`;
+    !ctrl.isEmbed && displayColumns() > (ctx.hasRelayTour ? 1 : 2) && `relayTour/${relay.data.tour.id}`;
   return hl(
     'aside.relay-tour__side',
     {
@@ -106,8 +103,8 @@ export const tourSide = (ctx: RelayViewContext, kid: LooseVNode) => {
         resizeId &&
         verticalResize({
           key: `relay-games.${resizeId}`,
-          min: () => 48,
-          max: () => 48 * study.chapters.list.size(),
+          min: () => 50, // Height of one .relay-game in _tour.scss
+          max: () => 50 * study.chapters.list.size(),
           initialMaxHeight: () => window.innerHeight / 2,
         }),
       ctx.ctrl.chatCtrl && renderChat(ctx.ctrl.chatCtrl),
@@ -240,7 +237,7 @@ const share = (ctx: RelayViewContext) => {
           'To synchronize ongoing games, use ',
           hl(
             'a',
-            { attrs: { href: '/api#tag/Broadcasts/operation/broadcastStreamRoundPgn' } },
+            { attrs: { href: '/api#tag/broadcasts/get/apistreambroadcastroundbroadcastroundidpgn' } },
             'our free streaming API',
           ),
           ' for stupendous speed and efficiency.',
@@ -382,7 +379,7 @@ const roundSelect = (relay: RelayCtrl, study: StudyCtrl) => {
                         ? commonDateFormat(new Date(round.startsAt))
                         : round.startsAfterPrevious &&
                             i18n.broadcast.startsAfter(
-                              relay.data.rounds[i - 1]?.name || 'the previous round',
+                              relay.data.rounds[i - 1] ? relay.data.rounds[i - 1].name : 'the previous round',
                             ),
                     ),
                     hl(
@@ -419,7 +416,7 @@ const games = (ctx: RelayViewContext) => [
 
 const teams = (ctx: RelayViewContext) => [
   header(ctx),
-  ctx.relay.teams && teamsView(ctx.relay.teams, ctx.study.chapters.list, ctx.relay.players),
+  ctx.relay.teams && teamsView(ctx.relay.teams, ctx.study.chapters.list, ctx.relay.players, ctx.relay.round),
 ];
 
 const stats = (ctx: RelayViewContext) => [header(ctx), statsView(ctx.relay.stats)];
@@ -447,7 +444,15 @@ const header = (ctx: RelayViewContext) => {
     d.tour.communityOwner &&
       renderNote(
         hl('div', i18n.broadcast.communityBroadcast),
-        hl('small', i18n.broadcast.createdAndManagedBy.asArray(userLink(d.tour.communityOwner))),
+        hl(
+          'small',
+          i18n.broadcast.createdAndManagedBy.asArray(
+            userLink({
+              ...d.tour.communityOwner,
+              flair: undefined,
+            }),
+          ),
+        ),
       ),
     d.note &&
       renderNote(
@@ -548,7 +553,7 @@ const broadcastImageOrStream = (ctx: RelayViewContext) => {
     embedVideo
       ? relay.videoPlayer?.render()
       : d.tour.image
-        ? hl('img', { attrs: { src: d.tour.image } })
+        ? hl('img', { attrs: { src: d.tour.image, alt: '' } })
         : ctx.study.members.isOwner()
           ? hl(
               'a.button.relay-tour__header__image-upload',
