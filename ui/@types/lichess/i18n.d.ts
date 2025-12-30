@@ -8,8 +8,6 @@ interface I18nPlural {
   asArray: <T>(quantity: number, ...args: T[]) => (T | string)[]; // vdomPlural / plural
 }
 interface I18n {
-  /** fetch i18n dynamically */
-  load(catalog: string): Promise<void>;
   /** global noarg key lookup */
   (key: string): string;
   quantity: (count: number) => 'zero' | 'one' | 'two' | 'few' | 'many' | 'other';
@@ -233,8 +231,8 @@ interface I18n {
     aboutBroadcasts: string;
     /** Add a round */
     addRound: string;
-    /** Age this year */
-    ageThisYear: string;
+    /** Age */
+    age: string;
     /** View all broadcasts by month */
     allBroadcastsByMonth: string;
     /** All teams */
@@ -489,6 +487,8 @@ interface I18n {
     declined: string;
     /** Edit news */
     editNews: string;
+    /** Expiration %s */
+    expirationInMomentFromNow: I18nFormat;
     /** Features */
     features: string;
     /** 100% free for all, forever, with no ads or trackers */
@@ -581,6 +581,14 @@ interface I18n {
     privateWillNeverBeShown: string;
     /** Progress */
     progress: string;
+    /** Quick login code */
+    quickLoginCode: string;
+    /** Quick login codes */
+    quickLoginCodes: string;
+    /** Use these codes on %s to log your students into Lichess. */
+    quickLoginCodesDesc1: I18nFormat;
+    /** When the codes expire, your students will remain logged in, until they manually log out. */
+    quickLoginCodesDesc2: string;
     /** Quickly generate safe usernames and passwords for students */
     quicklyGenerateSafeUsernames: string;
     /** Real name */
@@ -2689,6 +2697,10 @@ interface I18n {
     mix: string;
     /** A bit of everything. You don't know what to expect, so you remain ready for anything! Just like in real games. */
     mixDescription: string;
+    /** Morphy's mate */
+    morphysMate: string;
+    /** Use the bishop to check the king, while your rook helps to confine it. */
+    morphysMateDescription: string;
     /** One-move puzzle */
     oneMove: string;
     /** A puzzle that is only one move long. */
@@ -2697,10 +2709,18 @@ interface I18n {
     opening: string;
     /** A tactic during the first phase of the game. */
     openingDescription: string;
+    /** Opera mate */
+    operaMate: string;
+    /** Check the king with a rook and use a bishop to defend the rook. */
+    operaMateDescription: string;
     /** Pawn endgame */
     pawnEndgame: string;
     /** An endgame with only pawns. */
     pawnEndgameDescription: string;
+    /** Pillsbury's mate */
+    pillsburysMate: string;
+    /** The rook delivers checkmate, while the bishop helps to confine it. */
+    pillsburysMateDescription: string;
     /** Pin */
     pin: string;
     /** A tactic involving pins, where a piece is unable to move without revealing an attack on a higher value piece. */
@@ -2833,6 +2853,16 @@ interface I18n {
     openingsMostPlayedAsBlack: I18nPlural;
     /** Your most played opening as white with %s games */
     openingsMostPlayedAsWhite: I18nPlural;
+    /** We're a charity, running purely on donations. */
+    patronCharity: string;
+    /** If we helped entertain you this year, or you believe in our work, please consider %s! */
+    patronConsiderDonating: I18nFormat;
+    /** costs */
+    patronCosts: string;
+    /** Lichess's %1$s this year were %2$s. */
+    patronCostsThisYear: I18nFormat;
+    /** supporting us with a donation */
+    patronMakeDonation: string;
     /** What time controls and variants did you play? */
     perfsTitle: string;
     /** You also helped tag %s of them. */
@@ -2853,6 +2883,8 @@ interface I18n {
     shareableFavouriteVariant: string;
     /** most played opponent */
     shareableMostPlayedOpponent: string;
+    /** %s puzzles solved */
+    shareableNbPuzzlesSolved: I18nPlural;
     /** spent playing */
     shareableSpentPlaying: string;
     /** My %s recap */
@@ -3667,8 +3699,6 @@ interface I18n {
     learnFromYourMistakes: string;
     /** Learn */
     learnMenu: string;
-    /** Less than %s minutes */
-    lessThanNbMinutes: I18nPlural;
     /** Let other players challenge you */
     letOtherPlayersChallengeYou: string;
     /** Let other players follow you */
@@ -4225,7 +4255,7 @@ interface I18n {
     signIn: string;
     /** Register */
     signUp: string;
-    /** We will only use it for password reset. */
+    /** We will only use it for password reset and account activation. */
     signupEmailHint: string;
     /** Sign up to host or join a simul */
     signUpToHostOrJoinASimul: string;
@@ -4447,6 +4477,8 @@ interface I18n {
     tryToWin: string;
     /** Type private notes here */
     typePrivateNotesHere: string;
+    /** UltraBullet */
+    ultraBullet: string;
     /** Insanely fast games: less than 30 seconds */
     ultraBulletDesc: string;
     /** Unblock */

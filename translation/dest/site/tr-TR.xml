@@ -474,10 +474,6 @@
   <string name="player">Oyuncu</string>
   <string name="list">Liste</string>
   <string name="graph">Grafik</string>
-  <plurals name="lessThanNbMinutes">
-    <item quantity="one">%s dakikadan daha az</item>
-    <item quantity="other">%s dakikadan daha az</item>
-  </plurals>
   <string name="required">Gerekli.</string>
   <string name="openTournaments">Açık turnuvalar</string>
   <string name="duration">Süre</string>
@@ -566,7 +562,7 @@
   <string name="views">Görüntülenme sayısı</string>
   <string name="replies">Cevaplar</string>
   <string name="replyToThisTopic">Bu konu hakkında cevap yaz</string>
-  <string name="reply" comment="Appears on buttons in the forum. Clicking the button will post a reply to a topic.">Cevap yaz</string>
+  <string name="reply">Cevap yaz</string>
   <string name="message">Mesaj</string>
   <string name="createTheTopic">Bildiri oluştur</string>
   <string name="reportAUser">Kullanıcı ihbar et</string>

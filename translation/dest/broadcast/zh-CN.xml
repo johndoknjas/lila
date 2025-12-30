@@ -23,12 +23,12 @@
   <string name="tournamentDescription">锦标赛简短描述</string>
   <string name="fullDescription">锦标赛完整描述</string>
   <string name="fullDescriptionHelp">锦标赛的详细描述（可选）。可使用 %1$s 格式。长度必须少于 %2$s 个字符。</string>
-  <string name="sourceSingleUrl">PGN 源文件 URL</string>
-  <string name="sourceUrlHelp">Lichess 将检查此 URL 以获取 PGN 更新。它必须能在互联网上公开访问。</string>
+  <string name="sourceSingleUrl">PGN 源文件链接</string>
+  <string name="sourceUrlHelp">Lichess 将检查此链接以获取 PGN 更新。它必须能在互联网上公开访问。</string>
   <string name="sourceGameIds">最多 64 个 Lichess 对局 ID，以空格分隔。</string>
   <string name="startDateTimeZone">锦标赛本地时区的开始日期：%s</string>
   <string name="startDateHelp">如果您知道赛事开始时间（可选）</string>
-  <string name="currentGameUrl">当前对局 URL</string>
+  <string name="currentGameUrl">当前对局链接</string>
   <string name="downloadAllRounds">下载所有轮次</string>
   <string name="resetRound">重置此轮次</string>
   <string name="deleteRound">删除此轮次</string>
@@ -45,7 +45,7 @@
   <string name="fidePlayerNotFound">未找到 FIDE 棋手</string>
   <string name="fideProfile">FIDE 档案</string>
   <string name="federation">所属协会</string>
-  <string name="ageThisYear">今年年龄</string>
+  <string name="age" comment="Label for the age of a player. Appears on FIDE profiles of players.">年龄</string>
   <string name="unrated">无等级分</string>
   <string name="recentTournaments">近期锦标赛</string>
   <string name="openLichess">在 Lichess 中打开</string>
@@ -81,6 +81,6 @@
   <string name="liveboard">实时棋盘</string>
   <string name="communityBroadcast">社区转播</string>
   <string name="createdAndManagedBy">由 %s 创建和管理。</string>
-  <string name="roundX" comment="%s is the number of the round.&#10;e.g. &quot;Round 2&quot;.&#10;&#10;If your language changes the word &quot;Round&quot; based on the number after it, consider using punctuation to get around the problem (e.g. &quot;Round: %s&quot;).&#10;&#10;This is the standard name for a round in a broadcast (https://lichess.org/broadcast), so it is translatable.&#10;&#10;Broadcasters may optionally override it. If they override the default name, it will be in a language and words of their choice e.g. &quot;Semifinals Tiebreak 1&quot; - no longer being translatable.">第 %s 轮</string>
-  <string name="defaultRoundNameHelp" comment="This is help text for broadcast authors setting a round name. The default is &quot;Round %s&quot; (translatable separately).&#10;&#10;If broadcasters keep the round name to the default, it will be automatically translated.&#10;&#10;Broadcasters may optionally override it. If they override the default name, it will be in a language and words of their choice e.g. &quot;Semifinals Tiebreak 1&quot; - no longer being translatable.">保留默认名称会将其自动翻译为其他语言。</string>
+  <string name="roundX">第 %s 轮</string>
+  <string name="defaultRoundNameHelp">保留默认名称会将其自动翻译为其他语言。</string>
 </resources>

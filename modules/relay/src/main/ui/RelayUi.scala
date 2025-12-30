@@ -26,22 +26,24 @@ final class RelayUi(helpers: Helpers)(
       chatOption: Option[(JsObject, Frag)],
       socketVersion: SocketVersion
   )(using ctx: Context) =
+    val imageUrl = rt.tour.image.map(thumbnail.url(_, _.Size.Large))
     Page(rt.transName)
       .css("analyse.relay")
+      .css(ctx.blind.option("round.nvui"))
       .i18n(_.study, _.broadcast)
-      .i18nOpt(ctx.blind, _.keyboardMove, _.nvui)
+      .i18nOpt(ctx.speechSynthesis, _.nvui)
+      .i18nOpt(ctx.blind, _.keyboardMove)
       .js(analyseNvuiTag)
       .js(pageModule(rt, data, chatOption, socketVersion))
-      .js(esmInitBit("fidePlayerFollow"))
       .flag(_.zoom)
-      .graph(
+      .graph:
         OpenGraph(
           title = rt.transName,
-          url = pathUrl(rt.path),
+          url = routeUrl(rt.call),
           description = shorten(rt.tour.info.toString, 152),
-          image = rt.tour.image.map(thumbnail.url(_, _.Size.Large))
+          image = imageUrl
         )
-      ):
+      .preloadImage(imageUrl)(helpers):
         showPreload(rt, data)
 
   def pageModule(
@@ -60,7 +62,7 @@ final class RelayUi(helpers: Helpers)(
           "data" -> data.analysis,
           "tagTypes" -> lila.study.StudyPgnTags.typesToString,
           "userId" -> ctx.userId,
-          "chat" -> chatOption.map(_._1),
+          "chat" -> chatOption._1F,
           "socketUrl" -> socketUrl(rt.study.id),
           "socketVersion" -> socketVersion
         )

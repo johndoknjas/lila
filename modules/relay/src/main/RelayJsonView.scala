@@ -5,7 +5,7 @@ import scalalib.Json.paginatorWriteNoNbResults
 import scalalib.paginator.Paginator
 
 import lila.common.Json.{ *, given }
-import lila.core.config.BaseUrl
+import lila.core.config.RouteUrl
 import lila.memo.PicfitUrl
 import lila.relay.RelayTour.{ WithLastRound, WithRounds }
 import lila.study.ChapterPreview
@@ -13,9 +13,10 @@ import lila.study.Settings
 import lila.core.socket.SocketVersion
 import lila.core.LightUser.GetterSync
 import lila.core.i18n.Translate
+import lila.core.fide.PhotosJson
 
 final class RelayJsonView(
-    baseUrl: BaseUrl,
+    routeUrl: RouteUrl,
     picfitUrl: PicfitUrl,
     lightUserSync: GetterSync,
     markdown: RelayMarkdown
@@ -41,7 +42,7 @@ final class RelayJsonView(
         "slug" -> t.slug,
         "info" -> t.info,
         "createdAt" -> t.createdAt,
-        "url" -> s"$baseUrl${t.path}"
+        "url" -> routeUrl(t.call)
       )
       .add("tier" -> t.tier)
       .add("dates" -> t.dates)
@@ -101,7 +102,7 @@ final class RelayJsonView(
 
   def withUrl(rt: RelayRound.WithTour, withTour: Boolean)(using Translate): JsObject =
     apply(rt.round) ++ Json
-      .obj("url" -> s"$baseUrl${rt.path}")
+      .obj("url" -> routeUrl(rt.call))
       .add("tour" -> withTour.option(rt.tour))
 
   def withUrlAndPreviews(
@@ -110,10 +111,11 @@ final class RelayJsonView(
       group: Option[RelayGroup.WithTours],
       targetRound: Option[RelayRound.WithTour],
       isSubscribed: Option[Boolean],
-      socketVersion: Option[SocketVersion]
+      socketVersion: Option[SocketVersion],
+      photos: PhotosJson
   )(using Option[Me])(using Translate): JsObject =
     myRound(rt) ++ Json
-      .obj("games" -> previews)
+      .obj("games" -> previews, "photos" -> photos)
       .add("group" -> group)
       .add("targetRound" -> targetRound.map(withUrl(_, true)))
       .add("isSubscribed", isSubscribed)
@@ -130,7 +132,7 @@ final class RelayJsonView(
 
     Json.obj(
       "round" -> apply(r.relay)
-        .add("url" -> s"$baseUrl${r.path}".some)
+        .add("url" -> routeUrl(r.call).some)
         .add("delay" -> r.relay.sync.delay),
       "tour" -> fullTour(r.tour)(using Config(html = false)),
       "study" -> Json.obj(
@@ -152,7 +154,8 @@ final class RelayJsonView(
       isSubscribed: Option[Boolean],
       videoUrls: Option[PairOf[String]],
       pinned: Option[RelayPinnedStream],
-      delayedUntil: Option[Instant]
+      delayedUntil: Option[Instant],
+      photos: PhotosJson
   )(using Translate) =
     RelayJsonView.JsData(
       relay = fullTourWithRounds(trs, group)(using Config(html = true))
@@ -162,6 +165,7 @@ final class RelayJsonView(
         .add("videoUrls" -> videoUrls)
         .add("note" -> canContribute.so(trs.tour.note))
         .add("delayedUntil" -> delayedUntil)
+        .add("photos" -> photos.some)
         .add("pinned" -> pinned.map: p =>
           Json
             .obj("name" -> p.name)
@@ -188,7 +192,12 @@ object RelayJsonView:
 
   case class Config(html: Boolean)
 
-  case class JsData(relay: JsObject, study: JsObject, analysis: JsObject, group: Option[RelayGroup.Name])
+  case class JsData(
+      relay: JsObject,
+      study: JsObject,
+      analysis: JsObject,
+      group: Option[RelayGroup.Name]
+  )
 
   given OWrites[RelayPinnedStream] = OWrites: s =>
     Json.obj("name" -> s.name)

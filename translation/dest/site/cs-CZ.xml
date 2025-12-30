@@ -540,12 +540,6 @@
   <string name="player">Hráč</string>
   <string name="list">Seznam</string>
   <string name="graph">Graf</string>
-  <plurals name="lessThanNbMinutes">
-    <item quantity="one">Méně než %s minuta</item>
-    <item quantity="few">Méně než %s minuty</item>
-    <item quantity="many">Méně než %s minut</item>
-    <item quantity="other">Méně než %s minut</item>
-  </plurals>
   <string name="required">Vyžadováno.</string>
   <string name="openTournaments">Otevřené turnaje</string>
   <string name="duration">Trvání</string>
@@ -636,7 +630,7 @@
   <string name="views">Zobrazení</string>
   <string name="replies">Odpovědi</string>
   <string name="replyToThisTopic">Odpovědět na toto téma</string>
-  <string name="reply" comment="Appears on buttons in the forum. Clicking the button will post a reply to a topic.">Odpovědět</string>
+  <string name="reply">Odpovědět</string>
   <string name="message">Zpráva</string>
   <string name="createTheTopic">Vytvořit téma</string>
   <string name="reportAUser">Nahlásit uživatele</string>

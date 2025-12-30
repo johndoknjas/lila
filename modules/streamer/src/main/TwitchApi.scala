@@ -1,40 +1,47 @@
 package lila.streamer
 
+import scala.collection.concurrent.TrieMap
+import akka.stream.scaladsl.*
 import play.api.i18n.Lang
 import play.api.libs.json.*
 import play.api.libs.ws.DefaultBodyWritables.*
 import play.api.libs.ws.JsonBodyReadables.*
 import play.api.libs.ws.JsonBodyWritables.*
-import play.api.libs.ws.StandaloneWSClient
+import play.api.libs.ws.{ StandaloneWSClient, StandaloneWSResponse }
 import play.api.mvc.Headers
-import scala.collection.concurrent.TrieMap
 
 import lila.common.Json.given
 import lila.core.config.Secret
 import lila.core.config.NetConfig
 import lila.core.data.Html
 
-private[streamer] object Twitch:
-  case class HelixStream(user_id: String, user_login: String, title: Html, language: String, `type`: String)
+private object Twitch:
+
+  opaque type TwitchId = String
+  object TwitchId extends OpaqueString[TwitchId]
+
+  opaque type TwitchLogin = String
+  object TwitchLogin extends OpaqueString[TwitchLogin]
+
+  case class HelixStream(
+      user_id: TwitchId,
+      user_login: TwitchLogin,
+      title: Html,
+      language: String,
+      `type`: String
+  ):
+    def live = `type` == "live"
   case class Pagination(cursor: Option[String])
   case class Result(data: Option[List[HelixStream]], pagination: Option[Pagination]):
-    def liveStreams = (~data).filter(_.`type` == "live")
-  case class TwitchStream(id: String, login: String, status: Html, streamer: Streamer, lang: Lang)
-      extends lila.streamer.Stream:
+    def liveStreams = (~data).filter(_.live)
+  case class TwitchStream(stream: HelixStream, streamer: Streamer) extends lila.streamer.Stream:
     def platform = "twitch"
+    def status = stream.title
     def urls = lila.streamer.Stream.Urls(
-      embed = parent => s"https://player.twitch.tv/?channel=${login}&parent=${parent}",
-      redirect = s"https://www.twitch.tv/${login}"
+      embed = parent => s"https://player.twitch.tv/?channel=${stream.user_login}&parent=${parent}",
+      redirect = s"https://www.twitch.tv/${stream.user_login}"
     )
-  object TwitchStream:
-    def apply(helix: HelixStream, streamer: Streamer): TwitchStream =
-      TwitchStream(
-        id = helix.user_id,
-        login = helix.user_login,
-        streamer = streamer,
-        status = helix.title,
-        lang = Lang.get(helix.language) | lila.core.i18n.defaultLang
-      )
+    def lang = Lang.get(stream.language) | lila.core.i18n.defaultLang
   given Reads[HelixStream] = Json.reads
   given Reads[Result] = Json.reads
   given Reads[Pagination] = Json.reads
@@ -53,7 +60,7 @@ final private class TwitchApi(
     cfg: TwitchConfig,
     net: NetConfig,
     cacheApi: lila.memo.CacheApi
-)(using Executor):
+)(using Executor, akka.stream.Materializer):
 
   import Twitch.{ given, * }
 
@@ -61,15 +68,16 @@ final private class TwitchApi(
   private val webhook = net.routeUrl(routes.Streamer.onTwitchEventSub)
   private val eventSubEndpoint = s"${cfg.helixEndpoint}/eventsub/subscriptions"
   private val eventVersions = Map("stream.online" -> "1", "stream.offline" -> "1", "channel.update" -> "2")
-  private val lives = TrieMap.empty[String, HelixStream]
+  private val reqsPerMinute = 30
+  private val lives = TrieMap.empty[TwitchId, HelixStream]
 
-  private case class EventSub(subId: String, broadcasterId: String, event: String)
+  private case class EventSub(subId: String, broadcasterId: TwitchId, event: String, hook: Url)
 
   def debugLives: String = lives.toString
 
   def liveMatching(
       streamers: List[Streamer],
-      filter: (s: TwitchStream) => Boolean
+      filter: TwitchStream => Boolean
   ): Fu[List[TwitchStream]] =
     fuccess:
       val ids = streamers.flatMap(_.twitch.map(_.id)).toSet
@@ -93,64 +101,81 @@ final private class TwitchApi(
         case "notification" =>
           val done = for
             event <- (js \ "event").asOpt[JsObject]
-            login <- (event \ "broadcaster_user_login").asOpt[String]
-            id <- (event \ "broadcaster_user_id").asOpt[String]
+            login <- (event \ "broadcaster_user_login").asOpt[TwitchLogin]
+            id <- (event \ "broadcaster_user_id").asOpt[TwitchId]
             subType <- (js \ "subscription" \ "type").asOpt[String]
           yield subType match
-            case "stream.online" => fetchStream(id).map(_.foreach(l => lives.update(l.user_id, l)))
+            case "stream.online" =>
+              logger.info(s"stream online: $login ($id) exists: ${lives.contains(id)})")
+              fetchStream(id).map(_.foreach(l => lives.update(l.user_id, l)))
             case "stream.offline" =>
-              logger.info(s"Twitch stream offline: $login ($id) exists: ${lives.contains(id)})")
+              logger.info(s"stream offline: $login ($id) exists: ${lives.contains(id)})")
               lives.remove(id)
             case "channel.update" =>
               val title = ~(event \ "title").asOpt[String]
               val lang = (event \ "language").asOpt[String].filter(_.nonEmpty).getOrElse("en")
+              logger.info(s"channel update: $login ($id) title: $title lang: $lang")
               lives.updateWith(id)(_.map(_.copy(user_login = login, title = Html(title), language = lang)))
             case _ => ()
           if done.isEmpty then logger.warn(s"Unknown Twitch event notification: $js")
           fuccess(none)
         case _ => fuccess(none)
 
-  private[streamer] def subscribeAll: Funit = cfg.clientId.nonEmpty.so:
+  private[streamer] def subscribeAll: Funit =
     for
-      latestSeenApprovedIds <- repo.approvedIds("twitch")
-      subs <- listSubs(Set.empty, none)
-      _ = logger.info(s"Currently subscribed to ${subs.size} event subs")
+      latestSeenApprovedIds <- repo.approvedTwitchIds()
+      _ = logger.info(s"${latestSeenApprovedIds.size} approved twitch ids")
+      allSubs <- listSubs(Set.empty, none)
+      _ = logger.info(s"Currently subscribed to ${allSubs.size} event subs")
+      (invalid, subs) = allSubs.partition(_.hook != webhook)
+      _ <- invalid.nonEmpty.so:
+        logger.info(s"Deleting ${invalid.size} invalid event subs")
+        deleteSubs(invalid.toList)
+      _ = logger.info(s"Currently subscribed to ${subs.size} valid event subs")
       existing = subs.map(sub => (sub.broadcasterId, sub.event)).toSet
       approved = latestSeenApprovedIds.toSet
       wanted = latestSeenApprovedIds.flatMap: id =>
-        eventVersions.keys
-          .filterNot(event => existing(id -> event))
-          .map(event => (id, event))
-      _ <- deleteSubs(subs.filter { case EventSub(_, id, _) => !approved(id) }.toList)
+        eventVersions.keys.filterNot(event => existing(id -> event)).map(id -> _)
+      subsToDelete = subs.filter(s => !approved(s.broadcasterId)).toList
+      _ <- deleteSubs(subsToDelete)
+      _ = logger.info(s"Subscribing to ${wanted.size} new event subs")
       _ <- subscribeMany(wanted)
     yield ()
 
-  private[streamer] def syncAll: Funit = cfg.clientId.nonEmpty.so:
+  private[streamer] def syncAll: Funit =
     for
-      latestSeenApprovedIds <- repo.approvedIds("twitch")
+      latestSeenApprovedIds <- repo.approvedTwitchIds()
       allOngoingStreams <- latestSeenApprovedIds
         .grouped(100)
         .toList
         .sequentially(fetchStreams)
         .map(_.flatten)
       newLives = allOngoingStreams.view.map(l => l.user_id -> l).toMap
-      freshIds = newLives.keySet
     yield
-      latestSeenApprovedIds.filterNot(freshIds).foreach(lives.remove)
+      (lives.keySet.toSet -- newLives.keySet).foreach(lives.remove)
       newLives.foreach(lives.update)
+
+  private[streamer] def checkThatLiveStreamersReallyAreLive: Funit =
+    fetchStreams(lives.keys.toSeq).map { helixes =>
+      val liveIds = helixes.map(_.user_id).toSet
+      lives.foreach: (id, stream) =>
+        if !liveIds(id) then
+          logger.info(s"Stream ${id}/${stream.user_login} seems offline, removing from lives")
+          lives.remove(id)
+    }
 
   private[streamer] def forceCheck(s: Streamer.Twitch): Funit =
     fetchStream(s.id).map(helix => lives.updateWith(s.id)(_ => helix))
 
-  private[streamer] def pubsubSubscribe(id: String, subscribe: Boolean): Funit =
-    if subscribe then eventVersions.keys.map(event => subscribeEvent(id, event)).parallel.void
+  private[streamer] def pubsubSubscribe(id: TwitchId, subscribe: Boolean): Funit =
+    if subscribe
+    then streamRequests(eventVersions.keys.toList)("subscribe")(subscribeEvent(id, _))
     else fetchStreamSubs(id).map(deleteSubs)
 
-  private def subscribeMany(wanted: Seq[(String, String)]): Funit =
-    logger.info(s"Subscribing to ${wanted.size} new event subs")
-    wanted.parallelN(8)(subscribeEvent)
+  private def subscribeMany(wanted: Seq[(TwitchId, String)]): Funit =
+    streamRequests(wanted.toList)("subscribe")(subscribeEvent)
 
-  private def subscribeEvent(id: String, event: String) =
+  private def subscribeEvent(id: TwitchId, event: String) =
     for
       headers <- headersAuth
       body = Json
@@ -168,29 +193,28 @@ final private class TwitchApi(
         .url(eventSubEndpoint)
         .withHttpHeaders(headers*)
         .post(body)
-    yield
-      logger.debug(s"subscribeEvent $id $event ${res.status}")
-      res
+        .addEffect(logFailed(s"subscribeEvent $id $event"))
+    yield res
 
-  private def fetchStream(id: String): Fu[Option[HelixStream]] =
+  private def fetchStream(id: TwitchId): Fu[Option[HelixStream]] =
     fetchStreams(Seq(id)).map(_.headOption)
 
-  private def fetchStreamSubs(id: String): Fu[Seq[EventSub]] =
+  private def fetchStreamSubs(id: TwitchId): Fu[Seq[EventSub]] =
     for
       headers <- headersAuth
       res <- ws
         .url(eventSubEndpoint)
-        .withQueryStringParameters("user_id" -> id)
+        .withQueryStringParameters("user_id" -> id.value)
         .withHttpHeaders(headers*)
         .get()
+        .addEffect(logFailed(s"fetchStreamSubs $id"))
     yield
       for
         sub <- ~res.body[JsValue].get[List[JsValue]]("data")
         subId <- (sub \ "id").asOpt[String]
         event <- (sub \ "type").asOpt[String]
         hook <- (sub \ "transport" \ "callback").asOpt[Url]
-        if hook == webhook
-      yield EventSub(subId, id, event)
+      yield EventSub(subId, id, event, hook)
 
   private def listSubs(soFar: Set[EventSub], after: Option[String]): Fu[Set[EventSub]] =
     logger.info(s"Listing subs, so far ${soFar.size}")
@@ -200,16 +224,16 @@ final private class TwitchApi(
       res <- after
         .fold(request)(cursor => request.withQueryStringParameters("after" -> cursor))
         .get()
+        .addEffect(logFailed(s"listSubs (so far: ${soFar.size})"))
       subs <-
         val js = res.body[JsValue]
         val pageSet = for
           d <- ~js.get[List[JsValue]]("data")
           subId <- d.str("id")
-          broadcasterId <- (d \ "condition" \ "broadcaster_user_id").asOpt[String]
+          broadcasterId <- (d \ "condition" \ "broadcaster_user_id").asOpt[TwitchId]
           event <- d.str("type")
           hook <- (d \ "transport" \ "callback").asOpt[Url]
-          if hook == webhook
-        yield EventSub(subId, broadcasterId, event)
+        yield EventSub(subId, broadcasterId, event, hook)
 
         val result = soFar ++ pageSet.toSet
         (js \ "pagination" \ "cursor")
@@ -218,34 +242,41 @@ final private class TwitchApi(
     yield subs
 
   private def deleteSubs(subs: Seq[EventSub]): Funit =
-    logger.info(s"Deleting ${subs.size} subs")
-    subs.nonEmpty.so:
-      for
-        headers <- headersAuth
-        _ <- subs.parallelN(8): sub =>
-          ws.url(s"$eventSubEndpoint?id=${sub.subId}")
-            .withHttpHeaders(headers*)
-            .delete()
-            .void
-      yield ()
+    for
+      headers <- headersAuth
+      _ <- streamRequests(subs.toList)("unsubscribe"): sub =>
+        ws.url(s"$eventSubEndpoint?id=${sub.subId}")
+          .withHttpHeaders(headers*)
+          .delete()
+          .addEffect(logFailed(s"deleteSub ${sub.subId}"))
+    yield ()
 
-  private def fetchStreams(ids: Seq[String]): Fu[Seq[HelixStream]] =
+  private def streamRequests[A](list: List[A])(msg: String)(send: A => Fu[StandaloneWSResponse]): Funit =
+    val size = list.size
+    Source(list)
+      .throttle(reqsPerMinute * 9 / 10, 1.minute)
+      .mapAsync(1)(send)
+      .map(_ => ())
+      .runWith:
+        Sink.fold[Int, Unit](0): (counter, _) =>
+          if counter % 20 == 0 then logger.info(s"$counter/$size $msg")
+          counter + 1
+      .void
+
+  private def logFailed(context: String)(res: StandaloneWSResponse) =
+    if res.status / 100 != 2 then logger.warn(s"$context failed: ${lila.log.http(res.status, res.body)}")
+
+  private def fetchStreams(ids: Seq[TwitchId]): Fu[Seq[HelixStream]] =
     ids.nonEmpty.so:
       for
         headers <- headersAuth
         res <- ws
           .url(s"${cfg.helixEndpoint}/streams")
-          .withQueryStringParameters(ids.map(l => "user_id" -> l)*)
+          .withQueryStringParameters(ids.map(l => "user_id" -> l.value)*)
           .withHttpHeaders(headers*)
           .get()
-        streams =
-          for
-            d <- ~res.body[JsValue].get[Seq[JsObject]]("data")
-            tpe <- d.str("type")
-            if tpe == "live"
-            stream <- d.asOpt[HelixStream]
-          yield stream
-      yield streams
+          .addEffect(logFailed(s"fetchStreams ${ids.mkString(",")}"))
+      yield res.body[JsValue].get[Seq[HelixStream]]("data").orZero.filter(_.live)
 
   private def verifyMessage(rawBody: String, headers: Headers): Option[String] =
     def header(name: String): Option[String] = headers.get(s"Twitch-Eventsub-Message-$name")

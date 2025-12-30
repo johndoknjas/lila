@@ -401,7 +401,7 @@
     <item quantity="other">Vous devez encore jouer %s parties classées</item>
   </plurals>
   <string name="yourPerfRatingIsProvisional">Votre classement %s est provisoire</string>
-  <string name="ratingRangeIsDisabledBecauseYourRatingIsProvisional" comment="Tooltip to explain why the control for filtering by rating is disabled">Les filtres de classement sont verrouillés parce que votre classement (votre cote) n\'est pas stable. Jouer davantage de parties classées contribuera à stabiliser votre classement.</string>
+  <string name="ratingRangeIsDisabledBecauseYourRatingIsProvisional" comment="Tooltip to explain why the control is disabled">Les filtres de classement sont verrouillés parce que votre classement (votre cote) n\'est pas stable. Jouer davantage de parties classées contribuera à stabiliser votre classement.</string>
   <string name="yourPerfRatingIsTooHigh">Votre cote %1$s (%2$s) est trop élevée</string>
   <string name="yourTopWeeklyPerfRatingIsTooHigh">Votre meilleure cote hebdomadaire de %1$s (%2$s) est trop élevée</string>
   <string name="yourPerfRatingIsTooLow">Votre cote de %1$s (%2$s) est trop faible</string>
@@ -474,10 +474,6 @@
   <string name="player">Joueur</string>
   <string name="list">Liste</string>
   <string name="graph">Graphique</string>
-  <plurals name="lessThanNbMinutes">
-    <item quantity="one">Moins de %s minute</item>
-    <item quantity="other">Moins de %s minutes</item>
-  </plurals>
   <string name="required">Requis.</string>
   <string name="openTournaments">Tournois ouverts</string>
   <string name="duration">Durée</string>
@@ -566,7 +562,7 @@
   <string name="views">Vues</string>
   <string name="replies">Réponses</string>
   <string name="replyToThisTopic">Répondre à ce sujet</string>
-  <string name="reply" comment="Appears on buttons in the forum. Clicking the button will post a reply to a topic.">Répondre</string>
+  <string name="reply">Répondre</string>
   <string name="message">Message</string>
   <string name="createTheTopic">Créer un sujet</string>
   <string name="reportAUser">Signaler un utilisateur</string>
@@ -728,6 +724,7 @@
   <string name="cyclePreviousOrNextVariation">Variante précédente/suivante</string>
   <string name="toggleGlyphAnnotations">Activer/désactiver les annotations en symboles</string>
   <string name="togglePositionAnnotations">Activer/désactiver les annotations de positions</string>
+  <string name="toggleObservationAnnotations">Activer/désactiver les annotations d\'observation</string>
   <string name="variationArrowsInfo">Les flèches de variantes vous permettent de naviguer sans utiliser la liste des coups.</string>
   <string name="playSelectedMove">jouer le coup sélectionné</string>
   <string name="newTournament">Nouveau tournoi</string>
@@ -911,6 +908,7 @@
   <string name="agreementPolicy">Je m\'engage à respecter toutes les règles de Lichess.</string>
   <string name="searchOrStartNewDiscussion">Rechercher ou démarrer une nouvelle conversation</string>
   <string name="edit">Éditer</string>
+  <string name="ultraBullet" comment="Probably best left untranslated. Leave it as 'UltraBullet' unless your language has a better word for it.">Ultrabullet</string>
   <string name="bullet" comment="Probably best left untranslated. Leave it as 'Bullet' unless your language has a better word for it.">Bullet</string>
   <string name="blitz" comment="Probably best left untranslated. Leave it as 'Blitz' unless your language has a better word for it.">Blitz</string>
   <string name="rapid">Rapide</string>
