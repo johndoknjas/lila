@@ -27,7 +27,12 @@ function featured(game: FeaturedGame, opts: TournamentOpts): VNode {
     `div.tour__featured.mini-game.mini-game-${game.id}.mini-game--init.is2d`,
     {
       attrs: { 'data-state': `${game.fen},${game.orientation},${game.lastMove}`, 'data-live': game.id },
-      hook: onInsert(site.powertip.manualUserIn),
+      hook: {
+        insert(vnode) {
+          onInsert(site.powertip.manualUserIn);
+          (vnode.elm as any).pockets = game.pockets;
+        },
+      },
     },
     [
       featuredPlayer(game, opposite(game.orientation), opts),

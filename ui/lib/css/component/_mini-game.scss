@@ -24,6 +24,42 @@
     overflow: hidden;
   }
 
+  &__variant {
+    @extend %roboto;
+
+    flex: 0 0 auto;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35ch;
+    margin-inline-start: 0.75ch;
+    font-size: 0.9em;
+    padding: 0.12em 0.35em;
+    border-radius: 0.3em;
+    background: rgba(120, 120, 120, 0.35);
+    border: 1px solid rgba(0, 0, 0, 0.18);
+  }
+
+  &__variant-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.15ch;
+  }
+
+  &__variant-piece {
+    display: inline-block;
+    width: 1.05em;
+    height: 1.05em;
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: contain;
+    vertical-align: -0.1em;
+  }
+
+  &__variant-count {
+    font-size: 0.85em;
+    line-height: 1;
+  }
+
   &__flag {
     width: 1.2em;
     aspect-ratio: 1;

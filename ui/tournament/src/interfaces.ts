@@ -1,3 +1,5 @@
+import type { CrazyPocket } from 'lib/tree/types';
+
 export interface StandingPlayer extends SimplePlayer {
   id: string;
   withdraw?: boolean;
@@ -109,6 +111,7 @@ export interface FeaturedGame {
     black: number;
   };
   winner?: Color;
+  pockets?: [CrazyPocket, CrazyPocket];
 }
 
 export interface SimplePlayer {
