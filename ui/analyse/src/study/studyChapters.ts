@@ -212,8 +212,13 @@ export function view(ctrl: StudyCtrl): VNode {
               (vnode.elm as HTMLElement).scrollTop = scrollTop;
           },
           destroy: vnode => {
-            const sortable: Sortable = vnode.data!.li!.sortable;
-            if (sortable) sortable.destroy();
+            const sortable: Sortable | undefined = vnode.data!.li!.sortable;
+            if (sortable) {
+              try {
+                sortable.option('disabled', true);
+              } catch (_) {}
+              vnode.data!.li!.sortable = undefined;
+            }
           },
         },
       },
