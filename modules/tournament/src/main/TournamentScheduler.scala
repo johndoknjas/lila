@@ -393,9 +393,9 @@ Thank you all, you rock!""".some,
         schedule <- first :: second.toList
       yield schedule.plan,
 
-      // medium speed variants
+      // medium speed variants (Atomic only) -- 2/3 of the time
       for
-        (variant, hourOffset) <- List(Atomic -> 0, ThreeCheck -> 2)
+        (variant, hourOffset) <- List(Atomic -> 0)
         hourDelta <- -1 to 6
         when = atTopOfHour(rightNow, hourDelta)
         // Offsets should be balanced mod 3 between all 6 variants at 2/3 hours
@@ -417,9 +417,9 @@ Thank you all, you rock!""".some,
         schedule <- first :: second.toList
       yield schedule.plan,
 
-      // slow variant hourlies
+      // slow variant hourlies (KOTH only) -- 2/3 of the time
       for
-        variant <- List(Crazyhouse, KingOfTheHill)
+        variant <- List(KingOfTheHill)
         hourDelta <- -1 to 6
         when = atTopOfHour(rightNow, hourDelta)
         // Offsets should be balanced mod 3 between all 6 variants at 2/3 hours
@@ -437,6 +437,40 @@ Thank you all, you rock!""".some,
         second = Option.when(speed == Bullet):
           val speed = if when.getHour % 12 == 7 then HyperBullet else Bullet
           Schedule(Hourly, speed, variant, none, when.plusMinutes(30))
+        schedule <- first :: second.toList
+      yield schedule.plan,
+
+      // ThreeCheck hourlies — every hour (no 2/3 gating)
+      for
+        hourDelta <- -1 to 6
+        when = atTopOfHour(rightNow, hourDelta)
+        // Keep the existing offset so the speed pattern stays similar
+        variantCycle = when.getHour + 2
+        speed = variantCycle % 12 match
+          case 2 | 5 => Blitz
+          case 1 | 8 => SuperBlitz
+          case 4 => HippoBullet
+          case 7 | 11 | _ => Bullet
+        first = Schedule(Hourly, speed, ThreeCheck, none, when)
+        second = Option.when(speed == Bullet):
+          val speed2 = if variantCycle % 12 == 7 then HyperBullet else Bullet
+          Schedule(Hourly, speed2, ThreeCheck, none, when.plusMinutes(30))
+        schedule <- first :: second.toList
+      yield schedule.plan,
+
+      // Crazyhouse hourlies — every hour (no 2/3 gating)
+      for
+        hourDelta <- -1 to 6
+        when = atTopOfHour(rightNow, hourDelta)
+        speed = when.getHour % 12 match
+          case 1 | 6 | 9 => Blitz
+          case 0 | 4 => SuperBlitz
+          case 3 => HippoBullet
+          case _ => Bullet
+        first = Schedule(Hourly, speed, Crazyhouse, none, when)
+        second = Option.when(speed == Bullet):
+          val speed2 = if when.getHour % 12 == 7 then HyperBullet else Bullet
+          Schedule(Hourly, speed2, Crazyhouse, none, when.plusMinutes(30))
         schedule <- first :: second.toList
       yield schedule.plan,
 
