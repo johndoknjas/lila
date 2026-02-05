@@ -1,4 +1,4 @@
-import { parseSquare, opposite, squareRank } from 'chessops/util';
+import { parseSquare, opposite, squareRank, squareFile, squareFromCoords } from 'chessops/util';
 import { SquareSet } from 'chessops/squareSet';
 import {
   attacks,
@@ -13,7 +13,7 @@ import {
 import { Board } from 'chessops/board';
 import { Chess } from 'chessops/chess';
 import { chessgroundDests } from 'chessops/compat';
-import type { Role, Color, NormalMove } from 'chessops/types';
+import { type Role, type Color, type Piece, type NormalMove, COLORS, type Square } from 'chessops/types';
 import type { Pin, Undefended, Checkable } from './interfaces';
 
 export const boardAnalysisVariants = [
@@ -27,28 +27,26 @@ export const boardAnalysisVariants = [
 
 const values: Record<Role, number> = { pawn: 1, knight: 3, bishop: 3, rook: 5, queen: 9, king: 100 };
 
-function isSquareAttacked(square: number, byColor: Color, cb: Board): boolean {
-  if (knightAttacks(square).intersects(cb[byColor].intersect(cb.knight))) return true;
-  if (pawnAttacks(opposite(byColor), square).intersects(cb[byColor].intersect(cb.pawn))) return true;
-  if (kingAttacks(square).intersects(cb[byColor].intersect(cb.king))) return true;
-  if (rookAttacks(square, cb.occupied).intersects(cb[byColor].intersect(cb.rooksAndQueens()))) return true;
-  if (bishopAttacks(square, cb.occupied).intersects(cb[byColor].intersect(cb.bishopsAndQueens())))
-    return true;
-  return false;
+const isSquareAttacked = (square: Square, byColor: Color, cb: Board): boolean =>
+  knightAttacks(square).intersects(cb[byColor].intersect(cb.knight)) ||
+  pawnAttacks(opposite(byColor), square).intersects(cb[byColor].intersect(cb.pawn)) ||
+  kingAttacks(square).intersects(cb[byColor].intersect(cb.king)) ||
+  rookAttacks(square, cb.occupied).intersects(cb[byColor].intersect(cb.rooksAndQueens())) ||
+  bishopAttacks(square, cb.occupied).intersects(cb[byColor].intersect(cb.bishopsAndQueens()));
+
+interface PieceOnSquare {
+  piece: Piece;
+  square: Square;
 }
 
-function getAttackers(
-  square: number,
-  byColor: Color,
-  cb: Board,
-): { square: number; role: Role; color: Color }[] {
-  const attackers: { square: number; role: Role; color: Color }[] = [];
+function getAttackers(square: Square, byColor: Color, cb: Board, byRole?: Role): PieceOnSquare[] {
+  const attackers: PieceOnSquare[] = [];
   const colorSet = cb[byColor];
 
   const add = (set: SquareSet) => {
     for (const s of set) {
       const p = cb.get(s);
-      if (p) attackers.push({ ...p, square: s });
+      if (p && (!byRole || p.role === byRole)) attackers.push({ piece: p, square: s });
     }
   };
 
@@ -58,7 +56,18 @@ function getAttackers(
   add(rookAttacks(square, cb.occupied).intersect(colorSet).intersect(cb.rooksAndQueens()));
   add(bishopAttacks(square, cb.occupied).intersect(colorSet).intersect(cb.bishopsAndQueens()));
 
-  return attackers;
+  const pins = detectPins(cb);
+  const usableAttacker = (attacker: PieceOnSquare): boolean => {
+    if (attacker.piece.role === 'king' && isSquareAttacked(square, opposite(byColor), cb)) return false;
+    const pin = pins.find(p => p.pinned === attacker.square);
+    return (
+      !pin ||
+      cb.get(pin.target)?.role !== 'king' ||
+      square === pin.pinner ||
+      between(pin.pinner, pin.target).has(square)
+    );
+  };
+  return attackers.filter(usableAttacker);
 }
 
 export function detectPins(board: Board): Pin[] {
@@ -111,63 +120,65 @@ export function detectPins(board: Board): Pin[] {
   return pins;
 }
 
-function getSEE(
-  square: number,
-  target: { role: Role; color: Color },
-  cb: Board,
-): { balance: number; firstAttacker?: number } {
-  const balances: number[] = [];
-  let pieceOnSquare = target;
-  let currentGain = 0;
-  const attackerColor = opposite(target.color);
-  let nextColor = attackerColor;
-  let firstAttacker: number | undefined;
+const epTargetPawnSq = (epSquare: Square): Square =>
+  squareFromCoords(squareFile(epSquare), squareRank(epSquare) === 2 ? 3 : 4)!;
 
-  const simulationBoard = cb.clone();
+const lookupKey = (board: Board, target: Piece) => `${board.occupied.hi},${board.occupied.lo},${target.role}`;
 
-  while (true) {
-    const attackers = getAttackers(square, nextColor, simulationBoard);
-    if (attackers.length === 0) break;
-
-    // LVA
-    let bestAttacker = attackers[0];
-    for (let i = 1; i < attackers.length; i++) {
-      if (values[attackers[i].role] < values[bestAttacker.role]) {
-        bestAttacker = attackers[i];
-      }
-    }
-
-    if (firstAttacker === undefined) firstAttacker = bestAttacker.square;
-
-    // King safety check
-    if (bestAttacker.role === 'king' && isSquareAttacked(square, opposite(nextColor), simulationBoard)) break;
-
-    currentGain += (nextColor === attackerColor ? 1 : -1) * values[pieceOnSquare.role];
-    balances.push(currentGain);
-
-    simulationBoard.take(bestAttacker.square);
-    pieceOnSquare = bestAttacker;
-    nextColor = opposite(nextColor);
-  }
-
-  if (balances.length === 0) return { balance: 0 };
-
-  // Minimax
-  let currentVal = balances[balances.length - 1];
-  for (let i = balances.length - 2; i >= 0; i--) {
-    currentVal = i % 2 === 0 ? Math.min(balances[i], currentVal) : Math.max(balances[i], currentVal);
-  }
-  return { balance: currentVal, firstAttacker };
+interface SEEResult {
+  balance: number;
+  firstAttacker?: Square;
 }
 
-export function detectUndefended(board: Board): Undefended[] {
+function getSEE(
+  square: Square,
+  isEpSquare: boolean,
+  target: Piece,
+  cb: Board,
+  lookupTable: Map<string, SEEResult>,
+  recursiveCall: boolean,
+): SEEResult {
+  if (!recursiveCall) {
+    cb = cb.clone();
+    cb.take(square);
+    if (isEpSquare) cb.take(epTargetPawnSq(square)); // e.g., Qf3 would control f6 ep square
+  }
+  const key = lookupKey(cb, target);
+  if (lookupTable.has(key)) return lookupTable.get(key)!;
+  const attackers = getAttackers(square, opposite(target.color), cb, isEpSquare ? 'pawn' : undefined);
+  // LVA
+  attackers.sort((a, b) => values[a.piece.role] - values[b.piece.role]);
+  let bestChoiceBalance = 0;
+  let firstAttacker: Square | undefined = undefined;
+  for (const attacker of attackers.slice(0, 2)) {
+    const simulationBoard = cb.clone();
+    simulationBoard.take(attacker.square);
+    const opponentRecaptureBalance = getSEE(
+      square,
+      false,
+      attacker.piece,
+      simulationBoard,
+      lookupTable,
+      true,
+    ).balance;
+    const currChoiceBalance = values[target.role] - opponentRecaptureBalance;
+    if (currChoiceBalance > bestChoiceBalance) {
+      bestChoiceBalance = currChoiceBalance;
+      firstAttacker = attacker.square;
+    }
+  }
+  const result = { balance: bestChoiceBalance, firstAttacker };
+  lookupTable.set(key, result);
+  return result;
+}
+
+export function detectUndefended(board: Board, epSquare: Square | undefined): Undefended[] {
   const undefended: Undefended[] = [];
   const cb = board;
-
   for (let i = 0; i < 64; i++) {
-    const p = board.get(i);
+    const p = board.get(i === epSquare ? epTargetPawnSq(epSquare) : i);
     if (p && p.role !== 'king' && isSquareAttacked(i, opposite(p.color), cb)) {
-      const { balance, firstAttacker } = getSEE(i, p, cb);
+      const { balance, firstAttacker } = getSEE(i, i === epSquare, p, cb, new Map(), false);
       if (balance > 0 && firstAttacker !== undefined) {
         undefended.push({
           square: i,
@@ -182,13 +193,13 @@ export function detectUndefended(board: Board): Undefended[] {
 
 export function detectCheckable(
   board: Board,
-  epSquare: number | undefined,
+  epSquare: Square | undefined,
   castlingRights: SquareSet,
 ): Checkable[] {
   const checkable: Checkable[] = [];
   const cb = board;
 
-  for (const color of ['white', 'black'] as const) {
+  for (const color of COLORS) {
     const kSq = cb.kingOf(color);
 
     // Skip if King is already in check
@@ -244,17 +255,13 @@ export function detectCheckable(
         } else {
           const occupied = cb.occupied.without(from).with(to);
 
-          // Direct check
-          if (attacks(piece, to, occupied).has(kSq)) {
+          // Direct check or discovered check
+          if (
+            attacks(piece, to, occupied).has(kSq) ||
+            rookAttacks(kSq, occupied).intersects(enemyRooksQueens.without(from)) ||
+            bishopAttacks(kSq, occupied).intersects(enemyBishopsQueens.without(from))
+          ) {
             checkFound = { from, to };
-          } else {
-            // Discovered check
-            if (
-              rookAttacks(kSq, occupied).intersects(enemyRooksQueens.without(from)) ||
-              bishopAttacks(kSq, occupied).intersects(enemyBishopsQueens.without(from))
-            ) {
-              checkFound = { from, to };
-            }
           }
         }
 

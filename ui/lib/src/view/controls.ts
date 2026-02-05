@@ -1,38 +1,63 @@
-/* eslint no-restricted-syntax:"error" */ // no side effects allowed due to re-export by index.ts
+// no side effects allowed due to re-export by index.ts
 
 import { h, type Hooks, type VNode, type Attrs } from 'snabbdom';
 import { bind } from './snabbdom';
-import { toggle as baseToggle, type Toggle } from '@/index';
+import { toggle as baseToggle, type Prop, type Toggle } from '@/index';
 import * as xhr from '@/xhr';
 import * as licon from '@/licon';
 
-export interface ToggleSettings {
-  name: string;
-  title?: string;
+interface CmnToggleBase {
   id: string;
-  checked: boolean;
+  title?: string;
   disabled?: boolean;
-  cls?: string;
+  redraw?: Redraw;
+}
+
+export interface CmnToggle extends CmnToggleBase {
+  checked: boolean;
   change(v: boolean): void;
 }
 
-export function toggle(t: ToggleSettings, redraw: () => void): VNode {
-  const fullId = 'abset-' + t.id;
-  return h(
-    'div.setting.' + fullId + (t.cls ? '.' + t.cls : ''),
-    t.title ? { attrs: { title: t.title } } : {},
-    [
-      h('div.switch', [
-        h('input#' + fullId + '.cmn-toggle', {
-          attrs: { type: 'checkbox', checked: t.checked, disabled: !!t.disabled },
-          hook: bind('change', e => t.change((e.target as HTMLInputElement).checked), redraw),
-        }),
-        h('label', { attrs: { for: fullId } }),
-      ]),
-      h('label', { attrs: { for: fullId } }, t.name),
-    ],
-  );
+export interface CmnToggleProp extends CmnToggleBase {
+  prop: Prop<boolean>;
 }
+
+export interface CmnToggleWrap extends CmnToggle {
+  name: string;
+}
+export interface CmnToggleWrapProp extends CmnToggleProp {
+  name: string;
+}
+
+export const cmnToggleProp = (opts: CmnToggleProp): VNode =>
+  cmnToggle({
+    ...opts,
+    checked: opts.prop(),
+    change: v => opts.prop(v),
+  });
+
+export const cmnToggle = (opts: CmnToggle): VNode =>
+  h('span.cmn-toggle', { attrs: { role: 'button' } }, [
+    h(`input#cmn-tg-${opts.id}`, {
+      attrs: { type: 'checkbox', checked: opts.checked, disabled: !!opts.disabled },
+      props: { checked: opts.checked },
+      hook: bind('change', e => opts.change((e.target as HTMLInputElement).checked), opts.redraw),
+    }),
+    h('label', { attrs: { for: `cmn-tg-${opts.id}` } }),
+  ]);
+
+export const cmnToggleWrapProp = (opts: CmnToggleWrapProp): VNode =>
+  cmnToggleWrap({
+    ...opts,
+    checked: opts.prop(),
+    change: v => opts.prop(v),
+  });
+
+export const cmnToggleWrap = (opts: CmnToggleWrap): VNode =>
+  h('label.cmn-toggle-wrap', opts.title ? { attrs: { title: opts.title } } : {}, [
+    cmnToggle({ ...opts, title: undefined }),
+    opts.name,
+  ]);
 
 export function toggleBoxInit(): void {
   $('.toggle-box--toggle:not(.toggle-box--ready)').each(function (this: HTMLFieldSetElement) {

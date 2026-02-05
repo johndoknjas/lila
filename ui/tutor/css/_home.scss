@@ -1,7 +1,7 @@
 .tutor {
-  h1 .user-link {
-    margin-right: 1ch;
-    color: $c-good;
+  &__beta {
+    color: $c-brag;
+    font-size: 0.75em;
   }
   &__home {
     .tutor__mascot-says h2 {
