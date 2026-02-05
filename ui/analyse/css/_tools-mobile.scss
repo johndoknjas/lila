@@ -15,7 +15,7 @@
     .ceval .engine {
       margin-inline-start: 12px;
     }
-    .ceval .switch,
+    .ceval .cmn-toggle,
     .ceval pearl {
       display: none;
     }
@@ -70,6 +70,9 @@
       padding-top: 0;
       border-bottom: none;
     }
+    .cmn-toggle label {
+      background-color: $c-font-dimmer !important;
+    }
     eval {
       font-size: 1.2em;
       pointer-events: none;
@@ -117,7 +120,7 @@
     [data-mode] .bar {
       display: none;
     }
-    [data-mode] .switch {
+    [data-mode] .cmn-toggle {
       width: 24px;
     }
     [data-mode]:not(.active) .bar {
@@ -163,19 +166,5 @@
   .analyse[data-active-mode='practice'] .analyse__fork,
   .analyse[data-active-mode='retro'] .analyse__fork {
     display: none;
-  }
-  #analyse-toggle-ceval + label {
-    background-color: $c-font-dimmer;
-    width: 24px;
-    height: 33px;
-  }
-  #analyse-toggle-ceval + label::before,
-  #analyse-toggle-ceval + label::after {
-    top: 0;
-    margin-top: 9px;
-  }
-  #analyse-toggle-ceval:checked + label::before,
-  #analyse-toggle-ceval:checked + label::after {
-    margin: 0;
   }
 }
