@@ -30,10 +30,12 @@ case class RelayTour(
     teamTable: Boolean = false,
     players: Option[RelayPlayersTextarea] = None,
     teams: Option[RelayTeamsTextarea] = None,
+    showTeamScores: Boolean = false,
     image: Option[ImageId] = None,
     dates: Option[RelayTour.Dates] = None, // denormalized from round dates
     pinnedStream: Option[RelayPinnedStream] = None,
-    note: Option[String] = None
+    note: Option[String] = None,
+    orphanWarn: Boolean = true
 ):
   def slug = name.toSlug
 
@@ -70,6 +72,7 @@ object RelayTour:
   opaque type Name = String
   object Name extends OpaqueString[Name]:
     extension (name: Name)
+      def translate(using lila.core.i18n.Translate): String = RelayI18n(name)
       def toSlug =
         val s = scalalib.StringOps.slug(name.value)
         if s.isEmpty then "-" else s

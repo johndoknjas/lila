@@ -71,14 +71,20 @@ final class RelayTourForm(langList: lila.core.i18n.LangList, groupForm: RelayGro
       "teams" -> optional(
         of(using formatter.stringFormatter[RelayTeamsTextarea](_.sortedText, RelayTeamsTextarea(_)))
       ),
+      "showTeamScores" -> boolean,
       "spotlight" -> optional(spotlightMapping),
       "grouping" -> optional(groupForm.mapping),
       "pinnedStream" -> optional(pinnedStreamMapping),
-      "note" -> optional(nonEmptyText(maxLength = 20_000))
+      "note" -> optional(nonEmptyText(maxLength = 20_000)),
+      "orphanWarn" -> boolean
     )(Data.apply)(unapply)
       .verifying(
         "Tiebreaks submitted without automatic scoring enabled",
         tour => tour.tiebreaks.forall(_ => tour.showScores)
+      )
+      .verifying(
+        "Team scores can only be shown if team table is enabled",
+        tour => !tour.showTeamScores || tour.teamTable
       )
   ).fill(Data.empty)
 
@@ -103,10 +109,12 @@ final class RelayTourForm(langList: lila.core.i18n.LangList, groupForm: RelayGro
       teamTable = tour.teamTable,
       players = tour.players,
       teams = tour.teams,
+      showTeamScores = tour.showTeamScores,
       spotlight = tour.spotlight,
       grouping = group.map(groupForm.data),
       pinnedStream = tour.pinnedStream,
-      note = tour.note
+      note = tour.note,
+      orphanWarn = tour.orphanWarn
     )
 
 object RelayTourForm:
@@ -123,10 +131,12 @@ object RelayTourForm:
       teamTable: Boolean = false,
       players: Option[RelayPlayersTextarea] = none,
       teams: Option[RelayTeamsTextarea] = none,
+      showTeamScores: Boolean = false,
       spotlight: Option[RelayTour.Spotlight] = none,
       grouping: Option[RelayGroupData] = none,
       pinnedStream: Option[RelayPinnedStream] = none,
-      note: Option[String] = none
+      note: Option[String] = none,
+      orphanWarn: Boolean = true
   ):
 
     def update(tour: RelayTour)(using me: Me) =
@@ -143,9 +153,11 @@ object RelayTourForm:
           teamTable = teamTable,
           players = players,
           teams = teams,
+          showTeamScores = showTeamScores,
           spotlight = if Granter(_.StudyAdmin) then spotlight.filterNot(_.isEmpty) else tour.spotlight,
           pinnedStream = if Granter(_.StudyAdmin) then pinnedStream else tour.pinnedStream,
-          note = note
+          note = note,
+          orphanWarn = if Granter(_.StudyAdmin) then orphanWarn else tour.orphanWarn
         )
         .giveOfficialToBroadcasterIf(Granter(_.StudyAdmin))
 
@@ -170,7 +182,8 @@ object RelayTourForm:
         teams = teams,
         spotlight = spotlight.filterNot(_.isEmpty).ifTrue(Granter(_.StudyAdmin)),
         pinnedStream = pinnedStream.ifTrue(Granter(_.StudyAdmin)),
-        note = note
+        note = note,
+        orphanWarn = orphanWarn
       ).giveOfficialToBroadcasterIf(Granter(_.StudyAdmin))
 
   object Data:
