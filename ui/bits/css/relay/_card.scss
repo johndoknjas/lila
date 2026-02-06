@@ -5,7 +5,7 @@
   margin-bottom: 1em;
 
   &--tier-best {
-    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
     @media (max-width: at-most($xx-small)) {
       grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
     }
@@ -64,14 +64,14 @@
   }
 
   &__info {
-    @extend %flex-between;
+    @extend %flex-center-nowrap;
     margin-right: 1rem;
-    align-self: stretch;
     color: $c-font-dim;
     gap: 1ch;
   }
   &__live {
     @extend %flex-between;
+    flex: 1;
     color: $c-live;
     font-weight: bold;
   }

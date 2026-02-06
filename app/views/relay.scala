@@ -17,7 +17,7 @@ val group = lila.relay.ui.RelayGroupUi(ui, card, menu)
 
 def show(
     rt: WithTourAndStudy,
-    data: lila.relay.JsonView.JsData,
+    data: lila.relay.RelayJsonView.JsData,
     chatOption: Option[lila.chat.UserChat.Mine],
     socketVersion: SocketVersion,
     crossSiteIsolation: Boolean = true
@@ -31,7 +31,7 @@ def show(
         timeout = c.timeout,
         writeable = ctx.userId.exists(rt.study.canChat),
         public = true,
-        resourceId = lila.chat.Chat.ResourceId(s"relay/${c.chat.id}"),
+        resource = lila.core.chat.PublicSource.Relay(rt.relay.id),
         localMod = rt.tour.tier.isEmpty && ctx.userId.exists(rt.study.canContribute),
         broadcastMod = rt.tour.tier.isDefined && isGranted(_.BroadcastTimeout),
         hostIds = rt.study.members.ids.toList
@@ -41,11 +41,11 @@ def show(
 
 def embed(
     rt: WithTourAndStudy,
-    data: lila.relay.JsonView.JsData,
+    data: lila.relay.RelayJsonView.JsData,
     socketVersion: SocketVersion
 )(using ctx: EmbedContext) =
   views.base.embed.site(
-    title = rt.fullName,
+    title = rt.withTour.fullName,
     cssKeys = List("analyse.relay.embed"),
     pageModule = ui.pageModule(rt, data, none, socketVersion, embed = true).some,
     csp = _.withExternalAnalysisApis,

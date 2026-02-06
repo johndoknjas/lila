@@ -25,7 +25,8 @@ object Query:
 
   val mate: Bdoc = status(Status.Mate)
 
-  def draw(u: UserId): Bdoc = user(u) ++ finished ++ F.winnerId.$exists(false)
+  def draw(u: UserId): Bdoc =
+    user(u) ++ finished ++ F.winnerId.$exists(false) ++ $or(notAi, status(Status.Draw))
 
   val finished: Bdoc = F.status.$gte(Status.Mate.id)
 
@@ -40,7 +41,8 @@ object Query:
   def imported(u: UserId): Bdoc = s"${F.pgnImport}.user".$eq(u)
   def importedSort: Bdoc = $sort.desc(s"${F.pgnImport}.ca")
 
-  val friend: Bdoc = s"${F.source}".$eq(lila.core.game.Source.Friend.id)
+  val friend: Bdoc = F.source.$eq(lila.core.game.Source.Friend.id)
+  val notAi: Bdoc = F.source.$ne(lila.core.game.Source.Ai.id)
 
   def clock(c: Boolean): Bdoc = F.clock.$exists(c)
 
@@ -108,7 +110,7 @@ object Query:
   def bothRatingsGreaterThan(v: Int) = $doc("p0.e".$gt(v), "p1.e".$gt(v))
 
   def turnsGt(nb: Int) = F.turns.$gt(nb)
-  def turns(range: Range) = F.turns.$inRange(range)
+  def turns(range: PairOf[Int]) = F.turns.$inRange(range)
 
   def checkable = F.checkAt.$lt(nowInstant)
 
@@ -119,19 +121,10 @@ object Query:
 
   lazy val variantStandard = variant(chess.variant.Standard)
 
-  lazy val notHordeOrSincePawnsAreWhite: Bdoc = $or(
-    F.variant.$ne(chess.variant.Horde.id),
-    sinceHordePawnsAreWhite
-  )
-
-  lazy val sinceHordePawnsAreWhite: Bdoc =
-    createdSince(Game.hordeWhitePawnsSince)
-
   val notFromPosition: Bdoc =
     F.variant.$ne(chess.variant.FromPosition.id)
 
-  def createdSince(d: Instant): Bdoc =
-    F.createdAt.$gte(d)
+  def createdSince(d: Instant): Bdoc = F.createdAt.$gte(d)
 
   def createdBetween(since: Option[Instant], until: Option[Instant]): Bdoc =
     dateBetween(F.createdAt, since, until)

@@ -408,7 +408,6 @@
   <string name="pasteTheFenStringHere">Plak die FEN string hier</string>
   <string name="pasteThePgnStringHere">Plak die PGN string hier</string>
   <string name="orUploadPgnFile">Of laai ‘n PGN-lêer op</string>
-  <string name="fromPosition">Van posisie</string>
   <string name="continueFromHere">Gaan voort van hier af</string>
   <string name="toStudy">Bestudeer</string>
   <string name="importGame">Voer spel in</string>
@@ -456,10 +455,6 @@ rekenaar analise, kletskamer en deelbare URL te kry.</string>
   <string name="player">Speler</string>
   <string name="list">Lys</string>
   <string name="graph">Grafiek</string>
-  <plurals name="lessThanNbMinutes">
-    <item quantity="one">Minder as %s minuut</item>
-    <item quantity="other">Minder as %s minute</item>
-  </plurals>
   <string name="required">Vereiste.</string>
   <string name="openTournaments">Oop toernooie</string>
   <string name="duration">Duur</string>

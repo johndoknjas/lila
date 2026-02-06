@@ -2,13 +2,14 @@ package lila.fide
 
 import akka.stream.contrib.ZipInputStreamSource
 import akka.stream.scaladsl.*
-import chess.{ FideId, PlayerName, PlayerTitle }
+import chess.{ FideId, FideTC, PlayerName, PlayerTitle }
 import chess.rating.{ Elo, KFactor }
 import play.api.libs.ws.StandaloneWSClient
 import reactivemongo.api.bson.*
 import java.util.zip.ZipInputStream
+import java.time.YearMonth
 
-import lila.core.fide.{ Federation, FideTC }
+import lila.core.fide.Federation
 import lila.db.dsl.{ *, given }
 
 final private class FidePlayerSync(repo: FideRepo, ws: StandaloneWSClient)(using
@@ -113,7 +114,9 @@ final private class FidePlayerSync(repo: FideRepo, ws: StandaloneWSClient)(using
                 .drop(1) // first line is a header
                 .map(parseLine)
                 .mapConcat(_.toList)
+                .filter(validatePlayer)
                 .grouped(200)
+                .map(_.toList)
                 .mapAsync(1)(saveIfChanged)
                 .runWith(lila.common.LilaStream.sinkSum)
                 .monSuccess(_.fideSync.time)
@@ -149,6 +152,7 @@ final private class FidePlayerSync(repo: FideRepo, ws: StandaloneWSClient)(using
         id = FideId(id),
         name = PlayerName(name),
         token = token,
+        photo = none,
         fed = Federation.Id.from(string(76, 79).map(_.toUpperCase).filter(_ != "NON")),
         title = PlayerTitle.mostValuable(title, wTitle),
         standard = rating(113),
@@ -161,21 +165,36 @@ final private class FidePlayerSync(repo: FideRepo, ws: StandaloneWSClient)(using
         inactive = flags.exists(_.contains("i"))
       )
 
-    private def saveIfChanged(players: Seq[FidePlayer]): Future[Int] =
+    private def validatePlayer(p: FidePlayer): Boolean =
+      p.age.exists: age =>
+        age > 9 || (age > 5 && p.ratingsMap.nonEmpty)
+
+    private def saveIfChanged(players: List[FidePlayer]): Future[Int] =
       repo.player
         .fetch(players.map(_.id))
         .flatMap: inDb =>
           val inDbMap: Map[FideId, FidePlayer] = inDb.mapBy(_.id)
-          val changed = players.filter: p =>
-            inDbMap.get(p.id).fold(true)(i => !i.isSame(p))
+          val changed = players.flatMap: fromFide =>
+            val inDb = inDbMap.get(fromFide.id)
+            inDb
+              .forall(i => !i.isSame(fromFide))
+              .option:
+                fromFide.copy(photo = inDb.flatMap(_.photo))
+          println(s"FidePlayerSync.saveIfChanged: ${changed.size} changes out of ${players.size} players")
           changed.nonEmpty.so:
             val update = repo.playerColl.update(ordered = false)
             for
-              elements <- changed.toList.sequentially: p =>
+              elements <- changed.sequentially: p =>
                 update.element(
                   q = $id(p.id),
                   u = repo.player.handler.writeOpt(p).get,
                   upsert = true
                 )
               _ <- elements.nonEmpty.so(update.many(elements).void)
+              _ <- updateRatingHistories(changed)
             yield elements.size
+
+    private def updateRatingHistories(players: List[FidePlayer]): Funit =
+      val now = YearMonth.now
+      players.sequentiallyVoid: p =>
+        repo.rating.set(p.id, now, p.ratingsMap)

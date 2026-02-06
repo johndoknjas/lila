@@ -363,7 +363,6 @@
   <string name="pasteTheFenStringHere">Өргийн байрлалын тэмдэглэлээ (FEN) энд хуулж оруулна уу</string>
   <string name="pasteThePgnStringHere">Өргийн тоглолтын тэмдэглэлээ (PGN) энд хуулж оруулна уу</string>
   <string name="orUploadPgnFile">Эсвэл PGN файл байршуулах</string>
-  <string name="fromPosition">Энэ байрлалаас үргэлжлүүлэн тоглох</string>
   <string name="continueFromHere">Энэ байрлалаас үргэлжлүүлэх</string>
   <string name="toStudy">Дугуйлан</string>
   <string name="importGame">Өрөг импортлох</string>
@@ -405,10 +404,6 @@
   <string name="player">Гишүүн</string>
   <string name="list">Жагсаалт</string>
   <string name="graph">Үзүүлэлтийн хүснэгт, диаграмм, график</string>
-  <plurals name="lessThanNbMinutes">
-    <item quantity="one">%s минутаас бага</item>
-    <item quantity="other">%s минутаас бага</item>
-  </plurals>
   <string name="required">Мэдээлэл заавал оруулах шаардлагатай.</string>
   <string name="openTournaments">Бүгдэд нээлттэй тэмцээнүүд</string>
   <string name="duration">Үргэлжлэх хугацаа</string>

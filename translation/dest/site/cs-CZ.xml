@@ -3,7 +3,7 @@
   <string name="gameSetup">Vytvořit hru</string>
   <string name="challengeAFriend" comment="be mindful how 'friend' translates in gendered languages. look for a more neutral term if there's an issue, or base your translation on a different phrase like 'invite to a game'. keep it short and convey the button's meaning without offense.">Vyzvi přítele</string>
   <string name="playAgainstComputer">Hrát proti počítači</string>
-  <string name="youPlayAs">Hrajete jako</string>
+  <string name="gameMode">Herní mód</string>
   <string name="toInviteSomeoneToPlayGiveThisUrl">Pro pozvání někoho ke hře využijte tento odkaz</string>
   <string name="gameOver">Konec hry</string>
   <string name="waitingForOpponent">Čekání na soupeře</string>
@@ -48,9 +48,9 @@
   </plurals>
   <string name="opponentLeftChoices">Soupeř opustil hru. Můžete vynutit remízu nebo jeho vzdání partie či na něj počkat.</string>
   <string name="forceResignation">Vynutit vzdání partie</string>
-  <string name="forceDraw">Vynutit remízu</string>
-  <string name="talkInChat">Pro povídání v chatu pište sem</string>
-  <string name="theFirstPersonToComeOnThisUrlWillPlayWithYou">První kdo přijde pomocí tohoto odkazu, bude s Vámi hrát</string>
+  <string name="forceDraw">Nabídnout remízu</string>
+  <string name="talkInChat">Prosím, chovejte se v chatu slušně!</string>
+  <string name="theFirstPersonToComeOnThisUrlWillPlayWithYou">První, kdo přijde pomocí tohoto odkazu, bude s Vámi hrát.</string>
   <string name="whiteResigned">Bílý se vzdal</string>
   <string name="blackResigned">Černý se vzdal</string>
   <string name="whiteLeftTheGame">Bílý opustil hru</string>
@@ -388,6 +388,7 @@
     <item quantity="other">%s se hraje</item>
   </plurals>
   <string name="exportGames">Exportovat partie</string>
+  <string name="ratingFilter">Filtr ratingu</string>
   <plurals name="giveNbSeconds">
     <item quantity="one">Přidat %s sekundu</item>
     <item quantity="few">Přidat %s sekundy</item>
@@ -484,7 +485,6 @@
   <string name="pasteTheFenStringHere">Zde vložte FEN řetězec</string>
   <string name="pasteThePgnStringHere">Zde vložte PGN řetězec</string>
   <string name="orUploadPgnFile">Nebo nahrajte soubor PGN</string>
-  <string name="fromPosition">Z pozice</string>
   <string name="continueFromHere">Pokračovat zde</string>
   <string name="toStudy">Do studie</string>
   <string name="importGame">Importuj hru</string>
@@ -539,12 +539,6 @@
   <string name="player">Hráč</string>
   <string name="list">Seznam</string>
   <string name="graph">Graf</string>
-  <plurals name="lessThanNbMinutes">
-    <item quantity="one">Méně než %s minuta</item>
-    <item quantity="few">Méně než %s minuty</item>
-    <item quantity="many">Méně než %s minut</item>
-    <item quantity="other">Méně než %s minut</item>
-  </plurals>
   <string name="required">Vyžadováno.</string>
   <string name="openTournaments">Otevřené turnaje</string>
   <string name="duration">Trvání</string>
@@ -909,6 +903,7 @@
   <string name="notifications">Oznámení</string>
   <string name="notificationsX">Oznámení: %1$s</string>
   <string name="perfRatingX">Rating: %s</string>
+  <string name="yourRatingIsX">Tvůj rating je %s</string>
   <plurals name="nbSecondsToPlayTheFirstMove">
     <item quantity="one">%s sekunda na první tah</item>
     <item quantity="few">%s sekundy na první tah</item>
@@ -993,6 +988,7 @@
   <string name="agreementPolicy">Souhlasím, že se budu řídit všemi pravidly Lichessu.</string>
   <string name="searchOrStartNewDiscussion">Začněte nebo vyhledejte konverzaci</string>
   <string name="edit">Upravit</string>
+  <string name="ultraBullet" comment="Probably best left untranslated. Leave it as 'UltraBullet' unless your language has a better word for it.">UltraBullet</string>
   <string name="bullet" comment="Probably best left untranslated. Leave it as 'Bullet' unless your language has a better word for it.">Bullet</string>
   <string name="blitz" comment="Probably best left untranslated. Leave it as 'Blitz' unless your language has a better word for it.">Bleskové šachy</string>
   <string name="rapid">Rapid</string>
@@ -1095,8 +1091,10 @@ Veškeré provozní náklady, vývoj a obsah jsou financovány výhradně z př�
   <string name="accessibility">Přístupnost</string>
   <string name="enableBlindMode">Zapnout režim sleposti</string>
   <string name="disableBlindMode">Vypnout režim sleposti</string>
+  <string name="copyToClipboard">Zkopíruj do schránky</string>
   <string name="online" comment="status of a user">online</string>
   <string name="offline" comment="status of a user">offline</string>
   <string name="search">Hledat</string>
   <string name="clearSearch">Vymazat vyhledávání</string>
+  <string name="enPassant">Braní mimochodem</string>
 </resources>

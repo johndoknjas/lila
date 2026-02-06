@@ -20,7 +20,7 @@ final class Preload(
     gameRepo: lila.game.GameRepo,
     perfsRepo: lila.user.UserPerfsRepo,
     timelineApi: lila.timeline.EntryApi,
-    liveStreamApi: lila.streamer.LiveStreamApi,
+    liveStreamApi: lila.streamer.LiveApi,
     dailyPuzzle: lila.puzzle.DailyPuzzle.Try,
     lobbyApi: lila.api.LobbyApi,
     playbanApi: lila.playban.PlaybanApi,
@@ -30,8 +30,9 @@ final class Preload(
     getLastUpdates: lila.feed.Feed.GetLastUpdates,
     ublogApi: lila.ublog.UblogApi,
     unreadCount: lila.msg.MsgUnreadCount,
-    relayListing: lila.relay.RelayListing,
-    notifyApi: lila.notify.NotifyApi
+    relayHome: lila.relay.RelayHomeApi,
+    notifyApi: lila.notify.NotifyApi,
+    clasApi: lila.clas.ClasApi
 )(using Executor):
 
   import Preload.*
@@ -82,20 +83,22 @@ final class Preload(
           .ifTrue(nbNotifications > 0)
           .filterNot(liveStreamApi.isStreaming)
           .so(unreadCount.hasLichessMsg)
-    (currentGame, _) <- (ctx.me
-      .soUse(currentGameMyTurn(povs, lightUserApi.sync)))
+    (currentGame, _) <- ctx.me
+      .soUse(currentGameMyTurn(povs, lightUserApi.sync))
       .mon(_.lobby.segment("currentGame"))
       .zip:
         lightUserApi
           .preloadMany(entries.flatMap(_.userIds).toList)
           .mon(_.lobby.segment("lightUsers"))
+    classes <- ctx.myId.so: me =>
+      clasApi.isStudent(me).so(clasApi.clas.ofStudent(me, 4))
   yield Homepage(
     data,
     entries,
     tours,
     swiss,
     events,
-    relayListing.spotlight,
+    relayHome.spotlight.get,
     simuls,
     feat,
     puzzle,
@@ -106,6 +109,7 @@ final class Preload(
     blindGames,
     getLastUpdates(),
     ublogPosts,
+    classes,
     withPerfs,
     hasUnreadLichessMessage = lichessMsg
   )
@@ -147,6 +151,7 @@ object Preload:
       blindGames: List[Pov],
       lastUpdates: List[lila.feed.Feed.Update],
       ublogPosts: List[UblogPost.PreviewPost],
+      classes: List[lila.clas.Clas],
       me: Option[UserWithPerfs],
       hasUnreadLichessMessage: Boolean
   )

@@ -18,6 +18,9 @@ case class Money(amount: BigDecimal, currency: Currency):
   def display(locale: Locale): String =
     val format = NumberFormat.getCurrencyInstance(locale)
     format.setCurrency(currency)
+    val digits = math.max(0, currency.getDefaultFractionDigits)
+    format.setMinimumFractionDigits(digits)
+    format.setMaximumFractionDigits(digits)
     format.format(amount)
   def display(using lang: Lang): String = display(lang.locale)
   def currencyCode = currency.getCurrencyCode
@@ -31,7 +34,7 @@ object Usd extends TotalWrapper[Usd, BigDecimal]:
 opaque type Country = String
 object Country extends OpaqueString[Country]
 
-case class NextUrls(cancel: String, success: String)
+case class NextUrls(cancel: Url, success: Url)
 
 case class ProductIds(monthly: String, onetime: String, gift: String)
 

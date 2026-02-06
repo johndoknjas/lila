@@ -395,7 +395,6 @@
   <string name="pasteTheFenStringHere">Пастирај го FEN стрингот овде</string>
   <string name="pasteThePgnStringHere">Пастирај го PGN стрингот овде</string>
   <string name="orUploadPgnFile">Или закачете PGN датотека</string>
-  <string name="fromPosition">Од позиција</string>
   <string name="continueFromHere">Продолжи од овде</string>
   <string name="toStudy">Студија</string>
   <string name="importGame">Внеси игра</string>
@@ -441,10 +440,6 @@
   <string name="player">Играч</string>
   <string name="list">Листа</string>
   <string name="graph">Графикон</string>
-  <plurals name="lessThanNbMinutes">
-    <item quantity="one">Помалку од %s минути</item>
-    <item quantity="other">Помалку од %s минути</item>
-  </plurals>
   <string name="required">Неопходно.</string>
   <string name="openTournaments">Отворени турнири</string>
   <string name="duration">Времетраење</string>

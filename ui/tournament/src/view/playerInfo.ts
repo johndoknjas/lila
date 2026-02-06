@@ -1,6 +1,5 @@
 import * as licon from 'lib/licon';
-import { spinnerVdom as spinner } from 'lib/view';
-import { type VNode, bind, dataIcon, hl } from 'lib/view';
+import { spinnerVdom as spinner, type VNode, bind, dataIcon, hl } from 'lib/view';
 import { player as renderPlayer } from './util';
 import { fullName } from 'lib/view/userLink';
 import { numberRow } from 'lib/view/util';
@@ -66,7 +65,7 @@ export default function (ctrl: TournamentController): VNode {
         },
         data.pairings.map((p, i) => {
           const score = p.status < status.mate ? '*' : p.score;
-          const streak = p.win == null ? p.score == 2 : p.win ? p.score > 3 : false;
+          const streak = p.win == null ? p.score === 2 : p.win ? p.score > 3 : false;
           const cls = p.win == null ? '' : streak ? 'streak' : p.win == false ? 'loss' : 'win';
           return hl(
             'tr.glpt.' + cls,

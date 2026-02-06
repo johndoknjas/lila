@@ -341,7 +341,6 @@
   <string name="leaderboard">درجہ بندی</string>
   <string name="pasteTheFenStringHere">FEN یہاں داخل کریں</string>
   <string name="pasteThePgnStringHere">PGN یہاں داخل کریں</string>
-  <string name="fromPosition">خاص پوزیشن سے</string>
   <string name="continueFromHere">یہاں سے کھیل شروع کریں</string>
   <string name="toStudy">مطالعہ</string>
   <string name="importGame">کھیلنامہ (PGN) درآمد کریں</string>
@@ -384,10 +383,6 @@
   <string name="player">کھلاڑی</string>
   <string name="list">فہرست</string>
   <string name="graph">گراف</string>
-  <plurals name="lessThanNbMinutes">
-    <item quantity="one">%s منٹ سے کم</item>
-    <item quantity="other">%s منٹ سے کم</item>
-  </plurals>
   <string name="required">ضروری ہے</string>
   <string name="openTournaments">جاری مسابقہ جات</string>
   <string name="duration">دورانیہ</string>

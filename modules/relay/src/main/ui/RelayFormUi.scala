@@ -51,7 +51,7 @@ final class RelayFormUi(helpers: Helpers, ui: RelayUi, pageMenu: RelayMenuUi):
               else if r.hasStarted then Icon.DiscBig
               else Icon.DiscOutline
             )
-          )(r.name),
+          )(r.name.translate),
         a(
           href := routes.RelayRound.create(nav.tour.id),
           cls := List(
@@ -92,6 +92,8 @@ final class RelayFormUi(helpers: Helpers, ui: RelayUi, pageMenu: RelayMenuUi):
       Page(title)
         .css("bits.relay.form")
         .js(List(Esm("bits.flatpickr"), Esm("bits.relayForm")).map(some))
+        .js(esmInit("bits.broadcastForm.i18nCheck"))
+        .i18n(_.broadcast)
         .wrap: body =>
           main(cls := "page page-menu")(
             navigationMenu(nav),
@@ -119,7 +121,7 @@ final class RelayFormUi(helpers: Helpers, ui: RelayUi, pageMenu: RelayMenuUi):
         form: Form[RelayRoundForm.Data],
         nav: FormNavigation
     )(using Context) =
-      page(r.name.value, nav):
+      page(r.name.translate, nav):
         val rt = r.withTour(nav.tour)
         frag(
           boxTop(h1(a(href := rt.path)(rt.fullName))),
@@ -191,7 +193,7 @@ final class RelayFormUi(helpers: Helpers, ui: RelayUi, pageMenu: RelayMenuUi):
         ),
         p("Did you mean ", a(href := https.toString)(https.toString), "?")
       )
-      postForm(cls := "form3", action := url)(
+      postForm(cls := "form3 relay-round-form", action := url)(
         (!Granter.opt(_.StudyAdmin)).option:
           div(cls := "form-group")(
             div(cls := "form-group")(ui.howToUse),
@@ -201,7 +203,8 @@ final class RelayFormUi(helpers: Helpers, ui: RelayUi, pageMenu: RelayMenuUi):
           )
         ,
         form3.globalError(form),
-        form3.group(form("name"), trb.roundName())(form3.input(_)(autofocus)),
+        form3.group(form("name"), trb.roundName(), help = trb.defaultRoundNameHelp().some): field =>
+          frag(form3.input(field)(autofocus), nameHelp),
         form3.fieldset("Source", toggle = true.some)(cls := "box-pad")(
           form3.group(
             form("syncSource"),
@@ -229,7 +232,7 @@ final class RelayFormUi(helpers: Helpers, ui: RelayUi, pageMenu: RelayMenuUi):
                 "Start: ",
                 source.round.startedAt
                   .orElse(source.round.startsAtTime)
-                  .fold(frag("unscheduled"))(momentFromNow),
+                  .fold(frag("unscheduled"))(momentFromNow(_)),
                 br,
                 "Last sync: ",
                 source.round.sync.log.events.lastOption.map: event =>
@@ -318,17 +321,17 @@ final class RelayFormUi(helpers: Helpers, ui: RelayUi, pageMenu: RelayMenuUi):
               help = trb.startDateHelp().some,
               half = true
             )(form3.flatpickr(_, local = true, minDate = None)),
-            form3.checkbox(
+            form3.checkboxGroup(
               form("startsAfterPrevious"),
               "When the previous round completes",
+              half = true,
               help = frag(
                 "The start date is unknown, and the round will start automatically when the previous round completes."
-              ).some,
-              half = true
+              ).some
             )
           )
         ),
-        form3.fieldset("Advanced", toggle = nav.round.exists(r => r.sync.delay.isDefined).some)(
+        form3.fieldset("Advanced", toggle = nav.round.exists(_.sync.delay.isDefined).some)(
           form3.split(
             form3.group(
               form("delay"),
@@ -351,18 +354,35 @@ final class RelayFormUi(helpers: Helpers, ui: RelayUi, pageMenu: RelayMenuUi):
               form3.select(_, Seq("new" -> "New", "started" -> "Started", "finished" -> "Finished"))
           )
         ),
+        form3
+          .fieldset("Game ordering", toggle = nav.round.flatMap(_.sync.reorder).isDefined.some)(
+            cls := "box-pad"
+          )(
+            form3.group(
+              form("reorder"),
+              "Optional: reorder games by player names",
+              help = frag( // do not translate
+                "One line per game, containing one or two player names.",
+                "Example:",
+                pre("""Helmut Kleissl
+Hanna Marie ; Kozul, Zdenko"""),
+                "By default the source game order is used. Extra games are added after the reordered ones."
+              ).some,
+              half = true
+            )(form3.textarea(_)(rows := 7, spellcheck := "false", cls := "monospace"))
+          ),
         (nav.tour.showScores || nav.tour.showRatingDiffs).option(
           form3.fieldset(
             "Custom scoring",
-            toggle = nav.round.exists(_.customScoring.isDefined).some
+            toggle = nav.round.exists(r => r.customScoring.isDefined || r.teamCustomScoring.isDefined).some
           )(
             nav.tour.showRatingDiffs.option(
               form3.group(form("rated"), raw("")): field =>
                 val withDefault =
                   if nav.newRound && field.value.isEmpty then field.copy(value = "true".some) else field
-                form3.checkbox(
+                form3.checkboxGroup(
                   withDefault,
-                  labelContent = frag("Rated round"),
+                  "Rated round",
                   help = frag("Include this round when calculating players' rating changes").some
                 )
             ),
@@ -378,7 +398,17 @@ final class RelayFormUi(helpers: Helpers, ui: RelayUi, pageMenu: RelayMenuUi):
             ,
             p(
               "Optional. Affects automatic scoring. Points must be >= 0 and <=10. At most 2 decimal places. Default = 1.0 for a win and 0.5 for a draw."
-            )
+            ),
+            br,
+            nav.tour.teamTable.option:
+              form3.split:
+                List("win", "draw").map: result =>
+                  form3.group(
+                    form("teamCustomScoring")(result),
+                    raw(s"Team points for a match $result")
+                  )(
+                    form3.input(_)(tpe := "number", step := 0.01f, min := 0.0f, max := 10.0f)
+                  )
           )
         ),
         Granter
@@ -417,6 +447,8 @@ final class RelayFormUi(helpers: Helpers, ui: RelayUi, pageMenu: RelayMenuUi):
       Page(title)
         .css("bits.relay.form")
         .js(Esm("bits.relayForm"))
+        .js(esmInit("bits.broadcastForm.i18nCheck"))
+        .i18n(_.broadcast)
         .wrap: body =>
           main(cls := "page page-menu")(
             menu.fold(pageMenu(_), navigationMenu),
@@ -479,7 +511,24 @@ final class RelayFormUi(helpers: Helpers, ui: RelayUi, pageMenu: RelayMenuUi):
       frag(
         (!Granter.opt(_.StudyAdmin)).option(div(cls := "form-group")(ui.howToUse)),
         form3.globalError(form),
-        form3.group(form("name"), trb.tournamentName())(form3.input(_)(autofocus)),
+        form3.split(
+          form3.group(form("name"), trb.tournamentName(), half = true): field =>
+            frag(form3.input(field)(autofocus), nameHelp),
+          form3.group(
+            form("visibility"),
+            trans.study.visibility(),
+            half = true
+          )(
+            form3.select(
+              _,
+              List(
+                Visibility.public.key -> "Public",
+                Visibility.unlisted.key -> "Unlisted (from URL only)",
+                Visibility.`private`.key -> "Private (invited members only)"
+              )
+            )
+          )
+        ),
         form3.fieldset(trb.optionalDetails(), toggle = tg.exists(_.tour.info.nonEmpty).some)(
           form3.split(
             form3.group(
@@ -524,7 +573,7 @@ final class RelayFormUi(helpers: Helpers, ui: RelayUi, pageMenu: RelayMenuUi):
             ):
               form3.select(
                 _,
-                lila.core.fide.FideTC.values.map: tc =>
+                chess.FideTC.values.map: tc =>
                   tc.toString -> tc.toString.capitalize
               )
           ),
@@ -564,41 +613,33 @@ final class RelayFormUi(helpers: Helpers, ui: RelayUi, pageMenu: RelayMenuUi):
             toggle = tg
               .map(_.tour)
               .exists: t =>
-                !t.showScores || !t.showRatingDiffs || t.teamTable || !t.isPublic
+                !t.showScores || !t.showRatingDiffs || t.teamTable || t.showTeamScores
               .some
           )(
             form3.split(
-              form3.checkbox(
+              form3.checkboxGroup(
                 form("showScores"),
                 trb.showScores(),
                 half = true
               ),
-              form3.checkbox(
+              form3.checkboxGroup(
                 form("showRatingDiffs"),
                 "Show player's rating diffs",
                 half = true
               )
             ),
             form3.split(
-              form3.checkbox(
+              form3.checkboxGroup(
                 form("teamTable"),
                 trans.team.teamTournament(),
-                help = frag("Show a team leaderboard. Requires WhiteTeam and BlackTeam PGN tags.").some,
+                help = frag("Show a team table. Requires WhiteTeam and BlackTeam PGN tags.").some,
                 half = true
               ),
-              form3.group(
-                form("visibility"),
-                trans.study.visibility(),
+              form3.checkboxGroup(
+                form("showTeamScores"),
+                "Show team scores based on game results",
+                help = frag("Compute and show match points (MP) and game points (GP) for teams.").some,
                 half = true
-              )(
-                form3.select(
-                  _,
-                  List(
-                    Visibility.public.key -> "Public",
-                    Visibility.unlisted.key -> "Unlisted (from URL only)",
-                    Visibility.`private`.key -> "Private (invited members only)"
-                  )
-                )
               )
             )
           ),
@@ -678,7 +719,7 @@ Team Dogs ; Scooby Doo"""),
                 Granter
                   .opt(_.StudyAdmin)
                   .option(
-                    form3.checkbox(
+                    form3.checkboxGroup(
                       form("spotlight.enabled"),
                       "Show a homepage spotlight",
                       help = raw("As a Big Blue Button - for admins only").some,
@@ -706,11 +747,21 @@ Team Dogs ; Scooby Doo"""),
                         half = true
                       ):
                         form3.select(_, langList.popularLanguagesForm.choices)
+                    ),
+                    form3.split(
+                      form3.checkboxGroup(
+                        form("orphanWarn"),
+                        "Warn about Orphan Boards",
+                        help = raw(
+                          "Send a warning to the Broadcast team when boards are not receiving updates from the source. Disable if there are manually entered boards."
+                        ).some,
+                        half = true
+                      )
                     )
                   )
                 )
             ),
-            tg.isDefined.option:
+            (tg.isDefined && Granter.opt(_.StudyAdmin)).option:
               form3.fieldset("Pinned stream", toggle = form("pinnedStream.url").value.isDefined.some)(
                 form3.split(
                   form3.group(
@@ -753,6 +804,8 @@ Team Dogs ; Scooby Doo"""),
         )
       )
 
+  private def nameHelp = small(cls := "form-help relay-name-help text none", dataIcon := Icon.Checkmark)
+
   private def image(t: RelayTour)(using ctx: Context) =
     form3.fieldset("Image", toggle = true.some):
       div(
@@ -777,7 +830,7 @@ Team Dogs ; Scooby Doo"""),
   private def grouping(form: Form[RelayTourForm.Data])(using Context) =
     div(cls := "relay-form__grouping")(
       form3.group(
-        form("grouping"),
+        form("grouping.info"),
         "Optional: assign tournaments to a group",
         help = frag( // do not translate
           "First line is the group name.",
@@ -793,5 +846,25 @@ https://lichess.org/broadcast/dutch-championships-2025--women--first-stage/PGFBk
 https://lichess.org/broadcast/dutch-championships-2025--open--quarterfinals/Zi12QchK
 """)
         ).some
-      )(form3.textarea(_)(rows := 5, spellcheck := "false", cls := "monospace"))
+      )(form3.textarea(_)(rows := 5, spellcheck := "false", cls := "monospace")),
+      form3.group(
+        form("grouping.scoreGroups"),
+        "Optional: Divide the group into score groups",
+        help = frag(
+          "Each line defines a new score group with comma-separated tournament IDs.",
+          br,
+          "Only tournaments that are part of this group can be used in score groups.",
+          br,
+          "Settings for scores, rating diffs and tiebreaks are taken from the first tournament in each score group.",
+          br,
+          "Example:",
+          pre("""ISdmqct3,Zi12QchK
+PGFBkEha"""),
+          "Using the same example as above, this will create 2 score groups:",
+          br,
+          "1) Combines the open sections",
+          br,
+          "2) Is the lone women's section"
+        ).some
+      )(form3.textarea(_)(rows := 3, spellcheck := "false", cls := "monospace"))
     )

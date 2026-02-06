@@ -438,7 +438,6 @@
   <string name="pasteTheFenStringHere">Zalijepi FEN niz ovdje</string>
   <string name="pasteThePgnStringHere">Zalijepi PGN tekst ovdje</string>
   <string name="orUploadPgnFile">Ili učitaj PGN datoteku</string>
-  <string name="fromPosition">Od pozicije</string>
   <string name="continueFromHere">Nastavi odavde</string>
   <string name="toStudy">Prouči</string>
   <string name="importGame">Uvezi partiju</string>
@@ -490,11 +489,6 @@ računalnu analizu, chat partije i URL za dijeljenje.</string>
   <string name="player">Igrač</string>
   <string name="list">Lista</string>
   <string name="graph">Graf</string>
-  <plurals name="lessThanNbMinutes">
-    <item quantity="one">Manje od %s minute</item>
-    <item quantity="few">Manje od %s minute</item>
-    <item quantity="other">Manje od %s minuta</item>
-  </plurals>
   <string name="required">Obvezno.</string>
   <string name="openTournaments">Otvoreni turniri</string>
   <string name="duration">Trajanje</string>

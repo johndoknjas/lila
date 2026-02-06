@@ -16,7 +16,8 @@ final class RoundUi(helpers: Helpers, gameUi: lila.game.ui.GameUi):
       .css(ctx.pref.hasKeyboardMove.option("keyboardMove"))
       .css(ctx.pref.hasVoice.option("voice"))
       .css(ctx.blind.option("round.nvui"))
-      .i18nOpt(ctx.blind, _.keyboardMove, _.nvui)
+      .i18nOpt(ctx.speechSynthesis, _.nvui)
+      .i18nOpt(ctx.blind, _.keyboardMove)
       .flag(_.zoom)
       .csp(_.withPeer.withWebAssembly)
 
@@ -33,12 +34,9 @@ final class RoundUi(helpers: Helpers, gameUi: lila.game.ui.GameUi):
     frag(
       h3(
         simul | frag(trans.site.currentGames()),
-        span(
-          cls := "move-on switcher",
-          st.title := trans.site.automaticallyProceedToNextGameAfterMoving.txt()
-        )(
-          label(`for` := switchId)(trans.site.autoSwitch()),
-          span(cls := "switch")(form3.cmnToggle(switchId, switchId, checked = false))
+        form3.cmnToggleWrap(st.title := trans.site.automaticallyProceedToNextGameAfterMoving.txt())(
+          trans.site.autoSwitch(),
+          form3.cmnToggle(switchId, switchId, checked = false)
         )
       ),
       div(cls := "now-playing"):

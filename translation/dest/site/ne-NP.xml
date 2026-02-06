@@ -374,7 +374,6 @@
   <string name="pasteTheFenStringHere">FEN स्ट्रिङ्ग यहाँ पेष्ट गरौं</string>
   <string name="pasteThePgnStringHere">PGN स्ट्रिङ्ग यहाँ पेष्ट गरौं</string>
   <string name="orUploadPgnFile">PGN फाईल अपलोड गर्नुहोस् ।</string>
-  <string name="fromPosition">पोजिसन बाट</string>
   <string name="continueFromHere">अगाडि खेलौ</string>
   <string name="toStudy">अध्ययन</string>
   <string name="importGame">खेल निर्यात गरौं</string>
@@ -417,10 +416,6 @@
   <string name="player">खेलाडी</string>
   <string name="list">सुचि</string>
   <string name="graph">रेखाचित्र</string>
-  <plurals name="lessThanNbMinutes">
-    <item quantity="one">%s मिनेटभन्दा कम</item>
-    <item quantity="other">%s मिनेटभन्दा कम</item>
-  </plurals>
   <string name="required">आवश्यक।</string>
   <string name="openTournaments">खुल्ला प्रतियोगिताहरु</string>
   <string name="duration">अवधि</string>

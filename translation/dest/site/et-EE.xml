@@ -387,7 +387,6 @@
   <string name="pasteTheFenStringHere">Aseta FEN kood siia</string>
   <string name="pasteThePgnStringHere">Aseta PGN kood siia</string>
   <string name="orUploadPgnFile">Või lae üles PGN fail</string>
-  <string name="fromPosition">Positsioonilt</string>
   <string name="continueFromHere">Jätka siit</string>
   <string name="toStudy">Uuri</string>
   <string name="importGame">Impordi mäng</string>
@@ -433,10 +432,6 @@ arvutianalüüsi, mängu jututoa ning jagatava URL-i.</string>
   <string name="player">Mängija</string>
   <string name="list">Nimekiri</string>
   <string name="graph">Graafik</string>
-  <plurals name="lessThanNbMinutes">
-    <item quantity="one">Alla %s minuti</item>
-    <item quantity="other">Alla %s minuti</item>
-  </plurals>
   <string name="required">Nõutud</string>
   <string name="openTournaments">Avatud turniirid</string>
   <string name="duration">Kestvus</string>

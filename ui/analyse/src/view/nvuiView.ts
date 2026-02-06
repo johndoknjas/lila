@@ -51,6 +51,8 @@ import { playersView } from '../study/relay/relayPlayers';
 import { showInfo as tourOverview } from '../study/relay/relayTourView';
 import type { AnalyseNvuiContext } from '../analyse.nvui';
 import { scanDirectionsHandler } from 'lib/nvui/directionScan';
+import type { ClientEval, PvData } from 'lib/tree/types';
+import { COLORS } from 'chessops';
 
 const throttled = (sound: string) => throttle(100, () => site.sound.play(sound));
 const selectSound = throttled('select');
@@ -82,9 +84,7 @@ export function renderNvui(ctx: AnalyseNvuiContext): VNode {
     hl('div.nvui', [
       studyDetails(ctrl),
       hl('h2', i18n.nvui.gameInfo),
-      ...['white', 'black'].map((color: Color) =>
-        hl('p', [`${i18n.site[color]}: `, renderPlayer(ctrl, playerByColor(d, color))]),
-      ),
+      ...COLORS.map(color => hl('p', [`${i18n.site[color]}: `, renderPlayer(ctrl, playerByColor(d, color))])),
       hl('p', `${i18n.site[d.game.rated ? 'rated' : 'casual']} ${d.game.perf || d.game.variant.name}`),
       d.clock ? hl('p', `Clock: ${d.clock.initial / 60} + ${d.clock.increment}`) : null,
       hl('h2', i18n.nvui.moveList),
@@ -204,7 +204,7 @@ export function renderNvui(ctx: AnalyseNvuiContext): VNode {
             .filter(c => !c.invalid?.(ctrl))
             .flatMap(command => [noTrans(`${command.cmd}: `), command.help]),
         ].reduce<VNodeChildren[]>(
-          (acc, curr, i) => (i % 2 != 0 ? addBreaks(acc, curr) : acc.concat(curr)),
+          (acc, curr, i) => (i % 2 !== 0 ? addBreaks(acc, curr) : acc.concat(curr)),
           [],
         ),
       ),
@@ -288,7 +288,7 @@ const evalInfo = (bestEv: EvalScore | undefined): string =>
       ? `mate in ${Math.abs(bestEv.mate)} for ${bestEv.mate > 0 ? 'white' : 'black'}`
       : '';
 
-const depthInfo = (clientEv: Tree.ClientEval | undefined, isCloud: boolean): string =>
+const depthInfo = (clientEv: ClientEval | undefined, isCloud: boolean): string =>
   clientEv ? `${i18n.site.depthX(clientEv.depth || 0)} ${isCloud ? 'Cloud' : ''}` : '';
 
 const noEvalStr = (ctrl: AnalyseCtrl) =>
@@ -303,7 +303,7 @@ function renderBestMove({ ctrl, moveStyle }: AnalyseNvuiContext): string {
   if (noEvalMsg) return noEvalMsg;
   const node = ctrl.node,
     setup = parseFen(node.fen).unwrap();
-  let pvs: Tree.PvData[] = [];
+  let pvs: PvData[] = [];
   if (ctrl.threatMode() && node.threat) {
     pvs = node.threat.pvs;
     setup.turn = opposite(setup.turn);
@@ -460,7 +460,7 @@ function renderAcpl({ ctrl, moveStyle }: AnalyseNvuiContext): LooseVNodes {
   const analysisGlyphs = ['?!', '?', '??'];
   const analysisNodes = ctrl.mainline.filter(n => n.glyphs?.find(g => analysisGlyphs.includes(g.symbol)));
   const res: Array<VNode> = [];
-  ['white', 'black'].forEach((color: Color) => {
+  COLORS.forEach(color => {
     res.push(hl('h3', `${color} player: ${analysis[color].acpl} ${i18n.site.averageCentipawnLoss}`));
     res.push(
       hl(
@@ -532,6 +532,7 @@ export function renderCurrentNode({
   if (!node.san || !node.uci) return i18n.nvui.gameStart;
   return [
     plyToTurn(node.ply),
+    node.ply % 2 === 1 ? i18n.site.white : i18n.site.black,
     renderSan(node.san, node.uci, moveStyle.get()),
     renderLineIndex(ctrl),
     !ctrl.retro && renderComments(node, moveStyle.get()),
@@ -579,9 +580,11 @@ function renderStudyPlayer(ctrl: AnalyseCtrl, color: Color): VNode | undefined {
     hl(
       'span',
       keys
-        .reduce<
-          string[]
-        >((strs, [key, i18n]) => (player[key] ? strs.concat(`${i18n}: ${key === 'fed' ? player[key].name : player[key]}`) : strs), [])
+        .reduce<string[]>(
+          (strs, [key, i18n]) =>
+            player[key] ? strs.concat(`${i18n}: ${key === 'fed' ? player[key].name : player[key]}`) : strs,
+          [],
+        )
         .join(' '),
     )
   );
@@ -625,7 +628,7 @@ function tourDetails({ ctrl, deps }: AnalyseNvuiContext): VNode[] {
       clickHook(() => ctx.relay.tab('players'), ctrl.redraw),
       'Load player list',
     ),
-    hl('div', ctx.relay.tab() === 'players' && playersView(ctx.relay.players, ctx.relay.data.tour)),
+    hl('div', ctx.relay.tab() === 'players' && playersView(ctx.relay.players)),
   ];
 }
 
@@ -655,7 +658,7 @@ function studyDetails(ctrl: AnalyseCtrl) {
               relayGroups.tours.map(t =>
                 hl(
                   'option',
-                  { attrs: { selected: t.id == tour?.id, url: `/broadcast/-/${t.id}#group-select` } },
+                  { attrs: { selected: t.id === tour?.id, url: `/broadcast/-/${t.id}#group-select` } },
                   t.name,
                 ),
               ),
@@ -679,11 +682,11 @@ function studyDetails(ctrl: AnalyseCtrl) {
                   'option',
                   {
                     attrs: {
-                      selected: r.id == study.data.id,
+                      selected: r.id === study.data.id,
                       url: `/broadcast/${tour.slug}/${r.slug}/${r.id}#round-select`,
                     },
                   },
-                  r.name,
+                  study.relay?.round.name,
                 ),
               ),
             ),

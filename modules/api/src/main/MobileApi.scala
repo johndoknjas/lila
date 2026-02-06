@@ -5,7 +5,6 @@ import play.api.i18n.Lang
 import play.api.mvc.RequestHeader
 
 import lila.common.Json.given
-import lila.web.AnnounceApi
 import lila.core.i18n.Translate
 import lila.core.user.KidMode
 import lila.core.net.UserAgent
@@ -17,12 +16,12 @@ final class MobileApi(
     lightUserApi: lila.core.user.LightUserApi,
     gameProxy: lila.round.GameProxyRepo,
     unreadCount: lila.msg.MsgUnreadCount,
-    teamCached: lila.team.Cached,
+    teamCached: lila.team.TeamCached,
     tourFeaturing: lila.tournament.TournamentFeaturing,
     tourApiJson: lila.tournament.ApiJsonView,
-    topRelay: Int => lila.relay.JsonView.Config ?=> Fu[JsObject],
+    relayHome: lila.relay.RelayHomeApi,
     tv: lila.tv.Tv,
-    liveStreamApi: lila.streamer.LiveStreamApi,
+    liveStreamApi: lila.streamer.LiveApi,
     activityRead: lila.activity.ActivityReadApi,
     activityJsonView: lila.activity.JsonView,
     challengeApi: lila.challenge.ChallengeApi,
@@ -51,7 +50,6 @@ final class MobileApi(
       .add("ongoingGames", ongoingGames)
       .add("inbox", inbox)
       .add("challenges", challenges.map(challengeJson.all))
-      .add("announce", AnnounceApi.get.map(_.json))
 
   def tournaments(using me: Option[Me])(using Translate): Fu[JsObject] =
     for
@@ -62,9 +60,9 @@ final class MobileApi(
       json <- spotlight.sequentially(tourApiJson.fullJson)
     yield Json.obj("featured" -> json)
 
-  def watch: Fu[JsObject] =
+  def watch(using Translate): Fu[JsObject] =
     for
-      relay <- topRelay(1)(using lila.relay.JsonView.Config(html = false))
+      relay <- relayHome.getJson(1)(using lila.relay.RelayJsonView.Config(html = false))
       champs <- tv.getChampions
       tvChannels = champs.channels.mapKeys(_.key)
       streamers <- featuredStreamers
@@ -81,7 +79,7 @@ final class MobileApi(
     .zip(users)
     .map: (stream, user) =>
       Json.toJsObject(user) ++
-        lila.streamer.Stream.toJson(picfitUrl, stream)
+        lila.streamer.Stream.toLichessJson(picfitUrl, stream)
 
   def profile(user: User)(using me: Option[Me])(using Lang): Fu[JsObject] =
     for

@@ -4,8 +4,7 @@
   <string name="challengeAFriend" comment="be mindful how 'friend' translates in gendered languages. look for a more neutral term if there's an issue, or base your translation on a different phrase like 'invite to a game'. keep it short and convey the button's meaning without offense.">Vyzvať priateľa</string>
   <string name="playAgainstComputer">Hrať proti počítaču</string>
   <string name="gameMode">Herný režim</string>
-  <string name="createLobbyGame" comment="One of three buttons on the home page. Opens the modal to create a game that goes in the lobby.">Vytvoriť výzvu</string>
-  <string name="youPlayAs">Hráte ako</string>
+  <string name="createLobbyGame">Vytvoriť výzvu</string>
   <string name="toInviteSomeoneToPlayGiveThisUrl">Zdieľaním tejto adresy môžete niekoho pozvať k partii</string>
   <string name="gameOver">Koniec partie</string>
   <string name="waitingForOpponent">Čaká sa na súpera</string>
@@ -130,6 +129,7 @@
   <string name="bestMoveArrow">Šípka pre najlepší ťah</string>
   <string name="showVariationArrows">Zobraziť šípky variantov</string>
   <string name="evaluationGauge">Ukazovateľ hodnotenia</string>
+  <string name="visualMotifs">Vizuálne motívy</string>
   <string name="multipleLines">Počet variantov</string>
   <string name="cpus">Procesory</string>
   <string name="memory">Pamäť</string>
@@ -489,7 +489,6 @@
   <string name="pasteTheFenStringHere">Sem vložte FEN reťazec</string>
   <string name="pasteThePgnStringHere">Sem vložte PGN reťazec</string>
   <string name="orUploadPgnFile">Alebo nahrajte súbor PGN</string>
-  <string name="fromPosition">Z pozície</string>
   <string name="continueFromHere">Pokračujte odtiaľto</string>
   <string name="toStudy">Štúdia</string>
   <string name="importGame">Importovať partiu</string>
@@ -544,12 +543,6 @@
   <string name="player">Hráč</string>
   <string name="list">Zoznam</string>
   <string name="graph">Graf</string>
-  <plurals name="lessThanNbMinutes">
-    <item quantity="one">Menej ako %s minúta</item>
-    <item quantity="few">Menej ako %s minúty</item>
-    <item quantity="many">Menej ako %s minút</item>
-    <item quantity="other">Menej ako %s minút</item>
-  </plurals>
   <string name="required">Vyžaduje sa.</string>
   <string name="openTournaments">Otvorené turnaje</string>
   <string name="duration">Dĺžka</string>
@@ -851,6 +844,7 @@
   <string name="youCanAlsoScrollOverTheBoardToMoveInTheGame">K pohybu v partii môžete tiež použiť scrollovacie koliečko myši nad šachovnicou.</string>
   <string name="scrollOverComputerVariationsToPreviewThem">Prejdite kurzorom ponad počítačové varianty pre zobrazenie ich náhľadu.</string>
   <string name="analysisShapesHowTo">Stlačte shift+ľavé tlačidlo na myši alebo pravé tlačidlo na myši na kreslenie kruhov a šípok na šachovnici.</string>
+  <string name="primaryColorArrowsHowTo">Ctrl / Shift = červená; Command / Alt / Meta = modrá; Dve klávesy naraz (z oboch skupín jedna) = žltá.</string>
   <string name="letOtherPlayersMessageYou">Povoliť ostatným hráčom aby Vám napísali správu</string>
   <string name="receiveForumNotifications">Dostávať upozornenia keď ťa niekto spomenie na fóre</string>
   <string name="shareYourInsightsData">Zdieľať výsledky analýz Vašich partií</string>
@@ -1000,6 +994,7 @@
   <string name="agreementPolicy">Súhlasím, že budem dodržiavať všetky pravidlá Lichessu.</string>
   <string name="searchOrStartNewDiscussion">Prehľadávať alebo začať novú konverzáciu</string>
   <string name="edit">Upraviť</string>
+  <string name="ultraBullet" comment="Probably best left untranslated. Leave it as 'UltraBullet' unless your language has a better word for it.">UltraBullet</string>
   <string name="bullet" comment="Probably best left untranslated. Leave it as 'Bullet' unless your language has a better word for it.">Bullet</string>
   <string name="blitz" comment="Probably best left untranslated. Leave it as 'Blitz' unless your language has a better word for it.">Blitz</string>
   <string name="rapid">Rapid</string>

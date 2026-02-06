@@ -3,6 +3,7 @@ import type { AnalyseData } from '../interfaces';
 import type { GamebookOverride } from './gamebook/interfaces';
 import type { Opening } from '../explorer/interfaces';
 import type AnalyseCtrl from '../ctrl';
+import type { TreeNodeIncomplete, TreePath } from 'lib/tree/types';
 
 export type Tab = 'intro' | 'members' | 'chapters';
 export type ChapterTab = 'init' | 'edit' | 'game' | 'fen' | 'pgn';
@@ -36,7 +37,6 @@ export interface StudyVm {
   behind: number;
   updatedAt: number;
   gamebookOverride: GamebookOverride;
-  scrollToActiveChapter: ScrollBehavior | false;
 }
 
 export type Federations = { [key: string]: string };
@@ -51,7 +51,7 @@ export interface StudyData {
   settings: StudySettings;
   visibility: Visibility;
   createdAt: number;
-  from: string;
+  from: string | object;
   likes: number;
   isNew?: boolean;
   liked: boolean;
@@ -90,7 +90,7 @@ export interface ReloadData {
 
 export interface Position {
   chapterId: ChapterId;
-  path: Tree.Path;
+  path: TreePath;
 }
 
 export interface StudyFeatures {
@@ -121,7 +121,7 @@ export interface StudyChapter {
   gamebook: boolean;
   features: StudyChapterFeatures;
   description?: string;
-  relayPath?: Tree.Path;
+  relayPath?: TreePath;
   serverEval?: StudyChapterServerEval;
 }
 
@@ -131,7 +131,7 @@ export interface StudyChapterServerEval {
 }
 
 export interface StudyChapterRelay {
-  path: Tree.Path;
+  path: TreePath;
   lastMoveAt?: number;
 }
 
@@ -165,9 +165,10 @@ export interface StudyMemberMap {
 
 export type TagTypes = string[];
 export type TagArray = [string, string];
+export type TagMap = Map<string, string>;
 
 export interface LocalPaths {
-  [chapterId: string]: Tree.Path;
+  [chapterId: string]: TreePath;
 }
 
 export interface ChapterPreviewBase {
@@ -183,7 +184,6 @@ export interface ChapterPreviewFromServer extends ChapterPreviewBase {
   players?: PairOf<StudyPlayerFromServer>;
   thinkTime?: number; // seconds since last move
   orientation?: Color; // defaults to white
-  variant?: VariantKey; // defaults to standard
 }
 
 export interface ChapterPreview extends ChapterPreviewBase {
@@ -191,7 +191,6 @@ export interface ChapterPreview extends ChapterPreviewBase {
   players?: StudyPlayers;
   lastMoveAt?: number;
   orientation: Color;
-  variant: VariantKey;
   playing: boolean;
 }
 
@@ -243,13 +242,6 @@ export interface EditChapterData {
   description: string;
 }
 
-export interface AnaDests {
-  dests: string;
-  path: string;
-  ch?: string;
-  opening?: Opening;
-}
-
 export interface AnaMove {
   orig: string;
   dest: string;
@@ -269,10 +261,10 @@ export interface AnaDrop {
   ch?: string;
 }
 export interface ServerNodeMsg extends WithWhoAndPos {
-  n: Tree.NodeFromServer;
+  n: TreeNodeIncomplete;
   o: Opening;
   s: boolean;
-  relayPath?: Tree.Path;
+  relayPath?: TreePath;
 }
 export interface ServerClockMsg extends WithWhoAndPos {
   c?: number;

@@ -390,7 +390,6 @@
   <string name="pasteTheFenStringHere">在此處貼上 FEN 棋譜</string>
   <string name="pasteThePgnStringHere">在此處貼上 PGN 棋譜</string>
   <string name="orUploadPgnFile">或者上傳一個PGN文件</string>
-  <string name="fromPosition">自定義局面</string>
   <string name="continueFromHere">從此處繼續</string>
   <string name="toStudy">研究</string>
   <string name="importGame">導入棋局</string>
@@ -433,9 +432,6 @@
   <string name="player">棋手</string>
   <string name="list">列表</string>
   <string name="graph">圖表</string>
-  <plurals name="lessThanNbMinutes">
-    <item quantity="other">小於%s分鐘</item>
-  </plurals>
   <string name="required">必填項目。</string>
   <string name="openTournaments">公開錦標賽</string>
   <string name="duration">持續時間</string>

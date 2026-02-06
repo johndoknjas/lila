@@ -141,7 +141,7 @@ final class JsonView(
           .add("botsAllowed", tour.conditions.allowsBots)
           .add("minAccountAgeInDays", tour.conditions.accountAge.map(_.days))
           .add("onlyTitled", tour.conditions.titled.isDefined)
-          .add("teamMember", tour.conditions.teamMember.map(_.teamId))
+          .add("teamMember", tour.singleTeamId)
           .add("allowList", withAllowList.so(tour.conditions.allowList).map(_.userIds))
           .add("reloadEndpoint" -> addReloadEndpoint.map: useLilaHttp =>
             JsString({
@@ -224,11 +224,12 @@ final class JsonView(
             for
               ranking <- cached.ranking(tour)
               pairOption <- playerRepo.pairByTourAndUserIds(tour.id, pairing.user1, pairing.user2)
-            yield for
-              (p1, p2) <- pairOption
-              rp1 <- RankedPlayer(ranking.ranking)(p1)
-              rp2 <- RankedPlayer(ranking.ranking)(p2)
-            yield FeaturedGame(game, rp1, rp2)
+            yield
+              for
+                (p1, p2) <- pairOption
+                rp1 <- RankedPlayer(ranking.ranking)(p1)
+                rp2 <- RankedPlayer(ranking.ranking)(p2)
+              yield FeaturedGame(game, rp1, rp2)
 
   private def sheetNbs(s: arena.Sheet) =
     Json.obj(

@@ -130,7 +130,7 @@ final class GameSearchUi(helpers: Helpers)(
         tr(cls := "opponentName")(
           th(label(`for` := form3.id(form("players")("b")))(trs.opponentName())),
           td(cls := "usernames")(
-            st.input(tpe := "hidden", value := u.id, name := "players.a"),
+            form3.hidden("players.a", u.id),
             form3.input(form("players")("b"))(tpe := "text")
           )
         ),
@@ -336,6 +336,10 @@ final class SearchForm(helpers: Helpers)(form: Form[?])(using Translate):
         )
       ),
       td(
-        form3.cmnToggle(form3.id(field), field.name, checked = field.value.has("1"), value = "1")
+        form3.nativeCheckbox(
+          form3.id(field),
+          field.name,
+          checked = form3.isChecked(field)
+        )
       )
     )

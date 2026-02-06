@@ -4,7 +4,7 @@ import play.api.i18n.Lang
 import reactivemongo.api.*
 
 import lila.common.Bus
-import lila.core.config.Secret
+import lila.core.config.{ RouteUrl, Secret }
 import lila.core.net.IpAddress
 import lila.db.dsl.{ *, given }
 import lila.memo.CacheApi.*
@@ -12,7 +12,6 @@ import scalalib.paginator.Paginator
 import lila.core.LightUser
 import lila.db.paginator.Adapter
 import lila.ui.Context
-import lila.core.config.BaseUrl
 import lila.core.plan.{ PatronColor, PatronColorChoice }
 
 final class PlanApi(
@@ -184,17 +183,14 @@ final class PlanApi(
         checkout: PlanCheckout,
         customerId: StripeCustomerId,
         giftTo: Option[User],
-        baseUrl: BaseUrl
+        routeUrl: RouteUrl
     )(using ctx: Context, me: Me, lang: Lang) =
       for
         isLifetime <- pricingApi.isLifetime(checkout.money)
         data = CreateStripeSession(
           customerId,
           checkout,
-          NextUrls(
-            cancel = s"${baseUrl}${routes.Plan.index()}",
-            success = s"${baseUrl}${routes.Plan.thanks}"
-          ),
+          NextUrls(cancel = routeUrl(routes.Plan.index()), success = routeUrl(routes.Plan.thanks)),
           giftTo = giftTo,
           isLifetime = isLifetime,
           ip = ctx.ip

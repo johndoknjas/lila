@@ -1,5 +1,6 @@
 package lila.relay
 
+import play.api.mvc.Call
 import io.mola.galimatias.URL
 import reactivemongo.api.bson.Macros.Annotations.Key
 import scalalib.ThreadLocalRandom
@@ -7,6 +8,7 @@ import scalalib.model.Seconds
 import chess.{ Rated, ByColor }
 
 import lila.study.Study
+import lila.core.i18n.Translate
 
 case class RelayRound(
     /* Same as the Study id it refers to */
@@ -26,9 +28,10 @@ case class RelayRound(
     crowd: Option[Crowd],
     // crowdAt: Option[Instant], // in DB but not used by RelayRound
     rated: Rated = Rated.Yes,
-    customScoring: Option[ByColor[RelayRound.CustomScoring]] = none
+    customScoring: Option[ByColor[RelayRound.CustomScoring]] = none,
+    teamCustomScoring: Option[RelayRound.CustomScoring] = none
 ):
-  inline def studyId = id.into(StudyId)
+  inline def studyId = id.studyId
 
   lazy val slug =
     val s = scalalib.StringOps.slug(name.value)
@@ -82,7 +85,8 @@ object RelayRound:
   object Order extends OpaqueInt[Order]
 
   opaque type Name = String
-  object Name extends OpaqueString[Name]
+  object Name extends OpaqueString[Name]:
+    extension (name: Name) def translate(using lila.core.i18n.Translate) = RelayI18n(name)
 
   opaque type Caption = String
   object Caption extends OpaqueString[Caption]
@@ -103,7 +107,8 @@ object RelayRound:
       period: Option[Seconds], // override time between two sync (rare)
       delay: Option[Seconds], // add delay between the source and the study
       onlyRound: Option[Sync.OnlyRound], // only keep games with [Round "x"]
-      slices: Option[List[RelayGame.Slice]] = none,
+      slices: Option[List[RelayGame.Slice]] = None,
+      reorder: Option[RelayGame.ReorderNames] = None,
       log: SyncLog
   ):
     def hasUpstream = upstream.isDefined
@@ -208,10 +213,11 @@ object RelayRound:
     val tour: RelayTour
     def display: RelayRound
     def link: RelayRound
-    def fullName = s"${tour.name} • ${display.name}"
-    def path: String =
-      s"/broadcast/${tour.slug}/${if link.slug == tour.slug then "-" else link.slug}/${link.id}"
-    def path(chapterId: StudyChapterId): String = s"$path/$chapterId"
+    def fullNameNoTrans = s"${tour.name} • ${display.name}" // useful for logging
+    def fullName(using Translate) = s"${tour.name.translate} • ${display.name.translate}"
+    def path = s"/broadcast/${tour.slug}/${if link.slug == tour.slug then "-" else link.slug}/${link.id}"
+    def call: Call = Call("GET", path)
+    def call(chapterId: StudyChapterId): Call = Call("GET", s"$path/$chapterId")
 
   trait AndGroup:
     def group: Option[RelayGroup.Name]
@@ -231,8 +237,7 @@ object RelayRound:
 
   case class WithTourAndStudy(relay: RelayRound, tour: RelayTour, study: Study):
     def withTour = WithTour(relay, tour)
-    def path = withTour.path
-    def fullName = withTour.fullName
+    def call = withTour.call
 
   case class WithStudy(relay: RelayRound, study: Study):
     def withTour(tour: RelayTour) = WithTourAndStudy(relay, tour, study)

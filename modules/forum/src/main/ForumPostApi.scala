@@ -3,7 +3,8 @@ package lila.forum
 import lila.common.Bus
 import lila.core.forum.{ ForumCateg as _, ForumPost as _, * }
 import lila.core.perm.Granter as MasterGranter
-import lila.core.shutup.{ PublicSource, ShutupApi }
+import lila.core.shutup.ShutupApi
+import lila.core.chat.PublicSource
 import lila.core.timeline.{ ForumPost as TimelinePost, Propagate }
 import lila.db.dsl.{ *, given }
 
@@ -205,11 +206,12 @@ final class ForumPostApi(
       categOpt <- categRepo.byId(ForumCateg.diagnosticId)
       topicOpt <- topicRepo.byTree(ForumCateg.diagnosticId, ForumTopic.problemReportSlug(user.id))
       postOpt <- topicOpt.so(t => postRepo.coll.byId[ForumPost](t.lastPostId(user.some)))
-    yield for
-      post <- postOpt
-      topic <- topicOpt
-      categ <- categOpt
-    yield CategView(categ, (topic, post, topic.lastPage(config.postMaxPerPage)).some, user.some)
+    yield
+      for
+        post <- postOpt
+        topic <- topicOpt
+        categ <- categOpt
+      yield CategView(categ, (topic, post, topic.lastPage(config.postMaxPerPage)).some, user.some)
 
   private def recentUserIds(topic: ForumTopic, newPostNumber: Int) =
     postRepo.coll

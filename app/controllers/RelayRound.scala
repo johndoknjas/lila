@@ -10,6 +10,7 @@ import lila.common.HTTPRequest
 import lila.core.id.{ RelayRoundId, RelayTourId }
 import lila.relay.ui.FormNavigation
 import lila.relay.{ RelayRound as RoundModel, RelayTour as TourModel, RelayVideoEmbed as VideoEmbed }
+import lila.study.Study as StudyModel
 
 final class RelayRound(
     env: Env,
@@ -121,37 +122,53 @@ final class RelayRound(
   def embedShow(@nowarn ts: String, @nowarn rs: String, id: RelayRoundId): EssentialAction =
     Anon:
       InEmbedContext:
-        FoundEmbed(env.relay.api.byIdWithTour(id))(embedShow)
+        FoundEmbed(env.relay.api.byIdWithTour(id))(embedShow(_, none))
 
-  def embedShow(rt: RoundModel.WithTour)(using EmbedContext): Fu[Result] =
-    env.study.preview
-      .firstId(rt.round.studyId)
-      .flatMapz(env.study.api.byIdWithChapterOrFallback(rt.round.studyId, _))
-      .flatMap:
-        _.fold(notFoundEmbed): oldSc =>
-          studyC.CanView(oldSc.study)(
-            for
-              (sc, studyData) <- studyC.getJsonData(oldSc, withChapters = true)
-              rounds <- env.relay.api.byTourOrdered(rt.tour)
-              group <- env.relay.api.withTours.get(rt.tour.id)
-              data = env.relay.jsonView.makeData(
-                rt.tour.withRounds(rounds.map(_.round)),
-                rt.round.id,
-                studyData,
-                group,
-                canContribute = false,
-                isSubscribed = none,
-                videoUrls = none,
-                pinned = none,
-                delayedUntil = none
-              )
-              sVersion <- NoCrawlers(env.study.version(sc.study.id))
-              embed <- views.relay.embed(rt.withStudy(sc.study), data, sVersion)
-            yield Ok(embed).enforceCrossSiteIsolation
-          )(
-            studyC.privateUnauthorizedFu(oldSc.study),
-            studyC.privateForbiddenFu(oldSc.study)
+  def embedChapter(
+      @nowarn ts: String,
+      @nowarn rs: String,
+      id: RelayRoundId,
+      chapterId: StudyChapterId
+  ): EssentialAction =
+    Anon:
+      InEmbedContext:
+        FoundEmbed(env.relay.api.byIdWithTour(id))(embedShow(_, chapterId.some))
+
+  def embedShow(rt: RoundModel.WithTour, chapterId: Option[StudyChapterId])(using
+      EmbedContext
+  ): Fu[Result] =
+    val studyAndChapter = chapterId match
+      case Some(cid) => env.study.api.byIdWithChapterOrFallback(rt.round.studyId, cid)
+      case None =>
+        env.study.preview
+          .firstId(rt.round.studyId)
+          .flatMapz(env.study.api.byIdWithChapterOrFallback(rt.round.studyId, _))
+    FoundEmbed(studyAndChapter): sc =>
+      studyC.CanView(sc.study)(
+        for
+          (sc, studyData) <- studyC.getJsonData(sc, withChapters = true)
+          rounds <- env.relay.api.byTourOrdered(rt.tour)
+          group <- env.relay.api.withTours.get(rt.tour.id)
+          photos <- env.relay.playerApi.photosJson(rt.tour.id)
+          data = env.relay.jsonView.makeData(
+            rt.tour.withRounds(rounds.map(_.round)),
+            rt.round.id,
+            studyData,
+            group,
+            canContribute = false,
+            isSubscribed = none,
+            videoUrls = none,
+            pinned = none,
+            delayedUntil = none,
+            photos = photos
           )
+          sVersion <- NoCrawlers(env.study.version(sc.study.id))
+          embed <- views.relay.embed(rt.withStudy(sc.study), data, sVersion)
+        yield Ok(embed).enforceCrossSiteIsolation
+      )(
+        studyC.privateUnauthorizedFu(sc.study),
+        studyC.privateForbiddenFu(sc.study)
+      )
 
   private def doApiShow(id: RelayRoundId)(using Context): Fu[Result] =
     Found(env.relay.api.byIdWithTour(id))(doApiShow)
@@ -165,9 +182,18 @@ final class RelayRound(
           targetRound <- env.relay.api.officialTarget(rt.round)
           isSubscribed <- ctx.userId.traverse(env.relay.api.isSubscribed(rt.tour.id, _))
           sVersion <- HTTPRequest.isLichessMobile(ctx.req).optionFu(env.study.version(study.id))
+          photos <- env.relay.playerApi.photosJson(rt.tour.id)
         yield JsonOk:
           env.relay.jsonView
-            .withUrlAndPreviews(rt.withStudy(study), previews, group, targetRound, isSubscribed, sVersion)
+            .withUrlAndPreviews(
+              rt.withStudy(study),
+              previews,
+              group,
+              targetRound,
+              isSubscribed,
+              sVersion,
+              photos
+            )
       )(studyC.privateUnauthorizedJson, studyC.privateForbiddenJson)
 
   def pgn(ts: String, rs: String, id: RelayRoundId) = Open:
@@ -180,9 +206,9 @@ final class RelayRound(
 
   private def pgnWithFlags(ts: String, rs: String, id: RelayRoundId)(using Context): Fu[Result] =
     studyC.pgnWithFlags(
-      id.into(StudyId),
+      id.studyId,
       _.copy(
-        updateTags = _ + Tag("GameURL", s"${env.net.baseUrl}${routes.RelayRound.show(ts, rs, id)}"),
+        updateTags = _ + Tag("GameURL", routeUrl(routes.RelayRound.show(ts, rs, id))),
         comments = false,
         variations = false
       )
@@ -215,7 +241,7 @@ final class RelayRound(
     Found(env.relay.api.byIdWithTourAndStudy(id)): rt =>
       if !rt.study.canContribute(me) then forbiddenJson()
       else
-        import lila.relay.JsonView.given
+        import lila.relay.RelayJsonView.given
         env.relay
           .push(rt.withTour, PgnStr(ctx.body.body))
           .map(JsonOk)
@@ -225,7 +251,7 @@ final class RelayRound(
     Found(env.relay.api.byIdWithTourAndStudy(id)): rt =>
       studyC.CanView(rt.study) {
         rt.tour.teamTable.so:
-          env.relay.teamTable.tableJson(rt.relay).map(JsonStrOk)
+          env.relay.teamTable.tableJson(rt.relay.id).map(JsonOk)
       }(Unauthorized, Forbidden)
 
   def stats(id: RelayRoundId) = Open:
@@ -241,7 +267,7 @@ final class RelayRound(
   )(using ctx: Context): Fu[Result] =
     Found(env.relay.api.byIdWithTour(id)): rt =>
       if !ctx.req.path.startsWith(rt.path) && HTTPRequest.isRedirectable(ctx.req)
-      then Redirect(chapterId.fold(rt.path)(rt.path))
+      then Redirect(chapterId.fold(rt.call)(rt.call))
       else f(rt)
 
   private def WithTour(id: RelayTourId)(
@@ -253,12 +279,12 @@ final class RelayRound(
       f: FormNavigation => Fu[Result]
   )(using ctx: Context): Fu[Result] =
     WithTour(id): tour =>
-      ctx.me
-        .soUse(env.relay.api.canUpdate(tour))
+      ctx
+        .useMe(env.relay.api.canUpdate(tour))
         .elseNotFound:
           env.relay.api.formNavigation(tour).flatMap(f)
 
-  private def doShow(rt: RoundModel.WithTour, oldSc: lila.study.Study.WithChapter, embed: VideoEmbed)(using
+  private def doShow(rt: RoundModel.WithTour, oldSc: StudyModel.WithChapter, embed: VideoEmbed)(using
       ctx: Context
   ): Fu[Result] =
     studyC.CanView(oldSc.study)(
@@ -272,7 +298,7 @@ final class RelayRound(
           case VideoEmbed.Stream(userId) =>
             env.streamer.api
               .find(userId)
-              .flatMapz(s => env.streamer.liveStreamApi.of(s).dmap(some))
+              .flatMapz(s => env.streamer.liveApi.of(s).dmap(some))
               .map:
                 _.flatMap(_.stream).map(_.urls.toPair(netDomain))
           case VideoEmbed.PinnedStream =>
@@ -285,6 +311,7 @@ final class RelayRound(
         crossSiteIsolation = videoUrls.isEmpty || (
           rt.tour.pinnedStream.isDefined && crossOriginPolicy.supportsCredentiallessIFrames(ctx.req)
         )
+        photos <- env.relay.playerApi.photosJson(rt.tour.id)
         data = env.relay.jsonView.makeData(
           rt.tour.withRounds(rounds.map(_.round)),
           rt.round.id,
@@ -294,7 +321,8 @@ final class RelayRound(
           isSubscribed,
           videoUrls,
           rt.tour.pinnedStream,
-          delayedUntil = delayedUntil
+          delayedUntil,
+          photos
         )
         chat <- NoCrawlers(studyC.chatOf(sc.study))
         sVersion <- NoCrawlers(env.study.version(sc.study.id))

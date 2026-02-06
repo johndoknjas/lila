@@ -5,6 +5,13 @@ import { option } from '../view/util';
 import { looksLikeLichessGame } from './studyChapters';
 import { prop } from 'lib';
 import type StudyCtrl from './studyCtrl';
+import type { TagArray, TagMap } from './interfaces';
+
+export const tagsToMap = (tags: TagArray[]): TagMap => {
+  const map = new Map<string, string>();
+  tags.forEach(([k, v]) => map.set(k.toLowerCase(), v));
+  return map;
+};
 
 export class TagsForm {
   selectedType = prop<string | undefined>(undefined);
@@ -108,7 +115,7 @@ function renderPgnTags(tags: TagsForm, showRatings: boolean): VNode {
     chapter.tags
       .filter(
         tag =>
-          tag[0] != 'Variant' &&
+          tag[0] !== 'Variant' &&
           (showRatings || !['WhiteElo', 'BlackElo'].includes(tag[0]) || !looksLikeLichessGame(chapter.tags)),
       )
       .map(tag => [tag[0], tags.editable() ? editable(tag[0], tag[1], tags.submit) : fixed(tag)]),

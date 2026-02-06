@@ -77,6 +77,9 @@ final private class RelayTourRepo(val coll: Coll)(using Executor):
   def isOwnerOfAll(u: UserId, ids: List[RelayTourId]): Fu[Boolean] =
     coll.exists($doc($inIds(ids), "ownerIds".$ne(u))).not
 
+  def showTeamScores(id: RelayTourId): Fu[Boolean] =
+    coll.primitiveOne[Boolean]($id(id), "showTeamScores").map(~_)
+
   def aggregateRoundAndUnwind(
       otherColls: RelayColls,
       framework: coll.AggregationFramework.type,
@@ -180,6 +183,12 @@ private object RelayTourRepo:
     "players" -> false,
     "teams" -> false
   )
+
+  private[relay] def readTourWithRounds(doc: Bdoc): Option[RelayTour.WithRounds] = for
+    tour <- doc.asOpt[RelayTour]
+    rounds <- doc.getAsOpt[List[RelayRound]]("rounds")
+    if rounds.nonEmpty
+  yield tour.withRounds(rounds)
 
   private[relay] def readToursWithRoundAndGroup[A](
       as: (RelayTour, RelayRound, Option[RelayGroup.Name]) => A

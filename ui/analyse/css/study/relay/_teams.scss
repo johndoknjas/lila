@@ -1,3 +1,4 @@
+@import './result-box';
 .relay-tour {
   &__team-table {
     &.loading {
@@ -14,9 +15,9 @@
     &__game {
       @extend %flex-center-nowrap;
       > * {
-        flex: 0 0 43%;
+        flex: 0 1 43%;
         &:nth-child(2) {
-          flex: 0 0 14%;
+          flex: 1 0 14%;
         }
       }
     }
@@ -29,9 +30,17 @@
       }
     }
     &__team {
+      a {
+        color: $c-font;
+        &:hover {
+          color: $c-primary;
+        }
+      }
       padding: 0.5em 1em;
       &__points {
         @extend %flex-around;
+        flex-flow: row nowrap;
+        @extend %result-box;
         points {
           font-weight: bold;
         }
@@ -82,11 +91,11 @@
 }
 
 .eval-gauge-horiz {
-  $white: #a0a0a0;
-  $black: #606060;
+  $white: #c0c0c0;
+  $black: #444;
   @include if-light {
     $white: #fff;
-    $black: #888;
+    $black: #606060;
   }
   @extend %box-neat-force;
   display: block;

@@ -4,12 +4,13 @@
   <string name="challengeAFriend" comment="be mindful how 'friend' translates in gendered languages. look for a more neutral term if there's an issue, or base your translation on a different phrase like 'invite to a game'. keep it short and convey the button's meaning without offense.">Einen Freund herausfordern</string>
   <string name="playAgainstComputer">Gegen den Computer spielen</string>
   <string name="gameMode">Spielmodus</string>
-  <string name="createLobbyGame" comment="One of three buttons on the home page. Opens the modal to create a game that goes in the lobby.">Neue Partie erstellen</string>
-  <string name="youPlayAs">Du spielst als</string>
+  <string name="createLobbyGame">Neue Partie erstellen</string>
   <string name="toInviteSomeoneToPlayGiveThisUrl">Versende diese URL, um jemanden zum Spiel einzuladen</string>
   <string name="gameOver">Partie beendet</string>
   <string name="waitingForOpponent">Auf den Gegner warten</string>
   <string name="orLetYourOpponentScanQrCode">Oder lass deinen Gegner diesen QR-Code scannen</string>
+  <string name="reusableChallengeUrl">Wiederverwendbare Herausforderungs-URL</string>
+  <string name="permanentLinkForAnyoneToChallengeYou">Ein permanenter Link für jeden, der dich mit genau diesen Einstellungen herausfordert.</string>
   <string name="waiting">Warten</string>
   <string name="yourTurn">Du bist am Zug</string>
   <string name="aiNameLevelAiLevel">%1$s Stufe %2$s</string>
@@ -126,6 +127,10 @@
   <string name="bestMoveArrow">Pfeil für besten Zug</string>
   <string name="showVariationArrows">Varianten-Pfeile anzeigen</string>
   <string name="evaluationGauge">Bewertungsanzeige</string>
+  <string name="visualMotifs">Visuelle Motive</string>
+  <string name="undefendedPieces">Nicht verteidigte Figuren</string>
+  <string name="pinnedPieces">Gefesselte Figuren</string>
+  <string name="checkableKing">König, dem Schach geboten werden kann</string>
   <string name="multipleLines">Mehrere Varianten</string>
   <string name="cpus">CPUs</string>
   <string name="memory">Arbeitsspeicher</string>
@@ -205,6 +210,7 @@
   <string name="minutesPerSide">Minuten pro Spieler</string>
   <string name="variant">Variante</string>
   <string name="variants">Varianten</string>
+  <string name="variantsDescription">Weitere Spielarten</string>
   <string name="timeControl">Bedenkzeit</string>
   <string name="realTime">Normale Bedenkzeit</string>
   <string name="correspondence">Fernschach</string>
@@ -299,6 +305,7 @@
   <string name="standard">Standard</string>
   <string name="customPosition">Benutzerdefinierte Stellung</string>
   <string name="unlimited">Unbegrenzt</string>
+  <string name="unlimitedDescription">Nimm dir so viel Zeit, wie du brauchst</string>
   <string name="mode">Modus</string>
   <string name="casual">Ungewertet</string>
   <string name="rated">Gewertet</string>
@@ -424,10 +431,11 @@
   <string name="leaderboard">Rangliste</string>
   <string name="screenshotCurrentPosition">Eine Bildschirmaufnahme der aktuellen Stellung anfertigen</string>
   <string name="gameAsGIF">Partie als GIF</string>
+  <string name="playerNames">Spielernamen</string>
+  <string name="moveAnnotations">Zugnotation</string>
   <string name="pasteTheFenStringHere">Füge den FEN-Text hier ein</string>
   <string name="pasteThePgnStringHere">Füge den PGN-Text hier ein</string>
   <string name="orUploadPgnFile">Oder lade eine PGN-Datei hoch</string>
-  <string name="fromPosition">Von Stellung</string>
   <string name="continueFromHere">Von hier aus weiterspielen</string>
   <string name="toStudy">Studie</string>
   <string name="importGame">Partie importieren</string>
@@ -474,10 +482,6 @@
   <string name="player">Spieler</string>
   <string name="list">Liste</string>
   <string name="graph">Graph</string>
-  <plurals name="lessThanNbMinutes">
-    <item quantity="one">Weniger als %s Minute</item>
-    <item quantity="other">Weniger als %s Minuten</item>
-  </plurals>
   <string name="required">Pflichtfeld.</string>
   <string name="openTournaments">Offene Turniere</string>
   <string name="duration">Dauer</string>
@@ -728,6 +732,7 @@
   <string name="cyclePreviousOrNextVariation">Durch vorherige/nächste Variante schalten</string>
   <string name="toggleGlyphAnnotations">Schalten der Zeichen-Anmerkungen</string>
   <string name="togglePositionAnnotations">Positionsanmerkungen umschalten</string>
+  <string name="toggleObservationAnnotations">Stellungsanmerkungen umschalten</string>
   <string name="variationArrowsInfo">Mit Varianten-Pfeilen navigierst du durch die Zugliste.</string>
   <string name="playSelectedMove">den ausgewählten Zug ausführen</string>
   <string name="newTournament">Neues Turnier</string>
@@ -813,6 +818,7 @@
   <string name="size">Größe</string>
   <string name="opacity">Transparenz</string>
   <string name="brightness">Helligkeit</string>
+  <string name="contrast">Kontrast</string>
   <string name="hue">Farbton</string>
   <string name="boardReset">Farben auf Standardwerte zurücksetzen</string>
   <string name="pieceSet">Figurenstil</string>
@@ -911,6 +917,7 @@
   <string name="agreementPolicy">Ich stimme zu, dass ich allen Lichess-Richtlinien folgen werde.</string>
   <string name="searchOrStartNewDiscussion">Suche oder beginne eine neue Konversation</string>
   <string name="edit">Bearbeiten</string>
+  <string name="ultraBullet" comment="Probably best left untranslated. Leave it as 'UltraBullet' unless your language has a better word for it.">UltraBullet</string>
   <string name="bullet" comment="Probably best left untranslated. Leave it as 'Bullet' unless your language has a better word for it.">Bullet</string>
   <string name="blitz" comment="Probably best left untranslated. Leave it as 'Blitz' unless your language has a better word for it.">Blitz</string>
   <string name="rapid">Schnellschach</string>
@@ -1021,4 +1028,5 @@ Alle Betriebskosten, Entwicklung und Inhalte werden ausschließlich durch Benutz
   <string name="search">Suchen</string>
   <string name="clearSearch">Neue Suche</string>
   <string name="tags">Schlagwörter</string>
+  <string name="enPassant">En passant</string>
 </resources>

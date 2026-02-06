@@ -124,7 +124,10 @@ object StudyAction:
 
   // combined of StudySocket.moveOrDrop & StudyApi.addNode
   def moveOrDrop(chapter: Chapter, move: AnaAny): Option[Chapter] =
-    move.branch.toOption.flatMap(b => chapter.addNode(b.withoutChildren, move.path, None))
+    move
+      .branch(chapter.setup.variant)
+      .toOption
+      .flatMap(b => chapter.addNode(b.withoutChildren, move.path, None))
 
   def deleteNodeAt(chapter: Chapter, position: Position.Ref) =
     chapter.updateRoot: root =>
@@ -146,7 +149,7 @@ object StudyAction:
       .updateRoot:
         _.withChildren: children =>
           if toMainline then children.promoteToMainlineAt(position.path)
-          else children.promoteUpAt(position.path).map(_._1)
+          else children.promoteUpAt(position.path)._1F
 
   def toggleGlyph(chapter: Chapter, position: Position.Ref, glyph: Glyph) =
     chapter.toggleGlyph(glyph, position.path)

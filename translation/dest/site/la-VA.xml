@@ -362,7 +362,6 @@
   <string name="screenshotCurrentPosition">Depingere currens situm</string>
   <string name="pasteTheFenStringHere">Huc FEN catenam addere</string>
   <string name="pasteThePgnStringHere">Huc PGN catenam addere</string>
-  <string name="fromPosition">A statu</string>
   <string name="continueFromHere">Hinc persequi</string>
   <string name="toStudy">Stude</string>
   <string name="importGame">Lusionem imponere</string>
@@ -405,10 +404,6 @@
   <string name="player">Lusor</string>
   <string name="list">Tabula</string>
   <string name="graph">Graphus</string>
-  <plurals name="lessThanNbMinutes">
-    <item quantity="one">Minus quam %s minutas</item>
-    <item quantity="other">Minus quam %s minutas</item>
-  </plurals>
   <string name="required">Necesse est</string>
   <string name="openTournaments">Certamina publica</string>
   <string name="duration">Duratio</string>

@@ -11,6 +11,7 @@ import lila.core.game.reasonableMinimumNumberOfMoves
 final private class FarmBoostDetection(
     gameRepo: GameRepo,
     crosstableApi: CrosstableApi,
+    securityApi: lila.core.security.SecurityApi,
     isBotSync: IsBotSync
 )(using Executor, FutureAfter):
 
@@ -44,7 +45,7 @@ final private class FarmBoostDetection(
       users.zipColor
         .find: (c, u) =>
           u.perfs(g.perfKey).intRating < (users(!c).perfs(g.perfKey).intRating - IntRating(150))
-        .map(_._1) // color of the lower rated player
+        ._1F // color of the lower rated player
         .so(newAccountBoostingInFavorOf(g, users, _))
 
   private def newAccountBoostingWin(g: Game, users: ByColor[UserWithPerfs]): Fu[Boolean] =
@@ -84,5 +85,4 @@ final private class FarmBoostDetection(
     else
       game.userIdPair.sequence
         .map(_.toPair)
-        .so: userIds =>
-          lila.common.Bus.ask(lila.core.security.AskAreRelated(userIds, _))
+        .so(securityApi.shareAnIpOrFp)

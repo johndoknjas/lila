@@ -352,7 +352,6 @@
   <string name="leaderboard">Stigatalva</string>
   <string name="pasteTheFenStringHere">Flyt FEN tekstin higar</string>
   <string name="pasteThePgnStringHere">Flyt PGN tekstin higar</string>
-  <string name="fromPosition">Frá støðuni</string>
   <string name="continueFromHere">Halt fram hiðani</string>
   <string name="toStudy">Rannsókn</string>
   <string name="importGame">Les inn talv</string>
@@ -397,10 +396,6 @@
   <string name="player">Telvari</string>
   <string name="list">Listi</string>
   <string name="graph">Strikumynd</string>
-  <plurals name="lessThanNbMinutes">
-    <item quantity="one">Minni enn %s minuttur</item>
-    <item quantity="other">Minni enn %s minuttir</item>
-  </plurals>
   <string name="required">Kravt.</string>
   <string name="openTournaments">Opnar kappingar</string>
   <string name="duration">Longd</string>

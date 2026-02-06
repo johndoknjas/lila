@@ -4,7 +4,6 @@ db.picfit_image.createIndex(
   { 'automod.flagged': 1 },
   { partialFilterExpression: { 'automod.flagged': { $exists: true } } },
 );
-db.tutor_report.createIndex({ at: -1 });
 db.swiss_pairing.createIndex({ s: 1, p: 1, r: 1 });
 db.swiss_pairing.createIndex({ t: 1 }, { partialFilterExpression: { t: true } });
 db.oauth2_authorization.createIndex({ expires: 1 }, { expireAfterSeconds: 0 });
@@ -84,10 +83,16 @@ db.fide_player.createIndex({ fed: 1, standard: -1 });
 db.fide_player.createIndex({ fed: 1, rapid: -1 });
 db.fide_player.createIndex({ fed: 1, blitz: -1 });
 db.fide_player.createIndex({ standard: -1 });
+db.fide_player.createIndex({ rapid: -1 });
+db.fide_player.createIndex({ blitz: -1 });
+db.fide_player.createIndex({ name: 1 });
+db.fide_player.createIndex({ fed: 1 });
+db.fide_player.createIndex({ year: -1 });
 db.fide_player.createIndex(
   { _fts: 'text', _ftsx: 1, standard: -1 },
   { weights: { token: 1 }, default_language: 'english', language_override: 'language', textIndexVersion: 3 },
 );
+db.fide_player_follower.createIndex({ u: 1 });
 db.note.createIndex({ to: 1, date: -1 });
 db.note.createIndex({ from: 1 }, { partialFilterExpression: { mod: false } });
 db.note.createIndex(
@@ -221,9 +226,9 @@ db.forecast.createIndex({ date: 1 }, { expireAfterSeconds: 1296000 });
 db.msg_thread.createIndex({ users: 1, 'lastMsg.date': -1 });
 db.msg_thread.createIndex({ users: 1 }, { partialFilterExpression: { 'lastMsg.read': false } });
 db.msg_thread.createIndex({ users: 1, 'maskWith.date': -1 });
-db.video.createIndex({ 'metadata.likes': -1 });
-db.video.createIndex({ tags: 1, 'metadata.likes': -1 });
-db.video.createIndex({ author: 1, 'metadata.likes': -1 });
+db.video.createIndex({ 'metadata.refreshedAt': -1 });
+db.video.createIndex({ tags: 1, 'metadata.refreshedAt': -1 });
+db.video.createIndex({ author: 1, 'metadata.publishedAt': -1 });
 db.video.createIndex(
   { _fts: 'text', _ftsx: 1 },
   {
@@ -258,7 +263,6 @@ db.f_post.createIndex({ categId: 1, createdAt: -1 });
 db.f_post.createIndex({ topicId: 1, createdAt: -1 });
 db.external_engine.createIndex({ userId: 1 });
 db.external_engine.createIndex({ oauthToken: 1 });
-db.tutor_queue.createIndex({ requestedAt: 1 });
 db.clas_clas.createIndex({ teachers: 1, viewedAt: -1 });
 db.clas_student.createIndex({ clasId: 1, userId: 1 });
 db.clas_student.createIndex({ userId: 1 });
@@ -310,15 +314,18 @@ db.title_request.createIndex(
   { partialFilterExpression: { 'history.0.status.n': 'approved', 'data.fideId': { $exists: 1 } } },
 );
 
-// you may want to run these on the insight database
-// if it's a different one
-db.insight.createIndex({ mr: 1, p: 1, c: 1 });
-db.insight.createIndex({ mr: 1, a: 1 }, { partialFilterExpression: { mr: { $exists: true } } });
-db.insight.createIndex({ u: 1, d: -1 });
+// you may want to run these on the insight database if it's a different one
+// u{ser}, p{erf}, c{color}, a{nalysed}, mr{ating} (stable), d{ate}, c{color}, of{opening family}
+db.insight.createIndex({ u: 1, d: -1 }); // for insights
+// for tutor. We can't index by opening family, because it sorts the game by opening
+// and then requests about multiple openings are fully biased towards the first one alphabetically.
+db.insight.createIndex({ mr: 1, p: 1, a: 1, c: 1 }, { partialFilterExpression: { mr: { $exists: true } } });
 db.kaladin_queue.createIndex(
   { 'response.at': 1, 'response.read': 1 },
   { partialFilterExpression: { 'response.at': { $exists: true } } },
 );
+db.tutor_queue.createIndex({ requestedAt: 1 });
+db.tutor_report.createIndex({ at: -1 });
 
 // you may want to run these on the puzzle database
 db.puzzle2_round.createIndex({ p: 1 }, { partialFilterExpression: { t: { $exists: true } } });

@@ -178,7 +178,6 @@
   <string name="leaderboard">Abellez</string>
   <string name="pasteTheFenStringHere">Senteḍ  tangalt FEN dagi</string>
   <string name="pasteThePgnStringHere">Senteḍ aḍris PGN dagi</string>
-  <string name="fromPosition">Ɣer amkan</string>
   <string name="continueFromHere">Kemmel si ideg agi</string>
   <string name="importGame">Kter timlilit</string>
   <plurals name="nbImportedGames">
@@ -211,10 +210,6 @@
   <string name="player">Amarir</string>
   <string name="list">Umuɣ</string>
   <string name="graph">Udlif</string>
-  <plurals name="lessThanNbMinutes">
-    <item quantity="one">Ddaw n %s tisdidin</item>
-    <item quantity="other">Ddaw n %s tisdidin</item>
-  </plurals>
   <string name="required">Usuter</string>
   <string name="openTournaments">Timzizelten ilden</string>
   <string name="duration">Tanzagt</string>

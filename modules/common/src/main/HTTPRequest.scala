@@ -81,7 +81,7 @@ object HTTPRequest:
 
   private val crawlerMatcher = UaMatcher:
     // spiders/crawlers
-    """Qwantbot|Googlebot|GoogleOther|AdsBot|Google-Read-Aloud|bingbot|BingPreview|facebookexternalhit|meta-externalagent|SemrushBot|AhrefsBot|PetalBot|Applebot|YandexBot|YandexAdNet|YandexImages|Twitterbot|Bluesky|Baiduspider|Amazonbot|Bytespider|yacybot|ImagesiftBot|ChatGLM-Spider|YisouSpider|Yeti/|DataForSeoBot|ChatGPT|openai.com|anthropic.com""" +
+    """Qwantbot|Googlebot|GoogleOther|AdsBot|Google-Read-Aloud|bingbot|BingPreview|facebookexternalhit|meta-externalagent|SemrushBot|AhrefsBot|PetalBot|Applebot|YandexBot|YandexAdNet|YandexImages|Twitterbot|Bluesky|Baiduspider|Amazonbot|Bytespider|yacybot|ImagesiftBot|ChatGLM-Spider|YisouSpider|Yeti/|DataForSeoBot|ChatGPT|openai.com|anthropic.com|TikTokSpider""" +
       // apps and servers that load previews
       """|Discordbot|WhatsApp""" +
       // http libs
@@ -160,8 +160,14 @@ object HTTPRequest:
     else if isCrawler(req).yes then "crawler"
     else "browser"
 
-  def queryStringGet(req: RequestHeader, name: String): Option[String] =
+  def queryStringGet(name: String)(using req: RequestHeader): Option[String] =
     req.queryString.get(name).flatMap(_.headOption).filter(_.nonEmpty)
+
+  def queryStringBool(name: String)(using req: RequestHeader): Boolean =
+    queryStringGet(name).exists(trueish)
+
+  def queryStringBoolOpt(name: String)(using req: RequestHeader): Option[Boolean] =
+    queryStringGet(name).map(trueish)
 
   def looksLikeLichessBot(req: RequestHeader) =
     val ua = userAgent(req).value

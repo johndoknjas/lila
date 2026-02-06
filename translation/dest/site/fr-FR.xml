@@ -4,12 +4,13 @@
   <string name="challengeAFriend" comment="be mindful how 'friend' translates in gendered languages. look for a more neutral term if there's an issue, or base your translation on a different phrase like 'invite to a game'. keep it short and convey the button's meaning without offense.">Défi</string>
   <string name="playAgainstComputer">Jouer contre l\'ordinateur</string>
   <string name="gameMode">Mode de jeu</string>
-  <string name="createLobbyGame" comment="One of three buttons on the home page. Opens the modal to create a game that goes in the lobby.">Créer une partie dans le salon</string>
-  <string name="youPlayAs">Couleur</string>
+  <string name="createLobbyGame">Créer une partie dans le salon</string>
   <string name="toInviteSomeoneToPlayGiveThisUrl">Pour inviter quelqu\'un à jouer, donnez-lui ce lien</string>
   <string name="gameOver">Partie terminée</string>
   <string name="waitingForOpponent">En attente de votre adversaire</string>
   <string name="orLetYourOpponentScanQrCode">Ou laissez votre adversaire scanner ce code QR</string>
+  <string name="reusableChallengeUrl">URL réutilisable pour les défis</string>
+  <string name="permanentLinkForAnyoneToChallengeYou">Lien permanent qui permet à quiconque de vous défier avec ces paramètres</string>
   <string name="waiting">En attente</string>
   <string name="yourTurn">À votre tour</string>
   <string name="aiNameLevelAiLevel">%1$s niveau %2$s</string>
@@ -126,6 +127,10 @@
   <string name="bestMoveArrow">Flèche du meilleur coup</string>
   <string name="showVariationArrows">Afficher les flèches de variantes</string>
   <string name="evaluationGauge">Jauge d\'évaluation</string>
+  <string name="visualMotifs">Motifs visuels</string>
+  <string name="undefendedPieces">Pièces non défendues</string>
+  <string name="pinnedPieces">Pièces clouées</string>
+  <string name="checkableKing">Roi pouvant être mis en échec</string>
   <string name="multipleLines">Lignes d\'analyse</string>
   <string name="cpus">Processeurs</string>
   <string name="memory">Mémoire</string>
@@ -205,6 +210,7 @@
   <string name="minutesPerSide">Minutes par joueur</string>
   <string name="variant">Variante</string>
   <string name="variants">Variantes</string>
+  <string name="variantsDescription">Autres façons de jouer</string>
   <string name="timeControl">Cadence</string>
   <string name="realTime">Temps réel</string>
   <string name="correspondence">Correspondance</string>
@@ -299,6 +305,7 @@
   <string name="standard">Standard</string>
   <string name="customPosition">Position personnalisée</string>
   <string name="unlimited">Illimité</string>
+  <string name="unlimitedDescription">Prenez tout le temps dont vous avez besoin.</string>
   <string name="mode">Mode</string>
   <string name="casual">Amical</string>
   <string name="rated">Classé</string>
@@ -424,10 +431,11 @@
   <string name="leaderboard">Classements</string>
   <string name="screenshotCurrentPosition">Capture d\'écran de la position actuelle</string>
   <string name="gameAsGIF">Enregistrer la partie en GIF</string>
+  <string name="playerNames">Noms des joueurs</string>
+  <string name="moveAnnotations">Annotations</string>
   <string name="pasteTheFenStringHere">Coller le FEN ici</string>
   <string name="pasteThePgnStringHere">Coller le PGN ici</string>
   <string name="orUploadPgnFile">Ou téléverser un fichier PGN</string>
-  <string name="fromPosition">Depuis une position</string>
   <string name="continueFromHere">Continuer depuis cette position</string>
   <string name="toStudy">Étude</string>
   <string name="importGame">Importer une partie</string>
@@ -474,10 +482,6 @@
   <string name="player">Joueur</string>
   <string name="list">Liste</string>
   <string name="graph">Graphique</string>
-  <plurals name="lessThanNbMinutes">
-    <item quantity="one">Moins de %s minute</item>
-    <item quantity="other">Moins de %s minutes</item>
-  </plurals>
   <string name="required">Requis.</string>
   <string name="openTournaments">Tournois ouverts</string>
   <string name="duration">Durée</string>
@@ -660,7 +664,7 @@
   <string name="onlyExistingConversations">Conversations en cours seulement</string>
   <string name="onlyFriends">Seulement les amis</string>
   <string name="menu">Menu</string>
-  <string name="castling">Roque</string>
+  <string name="castling" comment="Label for a box on the right side of the board editor, where the user can select castling rights. Noun.&#10;&#10;NOTE: this string used to read &quot;Castling&quot;, with &quot;rights&quot; added in 2026 for clarity.">Roque</string>
   <string name="whiteCastlingKingside">Blancs O-O</string>
   <string name="blackCastlingKingside">Noirs O-O</string>
   <plurals name="nbForumPosts">
@@ -728,6 +732,7 @@
   <string name="cyclePreviousOrNextVariation">Variante précédente/suivante</string>
   <string name="toggleGlyphAnnotations">Activer/désactiver les annotations en symboles</string>
   <string name="togglePositionAnnotations">Activer/désactiver les annotations de positions</string>
+  <string name="toggleObservationAnnotations">Activer/désactiver les annotations d\'observation</string>
   <string name="variationArrowsInfo">Les flèches de variantes vous permettent de naviguer sans utiliser la liste des coups.</string>
   <string name="playSelectedMove">jouer le coup sélectionné</string>
   <string name="newTournament">Nouveau tournoi</string>
@@ -813,6 +818,7 @@
   <string name="size">Taille</string>
   <string name="opacity">Opacité</string>
   <string name="brightness">Luminosité</string>
+  <string name="contrast">Contraste</string>
   <string name="hue">Teinte</string>
   <string name="boardReset">Rétablir les couleurs par défaut</string>
   <string name="pieceSet">Jeu de pièces</string>
@@ -911,6 +917,7 @@
   <string name="agreementPolicy">Je m\'engage à respecter toutes les règles de Lichess.</string>
   <string name="searchOrStartNewDiscussion">Rechercher ou démarrer une nouvelle conversation</string>
   <string name="edit">Éditer</string>
+  <string name="ultraBullet" comment="Probably best left untranslated. Leave it as 'UltraBullet' unless your language has a better word for it.">Ultrabullet</string>
   <string name="bullet" comment="Probably best left untranslated. Leave it as 'Bullet' unless your language has a better word for it.">Bullet</string>
   <string name="blitz" comment="Probably best left untranslated. Leave it as 'Blitz' unless your language has a better word for it.">Blitz</string>
   <string name="rapid">Rapide</string>
@@ -952,8 +959,8 @@
   <string name="timeAlmostUp">Vous n\'avez presque plus de temps!</string>
   <string name="clickToRevealEmailAddress">[Cliquer pour révéler l\'adresse courriel]</string>
   <string name="download">Télécharger</string>
-  <string name="coachManager">Config. param. coach</string>
-  <string name="streamerManager">Config. param. streamer</string>
+  <string name="coachManager">Votre profil de coach</string>
+  <string name="streamerManager">Votre profil de streamer</string>
   <string name="cancelTournament">Annuler le tournoi</string>
   <string name="tournDescription">Description du tournoi</string>
   <string name="tournDescriptionHelp">Quelque chose de spécial à dire aux participants ? Soyez bref. Des liens Markdown sont disponibles : [name](https://url)</string>

@@ -11,7 +11,7 @@ import lila.core.data.Strings
 import lila.memo.SettingStore
 import lila.memo.SettingStore.Strings.given
 import lila.oauth.OAuthServer
-import lila.common.Bus
+import lila.common.config.GetRelativeFile
 
 @Module
 final class Env(
@@ -28,7 +28,8 @@ final class Env(
     canSendEmails: SettingStore[Boolean] @@ lila.mailer.CanSendEmails,
     cookieBaker: play.api.mvc.SessionCookieBaker,
     lazyCurrentlyPlaying: => lila.core.round.CurrentlyPlaying,
-    db: lila.db.Db
+    db: lila.db.Db,
+    getFile: GetRelativeFile
 )(using Executor, play.api.Mode, lila.core.i18n.Translator, lila.core.config.RateLimit)(using
     scheduler: Scheduler
 ):
@@ -171,14 +172,13 @@ final class Env(
 
   lazy val csrfRequestHandler = wire[CSRFRequestHandler]
 
+  lazy val ipTiers = wire[IpTiers]
+
   wire[Cli]
 
   lazy val coreApi = new lila.core.security.SecurityApi:
     export api.shareAnIpOrFp
     export userLogins.getUserIdsWithSameIpAndPrint
-
-  Bus.sub[lila.core.security.AskAreRelated]: ask =>
-    ask.promise.completeWith(api.shareAnIpOrFp.tupled(ask.users))
 
 private trait Proxy2faSetting
 private trait AlwaysCaptcha

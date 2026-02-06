@@ -25,12 +25,13 @@ final class UserBits(helpers: Helpers):
       a(cls := active.active("shield"), href := routes.Tournament.shields)(
         trans.arena.tournamentShields()
       ),
-      a(href := routes.Fide.index())(
-        "FIDE players"
-      ),
       div(cls := "sep"),
       a(cls := active.active("bots"), href := routes.PlayApi.botOnline)(
         trans.site.onlineBots()
+      ),
+      div(cls := "sep"),
+      a(cls := active.active("fide"), href := addQueryParam(routes.Fide.index().url, "community", "1"))(
+        trans.broadcast.fidePlayers()
       )
     )
 
@@ -80,10 +81,10 @@ final class UserBits(helpers: Helpers):
       case r if r <= 50 =>
         Some(("trophy perf top50", s"${perf.trans} Top 50 player!", "images/trophy/Fancy-Gold.png"))
       case r if r <= 100 =>
-        Some(("trophy perf", s"${perf.trans} Top 100 player!", "images/trophy/Gold-Cup.png"))
+        Some(("trophy perf top100", s"${perf.trans} Top 100 player!", "images/trophy/Gold-Cup.png"))
       case _ => None
 
-  def perfTrophies(u: User, rankMap: lila.rating.UserRankMap)(using Translate) = (!u.lame).so:
+  def perfTrophies(u: User, rankMap: lila.core.rating.UserRankMap)(using Translate) = u.lame.not.so:
     rankMap.toList
       .sortBy(_._2)
       .map: (perf, rank) =>

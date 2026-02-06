@@ -105,18 +105,105 @@ final class DashboardUi(helpers: Helpers, ui: ClasUi)(using NetDomain):
             )
           )
 
-    def overview(c: Clas, students: List[Student.WithUserPerfs])(using Context) =
+    def overview(c: Clas, students: List[Student.WithUserPerfs], tournaments: Option[Frag])(using Context) =
       TeacherPage(c, students, "overview")():
         frag(
           div(cls := "clas-show__overview")(
             c.desc.trim.nonEmpty.option(div(cls := "clas-show__desc")(richText(c.desc))),
             div(cls := "clas-show__overview__manage")(
-              ui.teachers(c)
+              div(cls := "clas-teachers")(
+                trans.clas.teachersX(fragList(c.teachers.toList.map(t => userIdLink(t.some))))
+              ),
+              div(cls := "clas-team"):
+                val url = c.teamId match
+                  case Some(teamId) => routes.Team.show(teamId).url
+                  case None => routes.Clas.edit(c.id).url + "#clas-team"
+                a(href := url, cls := "text", dataIcon := Icon.Trophy):
+                  trans.site.tournaments()
             )
           ),
+          tournaments,
           if students.isEmpty
           then p(cls := "box__pad students__empty")(trans.clas.noStudents())
           else studentList(c, students)
+        )
+
+    def bulkActions(data: ClasBulk.PageData)(using Context) =
+      import data.*
+      val classButtons: Frag = otherClasses.map: toClass =>
+        form3.submit(toClass.name, icon = Icon.InternalArrow.some, ("action", s"move-to-${toClass.id}").some)(
+          cls := "yes-no-confirm button-blue button-empty button-no-upper",
+          title := trans.clas.moveToClass.txt(toClass.name)
+        )
+      val doubleHelp: Tag =
+        div(cls := "clas-show__bulk__helps form-group")(
+          div(cls := "clas-show__bulk__help")(
+            strong("Important! Make sure you understand how this works:"),
+            p(
+              "Edit the list above to keep some students selected for a bulk action.",
+              br,
+              "All the students remaining in the list will be affected by the action.",
+              br,
+              "The students you removed from the list will remain in the class, unchanged."
+            )
+          ),
+          div(cls := "clas-show__bulk__help")(
+            "Choose the action to perform on the students listed above:"
+          )
+        )
+      TeacherPage(c, all.filter(_.student.isActive), "students")():
+        div(cls := "clas-show__body clas-show__bulk")(
+          postForm(cls := "form3", action := routes.Clas.bulkActionsPost(c.id))(
+            form3.fieldset("Active students", toggle = true.some)(cls := "box-pad")(
+              form3.group(
+                form("activeStudents"),
+                frag("Active students")
+              )(form3.textarea(_)(rows := 12)),
+              doubleHelp,
+              div(cls := "form-group")(
+                form3.submit("Archive", icon = none, ("action", "archive").some)(
+                  cls := "yes-no-confirm button-blue button-empty"
+                ),
+                br,
+                classButtons
+              )
+            ),
+            form3.fieldset("Archived students", toggle = all.exists(_.student.isArchived).some)(
+              cls := "box-pad"
+            )(
+              form3.group(
+                form("archivedStudents"),
+                frag("Archived students")
+              )(form3.textarea(_)(rows := 7)),
+              doubleHelp(
+                "BEWARE: removing a student with managed account will close the account permanently."
+              ),
+              div(cls := "form-group")(
+                form3.submit("Restore", icon = none, ("action", "restore").some)(
+                  cls := "yes-no-confirm button-blue button-empty"
+                ),
+                form3.submit("Remove", icon = Icon.Trash.some, ("action", "remove").some)(
+                  cls := "yes-no-confirm button-red button-empty"
+                )
+              )
+            ),
+            form3.fieldset("Pending invites", toggle = form("invites").value.exists(_.nonEmpty).some)(
+              cls := "box-pad"
+            )(
+              form3.group(
+                form("invites"),
+                frag("Invites")
+              )(form3.textarea(_)(rows := 7)),
+              div(cls := "form-group")(
+                form3.submit("Delete", icon = Icon.Trash.some, ("action", "delete-invites").some)(
+                  cls := "yes-no-confirm button-red button-empty"
+                )
+              )
+            )
+          ),
+          form3.actions(
+            a(href := routes.Clas.students(c.id))(trans.site.cancel())
+          )
         )
 
     def students(
@@ -137,8 +224,15 @@ final class DashboardUi(helpers: Helpers, ui: ClasUi)(using NetDomain):
                   cls := "button button-clas text",
                   dataIcon := Icon.PlusButton
                 )(trans.clas.addStudent()),
+                a(
+                  href := routes.Clas.bulkActions(c.id),
+                  cls := "button button-clas text",
+                  dataIcon := Icon.Tools
+                )("Bulk actions"),
                 postForm(action := routes.Clas.loginCreate(c.id))(
-                  submitButton(cls := "button button-clas text", dataIcon := Icon.Group)("Quick login codes")
+                  submitButton(cls := "button button-clas text", dataIcon := Icon.Group)(
+                    trans.clas.quickLoginCodes()
+                  )
                 )
               ),
               div(cls := "invites")(
@@ -172,10 +266,14 @@ final class DashboardUi(helpers: Helpers, ui: ClasUi)(using NetDomain):
     private def renderLogin(students: List[Student], login: ClasLogin)(using Context) =
       val url = routeUrl(routes.Clas.index)
       div(cls := "clas-login")(
-        div(cls := "clas-login__top")(
-          p(h2("Quick login codes - expire ", momentFromNow(login.expiresAt))),
-          p("Use these codes on ", a(href := url)(url), " to log your students into Lichess."),
-          p("When the codes expire, the opened sessions will remain valid, until manually closed.")
+        div(cls := "clas-login__title")(
+          h2(trans.clas.quickLoginCodes()),
+          span(cls := "clas-login__expiration"):
+            trans.clas.expirationInMomentFromNow(momentFromNow(login.expiresAt))
+        ),
+        div(
+          p(trans.clas.quickLoginCodesDesc1(a(href := url)(url))),
+          p(trans.clas.quickLoginCodesDesc2())
         ),
         div(cls := "clas-login__cards"):
           for
@@ -196,7 +294,7 @@ final class DashboardUi(helpers: Helpers, ui: ClasUi)(using NetDomain):
             table(cls := "slist slist-pad sortable")(
               thead(
                 tr(
-                  th(dataSortDefault)(
+                  th(dataSortDefault)(dataSortAsc)(
                     trans.clas
                       .variantXOverLastY(progress.perfType.trans, trans.site.nbDays.txt(progress.days)),
                     thSortNumber(trans.site.rating()),
@@ -251,7 +349,7 @@ final class DashboardUi(helpers: Helpers, ui: ClasUi)(using NetDomain):
             table(cls := "slist slist-pad sortable")(
               thead(
                 tr(
-                  th(dataSortDefault)(
+                  th(dataSortDefault)(dataSortAsc)(
                     trans.clas.nbStudents.pluralSame(students.size),
                     thSortNumber(trans.site.chessBasics()),
                     thSortNumber(trans.site.practice()),
@@ -363,7 +461,7 @@ final class DashboardUi(helpers: Helpers, ui: ClasUi)(using NetDomain):
         table(cls := "slist slist-pad sortable")(
           thead:
             tr(
-              th(dataSortDefault)(trans.clas.nbStudents(students.size)),
+              th(dataSortDefault)(dataSortAsc)(trans.clas.nbStudents(students.size)),
               thSortNumber(trans.site.rating()),
               thSortNumber(trans.site.games()),
               thSortNumber(trans.site.puzzles()),
@@ -403,7 +501,8 @@ final class DashboardUi(helpers: Helpers, ui: ClasUi)(using NetDomain):
         c: Clas,
         wall: Html,
         teachers: List[User],
-        students: List[Student.WithUserPerfs]
+        students: List[Student.WithUserPerfs],
+        tournaments: Option[Frag]
     )(using Context) =
       ClasPage(c.name, Left(c.withStudents(Nil)))(cls := "clas-show dashboard dashboard-student"):
         frag(
@@ -445,6 +544,7 @@ final class DashboardUi(helpers: Helpers, ui: ClasUi)(using NetDomain):
                   challengeTd(user)
                 )
           ),
+          tournaments,
           c.wall.value.nonEmpty.option(div(cls := "box__pad clas-wall")(wall)),
           div(cls := "students")(studentList(students))
         )
@@ -453,7 +553,7 @@ final class DashboardUi(helpers: Helpers, ui: ClasUi)(using NetDomain):
       table(cls := "slist slist-pad sortable")(
         thead:
           tr(
-            th(dataSortDefault)(trans.clas.nbStudents(students.size)),
+            th(dataSortDefault)(dataSortAsc)(trans.clas.nbStudents(students.size)),
             thSortNumber(trans.site.rating()),
             thSortNumber(trans.site.games()),
             thSortNumber(trans.site.puzzles()),

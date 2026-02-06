@@ -1,7 +1,15 @@
 import * as licon from 'lib/licon';
-import { bind, hl, onInsert, type LooseVNodes, dataIcon, type VNode } from 'lib/view';
+import {
+  bind,
+  hl,
+  onInsert,
+  type LooseVNodes,
+  dataIcon,
+  type VNode,
+  stepwiseScroll,
+  toggleButton as boardMenuToggleButton,
+} from 'lib/view';
 import { Chessground } from '@lichess-org/chessground';
-import { stepwiseScroll, toggleButton as boardMenuToggleButton } from 'lib/view';
 import type PlayCtrl from '../playCtrl';
 import { initialGround } from '@/ground';
 import { botAssetUrl } from 'lib/bot/botLoader';
@@ -63,7 +71,7 @@ const viewActions = (ctrl: PlayCtrl) =>
 const viewResult = (ctrl: PlayCtrl) => {
   const end = ctrl.game.end;
   if (!end) return;
-  const result = end.winner == 'white' ? '1-0' : end.winner == 'black' ? '0-1' : '½-½';
+  const result = end.winner === 'white' ? '1-0' : end.winner === 'black' ? '0-1' : '½-½';
   const statusData: StatusData = {
     winner: end.winner,
     ply: ctrl.game.moves.length,
@@ -196,7 +204,7 @@ const materialDiffs = (ctrl: PlayCtrl) =>
   renderMaterialDiffs(
     ctrl.opts.pref.showCaptured,
     ctrl.bottomColor(),
-    ctrl.board.chess,
+    ctrl.board.chess.board,
     false,
     [],
     ctrl.game.ply(),

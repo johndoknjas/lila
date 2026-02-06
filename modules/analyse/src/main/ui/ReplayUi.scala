@@ -60,12 +60,7 @@ final class ReplayUi(helpers: Helpers)(analyseUi: AnalyseUi):
     import pov.*
 
     val imageLinks = frag(
-      copyMeLink(
-        cdnUrl(
-          routes.Export.gif(pov.gameId, pov.color, ctx.pref.theme.some, ctx.pref.pieceSet.some).url
-        ),
-        trans.site.gameAsGIF()
-      )(cls := "game-gif"),
+      a(cls := "text game-gif", dataIcon := Icon.Download)(trans.site.gameAsGIF()),
       copyMeLink(
         fenThumbnailUrl(Fen.write(pov.game.position).opening, pov.color.some, pov.game.variant),
         trans.site.screenshotCurrentPosition()
@@ -89,7 +84,8 @@ final class ReplayUi(helpers: Helpers)(analyseUi: AnalyseUi):
       .css((pov.game.variant == Crazyhouse).option("analyse.zh"))
       .css(ctx.blind.option("round.nvui"))
       .css(ctx.pref.hasKeyboardMove.option("keyboardMove"))
-      .i18n(_.puzzle, _.study)
+      .i18n(_.study)
+      .i18nOpt(ctx.speechSynthesis, _.nvui)
       .i18nOpt(ctx.blind, _.keyboardMove, _.nvui)
       .js(analyseNvuiTag)
       .js:
@@ -99,7 +95,7 @@ final class ReplayUi(helpers: Helpers)(analyseUi: AnalyseUi):
             .obj(
               "data" -> data,
               "userId" -> ctx.userId,
-              "chat" -> chatOption.map(_._1)
+              "chat" -> chatOption._1F
             )
             .add("hunter" -> Granter.opt(_.ViewBlurs)) ++
             analyseUi.explorerAndCevalConfig
@@ -108,7 +104,7 @@ final class ReplayUi(helpers: Helpers)(analyseUi: AnalyseUi):
         frag(
           main(cls := "analyse")(
             st.aside(cls := "analyse__side")(gameSide),
-            chatOption.map(_._2),
+            chatOption._2F,
             div(cls := "analyse__board main-board")(chessgroundBoard),
             div(cls := "analyse__tools")(div(cls := "ceval")),
             div(cls := "analyse__controls"),

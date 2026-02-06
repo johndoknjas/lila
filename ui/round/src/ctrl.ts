@@ -50,6 +50,7 @@ import { pubsub } from 'lib/pubsub';
 import { readFen, almostSanOf, speakable } from 'lib/game/sanWriter';
 import { plyToTurn } from 'lib/game/chess';
 import { type SocketSendOpts } from 'lib/socket';
+import type { NodeCrazy } from 'lib/tree/types';
 import Server from './server';
 
 type GoneBerserk = Partial<ByColor<boolean>>;
@@ -232,7 +233,7 @@ export default class RoundController implements MoveRootCtrl {
   userJump = (ply: Ply): void => {
     this.toSubmit = undefined;
     this.chessground.selectSquare(null);
-    if (ply != this.ply && this.jump(ply)) site.sound.saySan(this.stepAt(this.ply).san, true);
+    if (ply !== this.ply && this.jump(ply)) site.sound.saySan(this.stepAt(this.ply).san, true);
     else this.redraw();
   };
 
@@ -282,7 +283,7 @@ export default class RoundController implements MoveRootCtrl {
   isLate = (): boolean => this.replaying() && playing(this.data);
 
   playerAt = (position: game.TopOrBottom): game.Player =>
-    this.flip != (position === 'top') ? this.data.opponent : this.data.player;
+    this.flip !== (position === 'top') ? this.data.opponent : this.data.player;
 
   flipNow = (): void => {
     this.flip = !this.nvui && !this.flip;
@@ -487,7 +488,7 @@ export default class RoundController implements MoveRootCtrl {
       this.moveOn.next();
       cevalSub.publish(d, o);
     }
-    if (!this.replaying() && playedColor != d.player.color) {
+    if (!this.replaying() && playedColor !== d.player.color) {
       if (this.vibration() && 'vibrate' in navigator) navigator.vibrate(100);
       // prevent race conditions with explosions and premoves
       // https://github.com/lichess-org/lila/issues/343
@@ -511,7 +512,7 @@ export default class RoundController implements MoveRootCtrl {
 
   crazyValid = (role: Role, key: Key): boolean => crazyValid(this.data, role, key);
 
-  getCrazyhousePockets = (): Tree.NodeCrazy['pockets'] | undefined => this.data.crazyhouse?.pockets;
+  getCrazyhousePockets = (): NodeCrazy['pockets'] | undefined => this.data.crazyhouse?.pockets;
 
   private playPredrop = () => {
     return this.chessground.playPredrop(drop => {
@@ -887,6 +888,7 @@ export default class RoundController implements MoveRootCtrl {
   };
 
   blindfold = (v?: boolean): boolean => {
+    this.data.player.blindfold ??= false;
     if (v === undefined || v === this.data.player.blindfold) return this.data.player.blindfold ?? false;
     this.blindfoldStorage.set(v);
     this.data.player.blindfold = v;

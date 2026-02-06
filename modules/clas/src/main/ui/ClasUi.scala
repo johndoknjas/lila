@@ -4,9 +4,7 @@ import lila.ui.*
 
 import ScalatagsTemplate.{ *, given }
 
-final class ClasUi(helpers: lila.ui.Helpers)(
-    searchMenu: Context ?=> Frag
-):
+final class ClasUi(helpers: lila.ui.Helpers)(searchMenu: Context ?=> Frag):
   import helpers.{ *, given }
 
   def ClasPage(
@@ -54,7 +52,7 @@ final class ClasUi(helpers: lila.ui.Helpers)(
                 postForm(action := routes.Auth.clasLogin)(
                   input(
                     name := "code",
-                    st.placeholder := "Quick login code",
+                    st.placeholder := trans.clas.quickLoginCode.txt(),
                     spellcheck := "false",
                     autocomplete := "off",
                     required
@@ -70,11 +68,6 @@ final class ClasUi(helpers: lila.ui.Helpers)(
       trans.clas.removedByX(userIdLink(archived.by.some)),
       " ",
       momentFromNowOnce(archived.at)
-    )
-
-  def teachers(clas: Clas)(using Translate) =
-    div(cls := "clas-teachers")(
-      trans.clas.teachersX(fragList(clas.teachers.toList.map(t => userIdLink(t.some))))
     )
 
   private def teacherMenu(active: Either[Clas.WithStudents, String], student: Option[Student])(using
@@ -137,11 +130,11 @@ final class ClasUi(helpers: lila.ui.Helpers)(
               table(cls := "slist slist-pad")(
                 thead(
                   tr(
-                    th("Id"),
-                    th("Name"),
+                    th(dataSortAsc)("Id"),
+                    th(dataSortAsc)("Name"),
                     th("Created"),
                     th("Archived"),
-                    th("Teachers (first is owner)")
+                    th(dataSortAsc)("Teachers (first is owner)")
                   )
                 ),
                 tbody(

@@ -1,8 +1,7 @@
 import * as licon from 'lib/licon';
 import { prop } from 'lib';
-import { snabDialog, confirm, prompt } from 'lib/view';
+import { snabDialog, confirm, prompt, type VNode, bindSubmit, bindNonPassive, onInsert, hl } from 'lib/view';
 import flairPickerLoader from 'bits/flairPicker';
-import { type VNode, bindSubmit, bindNonPassive, onInsert, hl } from 'lib/view';
 import { emptyRedButton } from '../view/util';
 import type { StudyData } from './interfaces';
 import type RelayCtrl from './relay/relayCtrl';
@@ -42,7 +41,11 @@ export class StudyForm {
 
   isNew = (): boolean => {
     const d = this.getData();
-    return d.from === 'scratch' && !!d.isNew && Date.now() - this.initAt < 9000;
+    return (
+      !!d.isNew &&
+      Date.now() - this.initAt < 9000 &&
+      (d.from === 'scratch' || isObjectWithSomeProperty(d.from, ['study', 'game']))
+    );
   };
 
   openIfNew = () => {
@@ -53,6 +56,9 @@ export class StudyForm {
     this.open(false);
   };
 }
+
+const isObjectWithSomeProperty = (o: unknown, keys: string[]): boolean =>
+  typeof o === 'object' && o !== null && keys.some(k => k in o);
 
 const select = (s: Select): VNode =>
   hl('div.form-group.form-half' + (s.visible ? '' : '.none'), [

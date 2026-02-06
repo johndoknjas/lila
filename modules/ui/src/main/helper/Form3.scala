@@ -66,38 +66,35 @@ final class Form3(formHelper: FormHelper & I18nHelper & AssetHelper, flairApi: F
       cls := List("form-control" -> true, klass -> klass.nonEmpty)
     )(validationModifiers(field))
 
-  def checkbox(
-      field: Field,
-      labelContent: Frag,
-      half: Boolean = false,
-      help: Option[Frag] = None,
-      disabled: Boolean = false
-  ): Frag =
-    div(
-      cls := List(
-        "form-check form-group" -> true,
-        "form-half" -> half
-      )
-    )(
-      div(
-        span(cls := "form-check-input")(
-          cmnToggle(id(field), field.name, field.value.has("true"), disabled)
-        ),
-        groupLabel(field)(labelContent)
-      ),
-      help.map { helper(_) }
-    )
+  def cmnToggleWrap = label(cls := "cmn-toggle-wrap")
 
-  def cmnToggle[Value: Show](
+  def cmnToggle(
       fieldId: String,
       fieldName: String,
       checked: Boolean,
-      disabled: Boolean = false,
-      value: Value = "true",
-      title: Option[String] = None,
-      action: Option[String] = None
+      action: Option[String] = None,
+      cssClass: String = "cmn-toggle"
   ) =
-    frag(
+    span(cls := cssClass)(
+      st.input(
+        st.id := fieldId,
+        name := fieldName,
+        st.value := "true",
+        tpe := "checkbox",
+        checked.option(st.checked),
+        action.map(st.data("action") := _)
+      ),
+      label(`for` := fieldId)
+    )
+
+  def nativeCheckbox[Value: Show](
+      fieldId: String,
+      fieldName: String,
+      checked: Boolean,
+      value: Value = "true",
+      disabled: Boolean = false
+  ) =
+    span(cls := "form-check__input")(
       (disabled && checked).option: // disabled checkboxes don't submit; need an extra hidden field
         hidden(fieldName, value)
       ,
@@ -106,30 +103,36 @@ final class Form3(formHelper: FormHelper & I18nHelper & AssetHelper, flairApi: F
         name := fieldName,
         st.value := value.show,
         tpe := "checkbox",
-        cls := "form-control cmn-toggle",
         checked.option(st.checked),
-        disabled.option(st.disabled),
-        action.map(st.data("action") := _)
+        disabled.option(st.disabled)
       ),
-      label(
-        `for` := fieldId,
-        title.map(st.title := _)
-      )
+      label(cls := "form-check__label", `for` := fieldId)
     )
 
-  def nativeCheckbox[Value: Show](
-      fieldId: String,
-      fieldName: String,
-      checked: Boolean,
-      value: Value = "true"
-  ) =
-    st.input(
-      st.id := fieldId,
-      name := fieldName,
-      st.value := value.show,
-      tpe := "checkbox",
-      checked.option(st.checked)
+  def checkboxGroup(
+      field: Field,
+      labelContent: Frag,
+      half: Boolean = false,
+      help: Option[Frag] = None,
+      value: String = "true",
+      disabled: Boolean = false
+  ): Tag =
+    div(cls := List("form-check form-group" -> true, "form-half" -> half))(
+      div(cls := "form-check__container")(
+        nativeCheckbox(
+          id(field),
+          field.name,
+          checked = isChecked(field),
+          value = value,
+          disabled = disabled
+        ),
+        groupLabel(field)(labelContent)
+      ),
+      help.map { helper(_) }
     )
+
+  def isChecked(field: Field): Boolean =
+    field.value.exists(v => v == "true" || v == "1")
 
   def select(
       field: Field,
@@ -179,8 +182,8 @@ final class Form3(formHelper: FormHelper & I18nHelper & AssetHelper, flairApi: F
     button(
       tpe := "submit",
       dataIcon := icon,
-      name := nameValue.map(_._1),
-      value := nameValue.map(_._2),
+      name := nameValue._1F,
+      value := nameValue._2F,
       cls := List(
         "submit button" -> true,
         "text" -> icon.isDefined,
@@ -189,8 +192,18 @@ final class Form3(formHelper: FormHelper & I18nHelper & AssetHelper, flairApi: F
       title := confirm
     )(content)
 
+  def hidden(field: Field): Tag =
+    hidden(field.name, ~field.value)
+
   def hidden[Value: Show](field: Field, value: Option[Value] = None): Tag =
     hidden(field.name, ~value.map(_.show).orElse(field.value))
+
+  def hidden[Value: Show](name: String, value: Option[Value]): Tag =
+    st.input(
+      st.name := name,
+      st.value := value.map(_.show),
+      tpe := "hidden"
+    )
 
   def hidden[Value: Show](name: String, value: Value): Tag =
     st.input(
@@ -215,7 +228,7 @@ final class Form3(formHelper: FormHelper & I18nHelper & AssetHelper, flairApi: F
     div(cls := "password-complexity")(
       label(cls := "password-complexity-label")(labelContent),
       div(cls := "password-complexity-meter"):
-        for (_ <- 1 to 4) yield span
+        for _ <- 1 to 4 yield span
     )
 
   def globalError(form: Form[?])(using Translate): Option[Frag] =

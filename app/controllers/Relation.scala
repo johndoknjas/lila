@@ -97,18 +97,12 @@ final class Relation(env: Env, apiC: => Api) extends LilaController(env):
           )
         yield res
 
-  def followers(username: UserStr, page: Int) = Open:
-    negotiateJson:
-      Reasonable(page, Max(20)):
-        RelatedPager(api.followersPaginatorAdapter(username.id), page).flatMap: pag =>
-          Ok(jsonRelatedPaginator(pag))
-
   def apiFollowing = Scoped(_.Follow.Read, _.Web.Mobile) { ctx ?=> me ?=>
     apiC.jsonDownload:
       env.relation.stream
         .follow(me, Direction.Following, MaxPerSecond(30))
         .mapAsync(1): ids =>
-          env.user.api.listWithPerfs(ids.toList)
+          env.user.api.listWithPerfs(ids.toList, includeClosed = false)
         .mapConcat(identity)
         .map(env.api.userApi.one(_, None))
   }
@@ -147,7 +141,7 @@ final class Relation(env: Env, apiC: => Api) extends LilaController(env):
     )
 
   private def followship(userIds: Seq[UserId])(using ctx: Context): Fu[List[Related[UserWithPerfs]]] = for
-    users <- env.user.api.listWithPerfs(userIds.toList)
+    users <- env.user.api.listWithPerfs(userIds.toList, includeClosed = false)
     followables <- ctx.isAuth.so(env.pref.api.followableIds(users.map(_.id)))
     rels <- users.sequentially: u =>
       ctx.userId

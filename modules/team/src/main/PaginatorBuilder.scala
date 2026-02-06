@@ -36,7 +36,7 @@ final private[team] class PaginatorBuilder(
   private def popularTeamsAdapter: Adapter[Team] =
     Adapter[Team](
       collection = teamRepo.coll,
-      selector = teamRepo.enabledSelect,
+      selector = teamRepo.enabledSelect ++ teamRepo.noClasSelect,
       projection = none,
       sort = teamRepo.sortPopular
     )
@@ -116,5 +116,5 @@ final private[team] class PaginatorBuilder(
           .skip(offset)
           .cursor[TeamRequest]()
           .list(length)
-        users <- userApi.listWithPerfs(requests.map(_.user))
+        users <- userApi.listWithPerfs(requests.map(_.user), includeClosed = false)
       yield RequestWithUser.combine(requests, users)

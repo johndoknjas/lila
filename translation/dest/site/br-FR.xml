@@ -474,7 +474,6 @@
   <string name="pasteTheFenStringHere">Pegañ an destenn FEN amañ</string>
   <string name="pasteThePgnStringHere">Pegañ an destenn PGN amañ</string>
   <string name="orUploadPgnFile">Pe pellkargañ ur restr PGN</string>
-  <string name="fromPosition">Kregiñ gant ul lec\'hiadur ispisial</string>
   <string name="continueFromHere">Kenderc\'hel adalek amañ</string>
   <string name="toStudy">Studiañ</string>
   <string name="importGame">Enporzhiañ ur c\'hrogad</string>
@@ -531,13 +530,6 @@
   <string name="player">C\'hoarier</string>
   <string name="list">Roll</string>
   <string name="graph">Krommenn</string>
-  <plurals name="lessThanNbMinutes">
-    <item quantity="one">Nebeutoc\'h evit %s vunutenn</item>
-    <item quantity="two">Nebeutoc\'h evit %s vunutenn</item>
-    <item quantity="few">Nebeutoc\'h evit %s munutenn</item>
-    <item quantity="many">Nebeutoc\'h evit %s munutenn</item>
-    <item quantity="other">Nebeutoc\'h evit %s munutenn</item>
-  </plurals>
   <string name="required">Rekis.</string>
   <string name="openTournaments">Tournamantoù digor</string>
   <string name="duration">Padelezh</string>

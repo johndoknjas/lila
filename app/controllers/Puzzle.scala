@@ -22,6 +22,7 @@ import lila.rating.PerfType
 import lila.ui.LangPath
 import scalalib.model.Days
 import lila.common.HTTPRequest
+import lila.common.Json.given
 
 final class Puzzle(env: Env, apiC: => Api) extends LilaController(env):
 
@@ -154,6 +155,30 @@ final class Puzzle(env: Env, apiC: => Api) extends LilaController(env):
             .so(env.irc.api.reportPuzzle(me.light, id, reportText))
             .inject(jsonOkResult)
       )
+  }
+
+  def apiBatchVoteThemes = SecuredScopedBody(_.PuzzleCurator)(_.Puzzle.Write) { _ ?=> me ?=>
+    bindForm(env.puzzle.forms.batchVotes)(
+      jsonFormError,
+      _.votes
+        .sequentially(puzzleVotes =>
+          puzzleVotes.themes
+            .sequentially: themeVote =>
+              allow:
+                env.puzzle.api.theme
+                  .vote(puzzleVotes.puzzleId, themeVote.theme, themeVote.vote)
+                  .inject(none)
+              .rescue: err =>
+                fuccess(Json.obj("theme" -> themeVote.theme, "msg" -> err.message).some)
+            .map:
+              _.flatten.map: errors =>
+                Json.obj("puzzleId" -> puzzleVotes.puzzleId, "errors" -> errors)
+        )
+        .map(_.flatten)
+        .map:
+          case Nil => jsonOkResult
+          case errors => BadRequest(jsonError(errors))
+    )
   }
 
   def voteTheme(id: PuzzleId, themeStr: String) = AuthOrScopedBody(_.Puzzle.Write) { _ ?=> me ?=>
@@ -372,9 +397,10 @@ final class Puzzle(env: Env, apiC: => Api) extends LilaController(env):
                 case Some(me) =>
                   given Me = me
                   WithPuzzlePerf:
-                    env.puzzle.finisher.batch(angle, data.solutions).map {
-                      _.map { (round, rDiff) => env.puzzle.jsonView.roundJson.api(round, rDiff) }
-                    }
+                    for
+                      solves <- env.puzzle.finisher.batch(angle, data.solutions)
+                      _ <- env.puzzle.session.onComplete(me.userId, angle, solves.size)
+                    yield solves.map(env.puzzle.jsonView.roundJson.api.tupled)
                 case None =>
                   data.solutions
                     .sequentiallyVoid { sol => env.puzzle.finisher.incPuzzlePlays(sol.id) }
@@ -435,7 +461,7 @@ final class Puzzle(env: Env, apiC: => Api) extends LilaController(env):
                   case None =>
                     Ok(env.puzzle.jsonView.bc.userJson(perf.intRating))
                   case Some(round, newPerf) =>
-                    env.puzzle.session.onComplete(round, PuzzleAngle.mix)
+                    env.puzzle.session.onComplete(round.userId, PuzzleAngle.mix)
                     Ok(env.puzzle.jsonView.bc.userJson(newPerf.intRating))
         )
   }

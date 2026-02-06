@@ -2,10 +2,10 @@ package lila.game
 
 import chess.format.Uci
 import chess.variant.Variant
-import chess.{ ByColor, Castles, Centis, Clock, Color, Game as ChessGame, MoveOrDrop, Ply, Speed, Status }
+import chess.{ Castles, Centis, Clock, Color, Game as ChessGame, MoveOrDrop, Ply, Speed, Status }
 import scalalib.model.Days
 
-import lila.core.game.{ ClockHistory, Game, Player, Pov }
+import lila.core.game.{ ClockHistory, Game, Player, Pov, Source }
 import lila.db.ByteArray
 import lila.game.Blurs.addAtMoveIndex
 import lila.rating.PerfType
@@ -205,6 +205,34 @@ object GameExt:
 
     def perfType: PerfType = PerfType(g.perfKey)
 
+    def timeForFirstMove: Centis =
+      Centis.ofSeconds:
+        import chess.Speed.*
+        val base =
+          if g.isTournament then
+            g.speed match
+              case UltraBullet => 11
+              case Bullet => 16
+              case Blitz => 21
+              case Rapid => 25
+              case _ => 30
+          else
+            g.speed match
+              case UltraBullet => 15
+              case Bullet => 20
+              case Blitz => 25
+              case Rapid => 30
+              case _ => 35
+        if g.variant.chess960 then base * 3 / 2
+        else base
+
+    def expirable =
+      !g.bothPlayersHaveMoved &&
+        g.source.exists(Source.expirable.contains) &&
+        g.playable &&
+        g.nonAi &&
+        g.clock.exists(!_.isRunning)
+
   end extension
 
   private def everyOther[A](l: List[A]): List[A] =
@@ -235,11 +263,9 @@ object Game:
 
   val unanalysableVariants: Set[Variant] = Variant.list.all.toSet -- analysableVariants
 
-  val hordeWhitePawnsSince = instantOf(2015, 4, 11, 10, 0)
-
+  private val hordeWhitePawnsSince = instantOf(2015, 4, 11, 10, 0)
   def isOldHorde(game: Game) =
-    game.variant == chess.variant.Horde &&
-      game.createdAt.isBefore(Game.hordeWhitePawnsSince)
+    game.variant == chess.variant.Horde && game.createdAt.isBefore(Game.hordeWhitePawnsSince)
 
   val abandonedDays = Days(21)
   def abandonedDate = nowInstant.minusDays(abandonedDays.value)

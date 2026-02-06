@@ -62,11 +62,11 @@ site.load.then(() => {
   const nextStore = storage.boolean('inquiry-auto-next');
 
   if (!nextStore.get()) {
-    $('#inquiry .switcher input').prop('checked', false);
+    $('#inquiry #auto-next').prop('checked', false);
     $('#inquiry input.auto-next').val('0');
   }
 
-  $('#inquiry .switcher input').on('change', function (this: HTMLInputElement) {
+  $('#inquiry #auto-next').on('change', function (this: HTMLInputElement) {
     nextStore.set(this.checked);
     $('#inquiry input.auto-next').val(this.checked ? '1' : '0');
   });
@@ -100,8 +100,8 @@ site.load.then(() => {
   });
 
   $('.user-show, .appeal').on('click', '.mz-section--others .add-to-note', function (this: HTMLElement) {
-    const username = $(this).parents('tr').find('td:first-child .user-link').text().split(' ')[0];
-    addToNote(`Alt: @${username}`);
+    const userRow = $(this).parents('tr');
+    addToNote(`Alt: ${[userRow.data('title') || '', `@${userRow.data('username')}`].join(' ').trim()}`);
   });
 
   const highlightUsername = () => highlightSearchTerm(username, '#main-wrap .user-link');

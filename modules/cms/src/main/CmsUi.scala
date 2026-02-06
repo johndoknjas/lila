@@ -96,9 +96,9 @@ final class CmsUi(helpers: Helpers)(menu: Context ?=> Frag):
     table(cls := "cms__pages slist slist-pad")(
       thead(
         tr(
-          th(tableName),
-          th("Content"),
-          th("Lang"),
+          th(dataSortAsc)(tableName),
+          th(dataSortDisabled)("Content"),
+          th(dataSortAsc)("Lang"),
           th("Live"),
           th(dataSortDefault)("Updated")
         )
@@ -139,10 +139,14 @@ final class CmsUi(helpers: Helpers)(menu: Context ?=> Frag):
     layout(s"Lichess page ${page.key}")(cls := "box-pad"):
       frag(
         boxTop(
-          h1(a(href := routes.Cms.index)("Lichess page"), " • ", page.key),
+          h1(a(href := routes.Cms.index)("Lichess page"), " • ", page.key, " (", page.language, ")"),
           div(cls := "box__top__actions"):
             a(
-              href := page.canonicalPath.getOrElse(routes.Cms.lonePage(page.key).url),
+              href := addQueryParam(
+                page.canonicalPath.getOrElse(routes.Cms.lonePage(page.key).url),
+                "lang",
+                page.language.value
+              ),
               cls := "button button-green",
               dataIcon := Icon.Eye
             )
@@ -213,7 +217,7 @@ final class CmsUi(helpers: Helpers)(menu: Context ?=> Frag):
           )
         ),
       form3.split(
-        form3.checkbox(form("live"), raw("Live"), half = true)
+        form3.checkboxGroup(form("live"), raw("Live"), half = true)
       ),
       form3.action(form3.submit("Save"))
     )

@@ -30,7 +30,8 @@ final class PuzzleUi(helpers: Helpers, val bits: PuzzleBits)(
       .css(ctx.pref.hasKeyboardMove.option("keyboardMove"))
       .css(ctx.pref.hasVoice.option("voice"))
       .css(ctx.blind.option("round.nvui"))
-      .i18n(_.puzzle, _.puzzleTheme, _.storm, _.nvui)
+      .i18n(_.puzzle, _.puzzleTheme)
+      .i18nOpt(ctx.speechSynthesis, _.nvui)
       .i18nOpt(ctx.blind, _.keyboardMove)
       .js(ctx.blind.option(Esm("puzzle.nvui")))
       .js(
@@ -305,7 +306,7 @@ final class PuzzleUi(helpers: Helpers, val bits: PuzzleBits)(
     private def renderSession(session: PuzzleSession)(using Context) =
       div(cls := "puzzle-history__session")(
         h2(cls := "puzzle-history__session__title")(
-          strong(PuzzleTheme(session.theme).name()),
+          strong(session.angle.name()),
           momentFromNow(session.puzzles.head.round.date)
         ),
         div(cls := "puzzle-history__session__rounds")(session.puzzles.toList.reverse.map(renderRound))

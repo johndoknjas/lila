@@ -7,7 +7,7 @@ import { renderSetting } from 'lib/nvui/setting';
 import type { PuzzleNvuiContext } from '../puzzle.nvui';
 import { commands, boardCommands, addBreaks } from 'lib/nvui/command';
 import { next as controlNext, prev } from '../control';
-import { bind, onInsert } from 'lib/view';
+import { bind, onInsert, requiresI18n } from 'lib/view';
 import { throttle } from 'lib/async';
 import type PuzzleCtrl from '../ctrl';
 import { Chessground as makeChessground } from '@lichess-org/chessground';
@@ -15,6 +15,7 @@ import { makeSquare, opposite } from 'chessops';
 import { scanDirectionsHandler } from 'lib/nvui/directionScan';
 import type { Api } from '@lichess-org/chessground/api';
 import { nextCorrectMove } from '@/moveTree';
+import type { TreeNode } from 'lib/tree/types';
 
 const throttled = (sound: string) => throttle(100, () => site.sound.play(sound));
 const selectSound = throttled('select');
@@ -272,10 +273,10 @@ function viewOrAdvanceSolution(ctrl: PuzzleCtrl, notify: (txt: string) => void):
   } else ctrl.viewSolution();
 }
 
-const isInSolution = (node?: Tree.Node): boolean =>
+const isInSolution = (node?: TreeNode): boolean =>
   !!node && (node.puzzle === 'good' || node.puzzle === 'win');
 
-const nextNode = (node?: Tree.Node): Tree.Node | undefined =>
+const nextNode = (node?: TreeNode): TreeNode | undefined =>
   node?.children?.length ? node.children[0] : undefined;
 
 const renderStreak = (ctrl: PuzzleCtrl): VNode[] =>
@@ -301,7 +302,9 @@ function renderReplay(ctrl: PuzzleCtrl): string {
 const playActions = (ctx: PuzzleNvuiContext): VNode => {
   const { ctrl, notify } = ctx;
   return ctrl.streak
-    ? button(i18n.storm.skip, ctrl.skip, i18n.puzzle.streakSkipExplanation, !ctrl.streak.data.skip)
+    ? requiresI18n('storm', ctx.ctrl.redraw, cat =>
+        button(cat.skip, ctrl.skip, i18n.puzzle.streakSkipExplanation, !ctrl.streak?.data.skip),
+      )
     : h('div.actions_play', [
         button(i18n.site.getAHint, () => {
           const hint = nextCorrectMove(ctrl);

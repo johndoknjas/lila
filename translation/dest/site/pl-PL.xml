@@ -4,12 +4,13 @@
   <string name="challengeAFriend" comment="be mindful how 'friend' translates in gendered languages. look for a more neutral term if there's an issue, or base your translation on a different phrase like 'invite to a game'. keep it short and convey the button's meaning without offense.">Rzuć wyzwanie znajomemu</string>
   <string name="playAgainstComputer">Zagraj z komputerem</string>
   <string name="gameMode">Tryby gry</string>
-  <string name="createLobbyGame" comment="One of three buttons on the home page. Opens the modal to create a game that goes in the lobby.">Utwórz grę w poczekalni</string>
-  <string name="youPlayAs">Grasz</string>
+  <string name="createLobbyGame">Utwórz grę w poczekalni</string>
   <string name="toInviteSomeoneToPlayGiveThisUrl">Przekaż ten adres, by zaprosić kogoś do wspólnej gry</string>
   <string name="gameOver">Partia zakończona</string>
   <string name="waitingForOpponent">Oczekiwanie na ruch przeciwnika</string>
   <string name="orLetYourOpponentScanQrCode">Lub pozwól przeciwnikowi zeskanować ten kod QR</string>
+  <string name="reusableChallengeUrl">URL wyzwania wielokrotnego użytku</string>
+  <string name="permanentLinkForAnyoneToChallengeYou">Stały link do wyzwania na określonych warunkach, które każdy może Ci rzucić.</string>
   <string name="waiting">Oczekiwanie</string>
   <string name="yourTurn">Twój ruch</string>
   <string name="aiNameLevelAiLevel">%1$s poziom %2$s</string>
@@ -130,6 +131,10 @@
   <string name="bestMoveArrow">Strzałka najlepszego ruchu</string>
   <string name="showVariationArrows">Pokaż strzałki wariantów</string>
   <string name="evaluationGauge">Wskaźnik oceny pozycji</string>
+  <string name="visualMotifs">Motywy taktyczne</string>
+  <string name="undefendedPieces">Wiszące bierki</string>
+  <string name="pinnedPieces">Związane bierki</string>
+  <string name="checkableKing">Groźba szacha</string>
   <string name="multipleLines">Analizowane warianty</string>
   <string name="cpus">Procesory</string>
   <string name="memory">Pamięć RAM</string>
@@ -229,6 +234,7 @@
   <string name="minutesPerSide">Minuty na gracza</string>
   <string name="variant">Odmiana</string>
   <string name="variants">Odmiany</string>
+  <string name="variantsDescription">Więcej odmian szachów</string>
   <string name="timeControl">Tempo gry</string>
   <string name="realTime">W czasie rzeczywistym</string>
   <string name="correspondence">Korespondencyjne</string>
@@ -335,6 +341,7 @@
   <string name="standard">Standard</string>
   <string name="customPosition">Niestandardowa pozycja</string>
   <string name="unlimited">Bez limitu</string>
+  <string name="unlimitedDescription">Nie spiesz się</string>
   <string name="mode">Rodzaj</string>
   <string name="casual">Towarzyska</string>
   <string name="rated">Rankingowa</string>
@@ -399,7 +406,7 @@
     <item quantity="other">Dodaj %s sekund</item>
   </plurals>
   <string name="thisAccountViolatedTos">Użytkownik tego konta naruszył warunki korzystania z Lichess</string>
-  <string name="openingExplorerAndTablebase">Biblioteka otwarć i końcówek</string>
+  <string name="openingExplorerAndTablebase">Biblioteka debiutów i końcówek</string>
   <string name="takeback">Cofnij ruch</string>
   <string name="proposeATakeback">Poproś o cofnięcie ruchu</string>
   <string name="whiteProposesTakeback">Białe proponują cofnięcie ruchu</string>
@@ -486,10 +493,11 @@
   <string name="leaderboard">Najlepsi gracze</string>
   <string name="screenshotCurrentPosition">Zrzut ekranu aktualnej pozycji</string>
   <string name="gameAsGIF">Zapisz jako GIF</string>
+  <string name="playerNames">Nazwy graczy</string>
+  <string name="moveAnnotations">Adnotacje do posunięcia</string>
   <string name="pasteTheFenStringHere">Wklej tutaj pozycję w formacie FEN</string>
   <string name="pasteThePgnStringHere">Wklej poniżej przebieg partii w formacie PGN</string>
   <string name="orUploadPgnFile">lub wgraj plik PGN</string>
-  <string name="fromPosition">Z pozycji</string>
   <string name="continueFromHere">Kontynuuj z tej pozycji</string>
   <string name="toStudy">Opracowanie</string>
   <string name="importGame">Importuj partię</string>
@@ -544,12 +552,6 @@
   <string name="player">Gracz</string>
   <string name="list">Lista</string>
   <string name="graph">Wykres</string>
-  <plurals name="lessThanNbMinutes">
-    <item quantity="one">Poniżej %s minuty</item>
-    <item quantity="few">Poniżej %s minut</item>
-    <item quantity="many">Poniżej %s minut</item>
-    <item quantity="other">Poniżej %s minut</item>
-  </plurals>
   <string name="required">Wymagane.</string>
   <string name="openTournaments">Dostępne turnieje</string>
   <string name="duration">Czas trwania</string>
@@ -808,6 +810,7 @@
   <string name="cyclePreviousOrNextVariation">Powtarzaj poprzedni/następny wariant</string>
   <string name="toggleGlyphAnnotations">Przełącz adnotacje symbolami</string>
   <string name="togglePositionAnnotations">Przełącz adnotacje pozycji</string>
+  <string name="toggleObservationAnnotations">Przełącz adnotacje obserwacji</string>
   <string name="variationArrowsInfo">Strzałki wariantów pozwalają nawigować bez użycia listy posunięć.</string>
   <string name="playSelectedMove">wykonaj wybrane posunięcie</string>
   <string name="newTournament">Nowy turniej</string>
@@ -851,6 +854,7 @@
   <string name="youCanAlsoScrollOverTheBoardToMoveInTheGame">Możesz także przewijać nad szachownicą, by zmieniać postęp partii.</string>
   <string name="scrollOverComputerVariationsToPreviewThem">Przewiń po wariantach komputera, aby je podglądać.</string>
   <string name="analysisShapesHowTo">Kliknij podczas trzymania Shift lub przytrzymaj prawy przycisk myszy aby rysować okręgi i strzałki na szachownicy.</string>
+  <string name="primaryColorArrowsHowTo">Ctrl lub shift = kolor czerwony; command, alt lub meta = kolor niebieski; Ctrl lub shift + command, alt lub meta = kolor żółty.</string>
   <string name="letOtherPlayersMessageYou">Zezwól na wiadomości od innych graczy</string>
   <string name="receiveForumNotifications">Otrzymuj powiadomienia, kiedy ktoś wspomni o Tobie na forum</string>
   <string name="shareYourInsightsData">Udostępniaj szczegółowe statystyki</string>
@@ -896,6 +900,7 @@
   <string name="size">Rozmiar</string>
   <string name="opacity">Przezroczystość</string>
   <string name="brightness">Jasność</string>
+  <string name="contrast">Kontrast</string>
   <string name="hue">Odcień</string>
   <string name="boardReset">Przywróć domyślne kolory</string>
   <string name="pieceSet">Zestaw bierek</string>
@@ -1000,6 +1005,7 @@
   <string name="agreementPolicy">Zgadzam się przestrzegać wszystkich zasad Lichess.</string>
   <string name="searchOrStartNewDiscussion">Szukaj lub rozpocznij nową rozmowę</string>
   <string name="edit">Edytuj</string>
+  <string name="ultraBullet" comment="Probably best left untranslated. Leave it as 'UltraBullet' unless your language has a better word for it.">UltraBullet</string>
   <string name="bullet" comment="Probably best left untranslated. Leave it as 'Bullet' unless your language has a better word for it.">Bullet</string>
   <string name="blitz" comment="Probably best left untranslated. Leave it as 'Blitz' unless your language has a better word for it.">Blitz</string>
   <string name="rapid">Szybkie</string>
@@ -1110,4 +1116,5 @@ Wszystkie koszty operacyjne, rozwój i treści są finansowane wyłącznie z dar
   <string name="search">Szukaj</string>
   <string name="clearSearch">Wyczyść wyszukiwanie</string>
   <string name="tags">Tagi</string>
+  <string name="enPassant">Bicie w przelocie</string>
 </resources>

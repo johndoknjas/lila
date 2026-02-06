@@ -16,6 +16,7 @@ import lila.core.perf.{ KeyedPerf, Perf, PerfKey, UserPerfs, UserWithPerfs }
 import lila.core.userId.*
 import lila.core.misc.AtInstant
 import lila.core.plan.{ PatronMonths, PatronTier, PatronColorChoice }
+import lila.core.rating.UserRankMap
 
 object user:
 
@@ -181,6 +182,8 @@ object user:
   case class UserDelete(user: User):
     export user.id
 
+  case class SetKidMode(user: User)
+
   trait UserApi:
     def byId[U: UserIdOf](u: U): Fu[Option[User]]
     def enabledById[U: UserIdOf](u: U): Fu[Option[User]]
@@ -212,7 +215,11 @@ object user:
     def withPerfs(u: User): Fu[UserWithPerfs]
     def withPerfs[U: UserIdOf](id: U): Fu[Option[UserWithPerfs]]
     def byIdWithPerf[U: UserIdOf](id: U, pk: PerfKey): Fu[Option[WithPerf]]
-    def listWithPerfs[U: UserIdOf](us: List[U]): Fu[List[UserWithPerfs]]
+    def listWithPerfs[U: UserIdOf](
+        us: List[U],
+        includeClosed: Boolean,
+        fromPri: Boolean = false
+    ): Fu[List[UserWithPerfs]]
     def perfOf[U: UserIdOf](u: U, perfKey: PerfKey): Fu[Perf]
     def perfOf(ids: Iterable[UserId], perfKey: PerfKey): Fu[Map[UserId, Perf]]
     def perfOptionOf[U: UserIdOf](u: U, perfKey: PerfKey): Fu[Option[Perf]]
@@ -378,4 +385,9 @@ object user:
     def userIdsLike(text: UserSearch): Fu[List[UserId]]
 
   trait JsonView:
-    def full(u: User, perfs: Option[UserPerfs | KeyedPerf], withProfile: Boolean): JsObject
+    def full(
+        u: User,
+        perfs: Option[UserPerfs | KeyedPerf],
+        withProfile: Boolean,
+        rankMap: Option[UserRankMap] = None
+    ): JsObject

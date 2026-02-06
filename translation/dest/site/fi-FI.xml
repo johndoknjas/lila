@@ -4,12 +4,13 @@
   <string name="challengeAFriend" comment="be mindful how 'friend' translates in gendered languages. look for a more neutral term if there's an issue, or base your translation on a different phrase like 'invite to a game'. keep it short and convey the button's meaning without offense.">Haasta kaveri</string>
   <string name="playAgainstComputer">Pelaa tietokonetta vastaan</string>
   <string name="gameMode">Pelityyppi</string>
-  <string name="createLobbyGame" comment="One of three buttons on the home page. Opens the modal to create a game that goes in the lobby.">Luo peli</string>
-  <string name="youPlayAs">Nappuloidesi väri</string>
+  <string name="createLobbyGame">Luo peli</string>
   <string name="toInviteSomeoneToPlayGiveThisUrl">Lähetä tämä linkki kaverillesi, jonka haluat kutsua pelaamaan</string>
   <string name="gameOver">Peli ohi</string>
   <string name="waitingForOpponent">Odotetaan vastustajaa</string>
   <string name="orLetYourOpponentScanQrCode">Tai anna vastustajasi skannata tämä QR-koodi</string>
+  <string name="reusableChallengeUrl">Haasteen URL-osoite (uudestaan käytettävä)</string>
+  <string name="permanentLinkForAnyoneToChallengeYou">Pysyvä linkki, jonka kautta kuka tahansa voi haastaa sinut juuri näillä asetuksilla.</string>
   <string name="waiting">Odotetaan</string>
   <string name="yourTurn">Sinun vuorosi</string>
   <string name="aiNameLevelAiLevel">%1$s taso %2$s</string>
@@ -104,7 +105,7 @@
   <string name="dtzWithRounding">DTZ50\'\' pyöristettynä, puolisiirtojen määrä seuraavaan lyöntiin tai sotilaan siirtoon</string>
   <string name="noGameFound">Pelejä ei löytynyt</string>
   <string name="maxDepthReached">Maksimisyvyys saavutettu!</string>
-  <string name="maybeIncludeMoreGamesFromThePreferencesMenu">Voisit sisällyttää lisää pelejä asetusvalikosta?</string>
+  <string name="maybeIncludeMoreGamesFromThePreferencesMenu">Ehkä voisit tuoda tähän asetusvalikon kautta lisää pelejä näkyville?</string>
   <string name="openings">Avaukset</string>
   <string name="openingExplorer">Avausselain</string>
   <string name="openingEndgameExplorer">Avaus- ja loppupeliselain</string>
@@ -126,6 +127,10 @@
   <string name="bestMoveArrow">Parhaan siirron nuoli</string>
   <string name="showVariationArrows">Näytä muunnelman nuolet</string>
   <string name="evaluationGauge">Arviomittari</string>
+  <string name="visualMotifs">Visuaaliset motiivit</string>
+  <string name="undefendedPieces">Suojaamattomat nappulat</string>
+  <string name="pinnedPieces">Kiinnitetyt nappulat</string>
+  <string name="checkableKing">Kuningas, jota voi shakata</string>
   <string name="multipleLines">Muunnelmien määrä</string>
   <string name="cpus">Suorittimia</string>
   <string name="memory">Muistia</string>
@@ -188,7 +193,7 @@
   <string name="viewInFullSize">Näytä täysikokoisena</string>
   <string name="logOut">Kirjaudu ulos</string>
   <string name="signIn">Kirjaudu sisään</string>
-  <string name="rememberMe">Muista minut</string>
+  <string name="rememberMe">Pysy sisäänkirjautuneena</string>
   <string name="youNeedAnAccountToDoThat">Tämä toiminto vaatii käyttäjätunnuksen</string>
   <string name="signUp">Rekisteröidy</string>
   <string name="computersAreNotAllowedToPlay">Tietokoneet ja tietokoneen avustamat pelaajat eivät saa pelata täällä. Kun pelaat, älä käytä apunasi shakkiohjelmia tai -tietokantoja äläkä toisten pelaajien neuvoja. Ota myös huomioon, että useiden käyttäjätunnuksien luomista ei katsota lainkaan hyvällä, ja liiallisuuksiin mennessään se johtaa porttikieltoon.</string>
@@ -205,6 +210,7 @@
   <string name="minutesPerSide">Minuuttia per pelaaja</string>
   <string name="variant">Variantti</string>
   <string name="variants">Variantit</string>
+  <string name="variantsDescription">Lisää pelitapoja</string>
   <string name="timeControl">Aikajärjestelmä</string>
   <string name="realTime">Pikapeli</string>
   <string name="correspondence">Kirjeshakki</string>
@@ -299,6 +305,7 @@
   <string name="standard">Tavallinen</string>
   <string name="customPosition">Itse määritetty asema</string>
   <string name="unlimited">Rajaton</string>
+  <string name="unlimitedDescription">Käytä niin paljon aikaa kuin tarvitset</string>
   <string name="mode">Tyyppi</string>
   <string name="casual">Rento</string>
   <string name="rated">Pisteytetty</string>
@@ -351,7 +358,7 @@
     <item quantity="other">Anna %s sekuntia</item>
   </plurals>
   <string name="thisAccountViolatedTos">Tämä käyttäjätunnus rikkoi Lichessin käyttöehtoja</string>
-  <string name="openingExplorerAndTablebase">Avausselain ja -tietokanta</string>
+  <string name="openingExplorerAndTablebase">Avausselain ja loppupelitietokanta</string>
   <string name="takeback">Peruuta siirto</string>
   <string name="proposeATakeback">Pyydä siirron peruutusta</string>
   <string name="whiteProposesTakeback">Valkea ehdottaa siirron perumista</string>
@@ -424,10 +431,11 @@
   <string name="leaderboard">Pistetaulukko</string>
   <string name="screenshotCurrentPosition">Ota tämänhetkisestä asemasta kuvakaappaus</string>
   <string name="gameAsGIF">Tallenna peli GIF:nä</string>
+  <string name="playerNames">Pelaajien nimet</string>
+  <string name="moveAnnotations">Siirtokommentit</string>
   <string name="pasteTheFenStringHere">Liitä FEN-merkkijono tähän</string>
   <string name="pasteThePgnStringHere">Liitä PGN-merkkijono tähän</string>
   <string name="orUploadPgnFile">Tai lataa PGN-tiedosto</string>
-  <string name="fromPosition">Asemasta</string>
   <string name="continueFromHere">Jatka tästä</string>
   <string name="toStudy">Tutki</string>
   <string name="importGame">Tuo peli</string>
@@ -474,10 +482,6 @@
   <string name="player">Pelaaja</string>
   <string name="list">Lista</string>
   <string name="graph">Kaavio</string>
-  <plurals name="lessThanNbMinutes">
-    <item quantity="one">Alle %s minuutti</item>
-    <item quantity="other">Alle %s minuuttia</item>
-  </plurals>
   <string name="required">Vaadittu.</string>
   <string name="openTournaments">Avoimet turnaukset</string>
   <string name="duration">Kesto</string>
@@ -689,7 +693,7 @@
   <string name="yourPendingSimuls">Odottavat simultaanisi</string>
   <string name="createdSimuls">Äskettäin luodut simultaanit</string>
   <string name="hostANewSimul">Pidä uusi simultaani</string>
-  <string name="signUpToHostOrJoinASimul">Kirjaudu niin voit antaa simultaanin tai liittyä sellaiseen</string>
+  <string name="signUpToHostOrJoinASimul">Kirjaudu sisään, jotta voit pitää simultaanin tai liittyä simultaaniin</string>
   <string name="noSimulFound">Simultaania ei löydy</string>
   <string name="noSimulExplanation">Tätä simultaania ei ole olemassa.</string>
   <string name="returnToSimulHomepage">Palaa simultaanin kotisivulle</string>
@@ -726,7 +730,7 @@
   <string name="keyNextBranch">Seuraava haara</string>
   <string name="toggleVariationArrows">Muunnelmanuolet päälle/pois</string>
   <string name="cyclePreviousOrNextVariation">Siirry edelliseen/seuraavaan muunnelmaan</string>
-  <string name="toggleGlyphAnnotations">Symbolikommentit päälle/pois</string>
+  <string name="toggleGlyphAnnotations">Siirtokommentit päälle/pois</string>
   <string name="togglePositionAnnotations">Aseman kommentit päälle/pois</string>
   <string name="variationArrowsInfo">Muunnelmanuolia napsauttamalla voit edetä muunnelmissa siirtolistaa käyttämättä.</string>
   <string name="playSelectedMove">tee valittu siirto</string>
@@ -813,6 +817,7 @@
   <string name="size">Koko</string>
   <string name="opacity">Peittävyys</string>
   <string name="brightness">Kirkkaus</string>
+  <string name="contrast">Kontrasti</string>
   <string name="hue">Värisävy</string>
   <string name="boardReset">Palauta oletusvärit</string>
   <string name="pieceSet">Nappuloiden tyyli</string>
@@ -911,6 +916,7 @@
   <string name="agreementPolicy">Vakuutan että noudatan Lichessin sääntöjä.</string>
   <string name="searchOrStartNewDiscussion">Hae tai aloita uusi keskustelu</string>
   <string name="edit">Muokkaa</string>
+  <string name="ultraBullet" comment="Probably best left untranslated. Leave it as 'UltraBullet' unless your language has a better word for it.">UltraBullet</string>
   <string name="bullet" comment="Probably best left untranslated. Leave it as 'Bullet' unless your language has a better word for it.">Bullet</string>
   <string name="blitz" comment="Probably best left untranslated. Leave it as 'Blitz' unless your language has a better word for it.">Pikapeli</string>
   <string name="rapid">Nopea</string>
@@ -975,6 +981,7 @@ Jätä kenttä tyhjäksi, jos haluat pelien alkavan normaalista alkuasemasta.</s
   <string name="simulFeaturedHelp">Näytä simultaanisi kaikille %slla. Poista valinta pitääksesi simultaanin yksityisenä.</string>
   <string name="simulDescription">Simultaanin kuvaus</string>
   <string name="simulDescriptionHelp">Haluatko kertoa osallistujille jotain?</string>
+  <string name="markdownIsAvailable">Muotoiluun voi käyttää %s-kieltä.</string>
   <string name="embedsAvailable">Voit upottaa pelin tai tutkielman kappaleen liittämällä sen URL-osoitteen.</string>
   <string name="inYourLocalTimezone">Omalla aikavyöhykkeelläsi</string>
   <string name="tournChat">Turnauksen keskusteluhuone</string>
@@ -1020,4 +1027,5 @@ Kaikki toimintakustannukset, kehitystyö ja sisältö rahoitetaan yksinomaan kä
   <string name="search">Hae</string>
   <string name="clearSearch">Tyhjennä haku</string>
   <string name="tags">Tunnisteet</string>
+  <string name="enPassant">Ohestalyönti</string>
 </resources>

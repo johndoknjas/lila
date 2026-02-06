@@ -4,6 +4,7 @@ import { COLORS, RANK_NAMES, ROLES, type FileName } from 'chessops/types';
 import { charToRole, roleToChar } from 'chessops/util';
 import { plyToTurn } from '../game/chess';
 import type { MoveStyle, PieceStyle, PositionStyle, PrefixStyle, BoardStyle } from './setting';
+import type { CrazyPocket, NodeCrazy, TreeComment, TreeNode, TreePath } from '@/tree/types';
 
 export const renderPieceStyle = (ch: string, pieceStyle: PieceStyle): string =>
   pieceStyle === 'letter'
@@ -52,7 +53,7 @@ export const renderPieces = (pieces: Pieces, style: MoveStyle): VNode =>
     ),
   );
 
-export const renderPockets = (pockets: Tree.NodeCrazy['pockets']): VNode =>
+export const renderPockets = (pockets: NodeCrazy['pockets']): VNode =>
   h(
     'div.pieces',
     COLORS.map((color, i) =>
@@ -60,14 +61,14 @@ export const renderPockets = (pockets: Tree.NodeCrazy['pockets']): VNode =>
     ),
   );
 
-export const pocketsStr = (pocket: Tree.CrazyPocket): string =>
+export const pocketsStr = (pocket: CrazyPocket): string =>
   Object.entries(pocket)
     .map(([role, count]) => `${i18n.nvui[role as Role]}: ${count}`)
     .join(', ');
 
 export function renderPieceKeys(pieces: Pieces, p: string, style: MoveStyle): string {
   const color: Color = p === p.toUpperCase() ? 'white' : 'black';
-  if (p.toLowerCase() == 'a') return renderPiecesByColorAsString(pieces, style, color);
+  if (p.toLowerCase() === 'a') return renderPiecesByColorAsString(pieces, style, color);
   const role = charToRole(p)!;
   const keys = keysWithPiece(pieces, role, color);
   let pieceStr = transPieceStr(role, color, i18n);
@@ -155,9 +156,12 @@ export function renderBoard(
         pieceStyle === 'name' || pieceStyle === 'white uppercase name'
           ? transPieceStr(piece.role, piece.color, i18n)
           : renderPieceStr(roleCh, pieceStyle, piece.color, prefixStyle);
-      return h(pieceWrapper, doPieceButton(rank, file, roleCh, piece.color, pieceText, plusOrMinus == '-'));
+      return h(pieceWrapper, doPieceButton(rank, file, roleCh, piece.color, pieceText, plusOrMinus === '-'));
     } else {
-      return h(pieceWrapper, doPieceButton(rank, file, plusOrMinus, 'none', plusOrMinus, plusOrMinus == '-'));
+      return h(
+        pieceWrapper,
+        doPieceButton(rank, file, plusOrMinus, 'none', plusOrMinus, plusOrMinus === '-'),
+      );
     }
   };
 
@@ -201,13 +205,13 @@ export function castlingFlavours(input: string): string {
 }
 
 export function renderMainline(
-  nodes: Tree.Node[],
-  currentPath: Tree.Path,
+  nodes: TreeNode[],
+  currentPath: TreePath,
   style: MoveStyle,
   withComments = true,
 ): VNodeChildren {
   const res: VNodeChildren = [];
-  let path: Tree.Path = '';
+  let path: TreePath = '';
   nodes.forEach(node => {
     if (!node.san || !node.uci) return;
     path += node.id;
@@ -223,7 +227,7 @@ export function renderMainline(
   return res;
 }
 
-export const renderComments = (node: Tree.Node, style: MoveStyle): string =>
+export const renderComments = (node: TreeNode, style: MoveStyle): string =>
   node.comments?.map(c => ` ${augmentLichessComment(c, style)}`).join('.') ?? '';
 
 export const isKey = (maybeKey: string): maybeKey is Key => !!maybeKey.match(/^[a-h][1-8]$/);
@@ -273,7 +277,7 @@ const keysWithPiece = (pieces: Pieces, role?: Role, color?: Color): Key[] =>
     [],
   );
 
-const augmentLichessComment = (comment: Tree.Comment, style: MoveStyle): string =>
+const augmentLichessComment = (comment: TreeComment, style: MoveStyle): string =>
   comment.by === 'lichess'
     ? comment.text.replace(
         /([^\s]+) was best\./,

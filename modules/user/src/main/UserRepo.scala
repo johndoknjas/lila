@@ -170,6 +170,9 @@ final class UserRepo(c: Coll)(using Executor) extends lila.core.user.UserRepo(c)
   def setRealName(id: UserId, name: String): Funit =
     coll.updateField($id(id), s"${F.profile}.realName", name).void
 
+  def realName(id: UserId): Fu[Option[String]] =
+    coll.primitiveOne[String]($id(id), s"${F.profile}.realName")
+
   def setUsernameCased(id: UserId, name: UserName): Funit =
     if id.is(name) then
       coll.update
@@ -241,10 +244,11 @@ final class UserRepo(c: Coll)(using Executor) extends lila.core.user.UserRepo(c)
       blind: Boolean,
       mobileApiVersion: Option[ApiVersion],
       mustConfirmEmail: Boolean,
-      lang: Option[LangTag] = None
+      lang: Option[LangTag] = None,
+      kid: KidMode = KidMode.No
   ): Fu[Option[User]] =
     exists(name).not.flatMapz:
-      val doc = newUser(name, passwordHash, email, blind, mobileApiVersion, mustConfirmEmail, lang) ++
+      val doc = newUser(name, passwordHash, email, blind, mobileApiVersion, mustConfirmEmail, lang, kid) ++
         ("len" -> BSONInteger(name.value.length))
       coll.insert.one(doc) >> byId(name.id)
 
@@ -285,7 +289,7 @@ final class UserRepo(c: Coll)(using Executor) extends lila.core.user.UserRepo(c)
   def setPrizeban = setMark(UserMark.prizeban)
   def setAlt = setMark(UserMark.alt)
 
-  def setKid(user: User, v: KidMode) = coll.updateField($id(user.id), F.kid, v).void
+  private[user] def setKid(user: User, v: KidMode) = coll.updateField($id(user.id), F.kid, v).void
 
   def isKid[U: UserIdOf](u: U): Fu[KidMode] = KidMode.from:
     coll.exists($id(u.id) ++ $doc(F.kid -> true))
@@ -552,6 +556,10 @@ final class UserRepo(c: Coll)(using Executor) extends lila.core.user.UserRepo(c)
   def setFlair(user: User, flair: Option[Flair]): Funit =
     coll.updateOrUnsetField($id(user.id), F.flair, flair).void
 
+  def unsetFlairs(all: Set[(UserId, Flair)]): Funit = all.nonEmpty.so:
+    all.toList.sequentiallyVoid: (userId, flair) =>
+      coll.unsetField($id(userId) ++ $doc(BSONFields.flair -> flair), BSONFields.flair)
+
   def byIdAs[A: BSONDocumentReader](id: String, proj: Bdoc): Fu[Option[A]] =
     coll.one[A]($id(id), proj)
 
@@ -566,6 +574,9 @@ final class UserRepo(c: Coll)(using Executor) extends lila.core.user.UserRepo(c)
   def filterClosedOrInactiveIds(since: Instant)(ids: Iterable[UserId]): Fu[List[UserId]] =
     coll.distinctEasy[UserId, List](F.id, $inIds(ids) ++ $or(disabledSelect, F.seenAt.$lt(since)), _.sec)
 
+  def filterSeenSince(since: Instant)(ids: Iterable[UserId]): Fu[List[UserId]] =
+    coll.distinctEasy[UserId, List](F.id, $inIds(ids) ++ F.seenAt.$gt(since), _.sec)
+
   def createdWithApiVersion(userId: UserId) =
     coll.primitiveOne[ApiVersion]($id(userId), F.createdWithApiVersion)
 
@@ -578,7 +589,8 @@ final class UserRepo(c: Coll)(using Executor) extends lila.core.user.UserRepo(c)
       blind: Boolean,
       mobileApiVersion: Option[ApiVersion],
       mustConfirmEmail: Boolean,
-      lang: Option[LangTag]
+      lang: Option[LangTag],
+      kid: KidMode
   ) =
     val normalizedEmail = email.normalize
     val now = nowInstant
@@ -599,4 +611,6 @@ final class UserRepo(c: Coll)(using Executor) extends lila.core.user.UserRepo(c)
       (email.value != normalizedEmail.value).so($doc(F.verbatimEmail -> email))
     } ++ {
       blind.so($doc(F.blind -> true))
+    } ++ {
+      kid.yes.so($doc(F.kid -> kid))
     }

@@ -3,7 +3,6 @@ package lila.oauth
 import play.api.libs.json.*
 import reactivemongo.api.bson.*
 import reactivemongo.akkastream.cursorProducer
-import akka.stream.scaladsl.*
 
 import lila.common.Json.given
 import lila.core.misc.oauth.{ AccessTokenId, TokenRevoke }
@@ -20,18 +19,19 @@ final class AccessTokenApi(
   import AccessToken.{ BSONFields as F, given }
 
   private def createAndRotate(token: AccessToken): Fu[AccessToken] = for
-    oldIds <- coll
+    oldDocs <- coll
       .find($doc(F.userId -> token.userId, F.clientOrigin -> token.clientOrigin), $doc(F.id -> true).some)
       .sort($doc(F.usedAt -> -1, F.created -> -1))
       .skip(30)
-      .cursor[Bdoc]()
+      .cursor[Bdoc](ReadPref.sec)
       .listAll()
-      .dmap:
-        _.flatMap { _.getAsOpt[AccessTokenId](F.id) }
+    oldIds = oldDocs.flatMap { _.getAsOpt[AccessTokenId](F.id) }
     _ <- oldIds.nonEmpty.so:
       coll.delete.one($doc(F.id.$in(oldIds))).void
     _ <- coll.insert.one(token)
-  yield token
+  yield
+    lila.common.Bus.pub(AccessToken.Create(token))
+    token
 
   def create(setup: OAuthTokenForm.Data, isStudent: Boolean)(using me: MyId, ua: UserAgent): Fu[AccessToken] =
     for
@@ -177,7 +177,7 @@ final class AccessTokenApi(
       .cursor[AccessToken]()
       .documentSource()
       .mapAsyncUnordered(4)(token => revokeById(token.id)(using userId.into(MyId)))
-      .runWith(Sink.ignore)
+      .run()
       .void
 
   def revokeByClientOrigin(clientOrigin: String)(using me: MyId): Funit =
@@ -191,8 +191,11 @@ final class AccessTokenApi(
       .cursor[AccessToken]()
       .documentSource()
       .mapAsyncUnordered(4)(token => revokeById(token.id))
-      .runWith(Sink.ignore)
+      .run()
       .void
+
+  def userIdsByClientOrigin(clientOrigin: String): Fu[Set[UserId]] =
+    coll.distinctEasy[UserId, Set]("userId", $doc(F.clientOrigin -> clientOrigin), _.sec)
 
   def revoke(bearer: Bearer) =
     val id = AccessToken.idFrom(bearer)

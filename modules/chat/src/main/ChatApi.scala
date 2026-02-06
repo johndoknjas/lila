@@ -2,11 +2,10 @@ package lila.chat
 
 import lila.common.Bus
 import lila.common.String.{ fullCleanUp, noShouting }
-import lila.core.chat.{ OnReinstate, OnTimeout }
+import lila.core.chat.{ PublicSource, OnReinstate, OnTimeout }
 import lila.core.config.NetDomain
 import lila.core.perm.Granter
 import lila.core.security.{ FloodApi, FloodSource, SpamApi }
-import lila.core.shutup.PublicSource
 import lila.db.dsl.{ *, given }
 import lila.memo.CacheApi.*
 
@@ -102,7 +101,7 @@ final class ChatApi(
       x == "last" || x == "first" || x == "second" || x == "third"
     } || {
       val x = text.filter(_.isLetterOrDigit).toLowerCase
-      x == "1st" || x == "1" || x == "2nd" || x == "2"
+      x == "1st" || x == "1ts" || x == "1" || x == "2nd" || x == "2"
     }
 
     private def linkCheck(line: UserLine, source: Option[PublicSource]) =

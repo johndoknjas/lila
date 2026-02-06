@@ -185,12 +185,14 @@ object mon:
     val index = future("insight.index.time")
   object tutor:
     def buildSegment(segment: String) = future("tutor.build.segment", segment)
-    def buildFull = future("tutor.build.full")
-    def askMine = askAs("mine")
-    def askPeer = askAs("peer")
-    def buildTimeout = counter("tutor.build.timeout").withoutTags()
-    def peerMatch(hit: Boolean) = counter("tutor.peerMatch").withTag("hit", hitTag(hit))
-    def parallelism = gauge("tutor.build.parallelism").withoutTags()
+    val buildFull = future("tutor.build.full")
+    val askMine = askAs("mine")
+    val askPeer = askAs("peer")
+    val buildTimeout = counter("tutor.build.timeout").withoutTags()
+    def peerMatch(hit: Boolean, perf: PerfKey) = counter("tutor.peerMatch").withTags:
+      tags("hit" -> hitTag(hit), "perf" -> perf)
+    val parallelism = gauge("tutor.build.parallelism").withoutTags()
+    val fishnetMissing = histogram("tutor.fishnet.missing").withoutTags()
     private def askAs(as: "mine" | "peer")(question: String, perf: PerfKey | "all") =
       future("tutor.insight.ask", tags("question" -> question, "perf" -> perf, "as" -> as))
   object search:
@@ -368,11 +370,10 @@ object mon:
       val epoch = gauge("security.geoip.epoch").withoutTags()
       val loadTime = gauge("security.geoip.loadTime").withoutTags()
     object login:
-      def attempt(byEmail: Boolean, stuffing: String, pwned: Boolean, result: Boolean) =
+      def attempt(byEmail: Boolean, pwned: Boolean, result: Boolean) =
         counter("security.login.attempt").withTags:
           tags(
             "by" -> (if byEmail then "email" else "name"),
-            "stuffing" -> stuffing,
             "pwned" -> pwned,
             "result" -> result
           )
@@ -390,9 +391,9 @@ object mon:
       def candidates(channel: String) = histogram("tv.selector.candidates").withTag("channel", channel)
       def cheats(channel: String) = histogram("tv.selector.cheats").withTag("channel", channel)
       def rating(channel: String) = histogram("tv.selector.rating").withTag("channel", channel)
-    object streamer:
-      def present(n: String) = gauge("tv.streamer.present").withTag("name", n.escape)
-      def twitch = future("tv.streamer.twitch")
+  object streamer:
+    def online = gauge("tv.streamer.count").withoutTags()
+    def present(n: String) = gauge("tv.streamer.present").withTag("name", n.escape)
   object relation:
     private val c = counter("relation.action")
     val follow = c.withTag("type", "follow")
@@ -401,11 +402,11 @@ object mon:
     val unblock = c.withTag("type", "unblock")
   object clas:
     object student:
-      def create(teacher: String) = counter("clas.student.create").withTag("teacher", teacher)
-      def invite(teacher: String) = counter("clas.student.invite").withTag("teacher", teacher)
-      object bloomFilter:
-        val count = gauge("clas.student.bloomFilter.count").withoutTags()
-        val fu = future("clas.student.bloomFilter.future")
+      def create(teacher: UserId) = counter("clas.student.create").withTag("teacher", teacher)
+      def invite(teacher: UserId) = counter("clas.student.invite").withTag("teacher", teacher)
+    final class bloomFilter(name: String):
+      def count = gauge(s"clas.${name}.bloomFilter.count").withoutTags()
+      def fu = future(s"clas.${name}.bloomFilter.future")
   object tournament:
     object pairing:
       val batchSize = histogram("tournament.pairing.batchSize").withoutTags()
@@ -465,6 +466,9 @@ object mon:
     val percent = gauge("plan.percent").withoutTags()
     def webhook(service: String, tpe: String) =
       counter("plan.webhook").withTags(tags("service" -> service, "tpe" -> tpe))
+    def intent(service: String, currency: java.util.Currency, coverFees: Boolean) =
+      counter("plan.intent").withTags:
+        tags("service" -> service, "currency" -> currency.getCurrencyCode, "coverFees" -> coverFees)
     object charge:
       def first(service: String) = counter("plan.charge.first").withTag("service", service)
       def countryCents(country: String, currency: java.util.Currency, service: String, gift: Boolean) =
@@ -565,7 +569,7 @@ object mon:
       counter("game.finish").withTags:
         tags(
           "variant" -> variant.key,
-          "speed" -> speed,
+          "speed" -> speed.key,
           "source" -> source.fold("unknown")(_.name),
           "mode" -> mode.name,
           "status" -> status.name
@@ -577,6 +581,9 @@ object mon:
       def decode(format: String) = timer("game.pgn.decode").withTag("format", format)
     val idCollision = counter("game.idCollision").withoutTags()
     def idGenerator(collisions: Int) = timer("game.idGenerator").withTags(tags("collisions" -> collisions))
+    object streamByOauthOrigin:
+      def event(tpe: String) = counter("game.streamByOauthOrigin.event").withTag("type", tpe)
+      def users(sel: String) = gauge("game.streamByOauthOrigin.users").withTag("selector", sel)
   object chat:
     private val msgCounter = counter("chat.message")
     def message(parent: String, troll: Boolean) =
@@ -586,6 +593,8 @@ object mon:
     object register:
       def in(platform: String) = counter("push.register").withTag("platform", platform)
       val out = counter("push.register.out").withoutTags()
+    object web:
+      def post = future("push.web.post")
     object send:
       private def send(tpe: String)(platform: String, success: Boolean, count: Int): Unit =
         counter("push.send")
@@ -659,6 +668,8 @@ object mon:
         tags("variant" -> variant.key, "hit" -> hitTag(hit))
   object opening:
     def searchTime = timer("opening.search.time").withoutTags()
+    object explorer:
+      def stats = future("opening.explorer.stats")
   object study:
     object tree:
       val read = timer("study.tree.read").withoutTags()
@@ -706,7 +717,6 @@ object mon:
     val time = future("fide.sync.time")
     val players = gauge("fide.sync.players").withoutTags()
     val updated = gauge("fide.sync.updated").withoutTags()
-    val deleted = gauge("fide.sync.deleted").withoutTags()
   object link:
     def external(tag: String, auth: Boolean) = counter("link.external").withTags:
       tags("tag" -> tag.escape, "auth" -> auth)

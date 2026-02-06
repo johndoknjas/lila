@@ -25,23 +25,23 @@ final class RelayCardUi(helpers: Helpers, ui: RelayUi):
 
   def render[A <: RelayRound.AndTourAndGroup](
       tr: A,
-      live: A => Boolean,
+      live: Boolean,
       crowd: Crowd,
       alt: Option[RelayRound.WithTour] = None,
       errors: List[String] = Nil
   )(using Context) =
-    link(tr.tour, tr.path, live(tr))(
+    link(tr.tour, tr.path, live)(
       image(tr.tour),
       span(cls := "relay-card__body")(
         span(cls := "relay-card__info")(
           tr.tour.active.option:
             span(cls := "relay-card__round")(
-              tr.display.name,
+              tr.display.name.translate,
               (tr.group, alt).mapN: (group, alt) =>
-                frag(" & ", group.shortTourName(alt.tour.name))
+                frag(" & ", group.shortTourName(alt.tour.name).translate)
             )
           ,
-          if live(tr)
+          if live
           then
             span(cls := "relay-card__live")(
               "LIVE",
@@ -50,7 +50,7 @@ final class RelayCardUi(helpers: Helpers, ui: RelayUi):
                 .map: nb =>
                   span(cls := "relay-card__crowd text", dataIcon := Icon.User)(nb.localize)
             )
-          else tr.display.startedAt.orElse(tr.display.startsAtTime).map(momentFromNow)
+          else tr.display.startedAt.orElse(tr.display.startsAtTime).map(momentFromNow(_))
         ),
         h3(cls := "relay-card__title")(tr.group.fold(tr.tour.name.value)(_.value)),
         if errors.nonEmpty
@@ -88,12 +88,12 @@ final class RelayCardUi(helpers: Helpers, ui: RelayUi):
       span(cls := "relay-card__info")(
         t.dates.map: dates =>
           span(showDate(dates.start)),
-        if ~t.live then span(cls := "relay-card__live", dataIcon := Icon.Disc)("LIVE")
+        if ~t.live then span(cls := "relay-card__live text", dataIcon := Icon.Disc)("LIVE")
         else if !t.active then
-          span(cls := "relay-card__finished", dataIcon := Icon.Checkmark)(trans.site.finished())
+          span(cls := "relay-card__finished text", dataIcon := Icon.Checkmark)(trans.site.finished())
         else emptyFrag
       ),
-      h3(cls := "relay-card__title")(name),
+      h3(cls := "relay-card__title")(name.translate),
       truncatedPlayers(t)
     )
   )

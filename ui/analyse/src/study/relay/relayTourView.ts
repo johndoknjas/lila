@@ -1,7 +1,7 @@
 import type AnalyseCtrl from '@/ctrl';
 import RelayCtrl, { type RelayTab } from './relayCtrl';
 import * as licon from 'lib/licon';
-import { bind, dataIcon, onInsert, hl, type LooseVNode } from 'lib/view';
+import { bind, dataIcon, onInsert, hl, type LooseVNode, cmnToggleWrap, copyMeInput } from 'lib/view';
 import type { VNode } from 'snabbdom';
 import { innerHTML, richHTML } from 'lib/richText';
 import type {
@@ -15,7 +15,6 @@ import type {
 import { view as multiBoardView } from '../multiBoard';
 import { defined, memoize } from 'lib';
 import type StudyCtrl from '../studyCtrl';
-import { toggle, copyMeInput } from 'lib/view';
 import { text as xhrText } from 'lib/xhr';
 import { teamsView } from './relayTeams';
 import { statsView } from './relayStats';
@@ -27,7 +26,7 @@ import { gameLinksListener } from '../studyChapters';
 import { baseUrl } from '@/view/util';
 import { commonDateFormat, timeago } from 'lib/i18n';
 import { renderChat } from 'lib/chat/renderChat';
-import { displayColumns, isTouchDevice } from 'lib/device';
+import { displayColumns } from 'lib/device';
 import { verticalResize } from 'lib/view/verticalResize';
 import { watchers } from 'lib/view/watchers';
 import { userLink } from 'lib/view/userLink';
@@ -40,11 +39,13 @@ export function renderRelayTour(ctx: RelayViewContext): VNode | undefined {
       ? games(ctx)
       : tab === 'teams'
         ? teams(ctx)
-        : tab === 'stats'
-          ? stats(ctx)
-          : tab === 'players'
-            ? players(ctx)
-            : overview(ctx);
+        : tab === 'team-results'
+          ? teamResults(ctx)
+          : tab === 'stats'
+            ? stats(ctx)
+            : tab === 'players'
+              ? players(ctx)
+              : overview(ctx);
 
   return hl('div.box.relay-tour', content);
 }
@@ -53,10 +54,7 @@ export const tourSide = (ctx: RelayViewContext, kid: LooseVNode) => {
   const { ctrl, study, relay } = ctx;
   const empty = study.chapters.list.looksNew();
   const resizeId =
-    !ctrl.isEmbed &&
-    !isTouchDevice() &&
-    displayColumns() > (ctx.hasRelayTour ? 1 : 2) &&
-    `relayTour/${relay.data.tour.id}`;
+    !ctrl.isEmbed && displayColumns() > (ctx.hasRelayTour ? 1 : 2) && `relayTour/${relay.data.tour.id}`;
   return hl(
     'aside.relay-tour__side',
     {
@@ -106,8 +104,8 @@ export const tourSide = (ctx: RelayViewContext, kid: LooseVNode) => {
         resizeId &&
         verticalResize({
           key: `relay-games.${resizeId}`,
-          min: () => 48,
-          max: () => 48 * study.chapters.list.size(),
+          min: () => 50, // Height of one .relay-game in _tour.scss
+          max: () => 50 * study.chapters.list.size(),
           initialMaxHeight: () => window.innerHeight / 2,
         }),
       ctx.ctrl.chatCtrl && renderChat(ctx.ctrl.chatCtrl),
@@ -139,7 +137,7 @@ const startCountdown = (relay: RelayCtrl) => {
   ]);
 };
 
-const players = (ctx: RelayViewContext) => [header(ctx), playersView(ctx.relay.players, ctx.relay.data.tour)];
+const players = (ctx: RelayViewContext) => [header(ctx), playersView(ctx.relay.players)];
 
 export const showInfo = (i: RelayTourInfo, dates?: RelayTourDates) => {
   const contents = [
@@ -203,9 +201,10 @@ const overview = (ctx: RelayViewContext) => {
   ];
 };
 
+export const relayIframe = (path: string) =>
+  `<iframe src="${baseUrl()}/embed${path}" style="width: 100%; aspect-ratio: 4/3;" frameborder="0"></iframe>`;
+
 const share = (ctx: RelayViewContext) => {
-  const iframe = (path: string) =>
-    `<iframe src="${baseUrl()}/embed${path}" style="width: 100%; aspect-ratio: 4/3;" frameborder="0"></iframe>`;
   const iframeHelp = hl(
     'div.form-help',
     i18n.broadcast.iframeHelp.asArray(
@@ -240,7 +239,7 @@ const share = (ctx: RelayViewContext) => {
           'To synchronize ongoing games, use ',
           hl(
             'a',
-            { attrs: { href: '/api#tag/Broadcasts/operation/broadcastStreamRoundPgn' } },
+            { attrs: { href: '/api#tag/broadcasts/get/apistreambroadcastroundbroadcastroundidpgn' } },
             'our free streaming API',
           ),
           ' for stupendous speed and efficiency.',
@@ -264,9 +263,9 @@ const share = (ctx: RelayViewContext) => {
       hl('fieldset.relay-tour__share.toggle-box.toggle-box--toggle.toggle-box--toggle-off', [
         hl('legend', i18n.broadcast.embedThisBroadcast),
         group &&
-          link('Follow ongoing tournament', iframe(`/broadcast/${group.slug}/${group.id}`), iframeHelp),
-        link('This tournament: ' + tour.name, iframe(ctx.relay.tourPath()), iframeHelp),
-        link('This round: ' + roundName, iframe(ctx.relay.roundPath()), iframeHelp),
+          link('Follow ongoing tournament', relayIframe(`/broadcast/${group.slug}/${group.id}`), iframeHelp),
+        link('This tournament: ' + tour.name, relayIframe(ctx.relay.tourPath()), iframeHelp),
+        link('This round: ' + roundName, relayIframe(ctx.relay.roundPath()), iframeHelp),
       ]),
     ],
   );
@@ -382,7 +381,7 @@ const roundSelect = (relay: RelayCtrl, study: StudyCtrl) => {
                         ? commonDateFormat(new Date(round.startsAt))
                         : round.startsAfterPrevious &&
                             i18n.broadcast.startsAfter(
-                              relay.data.rounds[i - 1]?.name || 'the previous round',
+                              relay.data.rounds[i - 1] ? relay.data.rounds[i - 1].name : 'the previous round',
                             ),
                     ),
                     hl(
@@ -422,6 +421,11 @@ const teams = (ctx: RelayViewContext) => [
   ctx.relay.teams && teamsView(ctx.relay.teams, ctx.study.chapters.list, ctx.relay.players),
 ];
 
+const teamResults = (ctx: RelayViewContext) => [
+  header(ctx),
+  ctx.relay.teams && ctx.relay.teamLeaderboard.view(),
+];
+
 const stats = (ctx: RelayViewContext) => [header(ctx), statsView(ctx.relay.stats)];
 
 const renderNote = (title: VNode, desc?: VNode) => hl('div.relay-tour__note', hl('div', [title, desc]));
@@ -447,7 +451,15 @@ const header = (ctx: RelayViewContext) => {
     d.tour.communityOwner &&
       renderNote(
         hl('div', i18n.broadcast.communityBroadcast),
-        hl('small', i18n.broadcast.createdAndManagedBy.asArray(userLink(d.tour.communityOwner))),
+        hl(
+          'small',
+          i18n.broadcast.createdAndManagedBy.asArray(
+            userLink({
+              ...d.tour.communityOwner,
+              flair: undefined,
+            }),
+          ),
+        ),
       ),
     d.note &&
       renderNote(
@@ -473,21 +485,17 @@ const delayedUntil = (ctx: RelayViewContext) => {
 const subscribe = (relay: RelayCtrl, ctrl: AnalyseCtrl) =>
   defined(relay.data.isSubscribed)
     ? [
-        toggle(
-          {
-            name: i18n.site.subscribe,
-            id: 'tour-subscribe',
-            title: i18n.broadcast.subscribeTitle,
-            cls: 'relay-tour__subscribe',
-            checked: relay.data.isSubscribed,
-            change: (v: boolean) => {
-              xhrText(`/broadcast/${relay.data.tour.id}/subscribe?set=${v}`, { method: 'post' });
-              relay.data.isSubscribed = v;
-              ctrl.redraw();
-            },
+        cmnToggleWrap({
+          id: 'tour-subscribe',
+          name: i18n.site.subscribe,
+          title: i18n.broadcast.subscribeTitle,
+          checked: relay.data.isSubscribed,
+          change(v) {
+            xhrText(`/broadcast/${relay.data.tour.id}/subscribe?set=${v}`, { method: 'post' });
+            relay.data.isSubscribed = v;
           },
-          ctrl.redraw,
-        ),
+          redraw: ctrl.redraw,
+        }),
       ]
     : [];
 
@@ -511,6 +519,7 @@ const makeTabs = (ctrl: AnalyseCtrl) => {
     makeTab('boards', i18n.broadcast.boards),
     makeTab('players', i18n.site.players),
     relay.teams && makeTab('teams', i18n.broadcast.teams),
+    relay.data.tour.showTeamScores && makeTab('team-results', 'Team Results'),
     study.members.myMember() && !!relay.data.tour.tier
       ? makeTab('stats', i18n.site.stats)
       : ctrl.isEmbed &&
@@ -548,7 +557,7 @@ const broadcastImageOrStream = (ctx: RelayViewContext) => {
     embedVideo
       ? relay.videoPlayer?.render()
       : d.tour.image
-        ? hl('img', { attrs: { src: d.tour.image } })
+        ? hl('img', { attrs: { src: d.tour.image, alt: '' } })
         : ctx.study.members.isOwner()
           ? hl(
               'a.button.relay-tour__header__image-upload',

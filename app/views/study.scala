@@ -6,7 +6,7 @@ import play.api.libs.json.Json
 import lila.app.UiEnv.{ *, given }
 import lila.common.Json.given
 import lila.core.socket.SocketVersion
-import lila.core.study.{ IdName, Order }
+import lila.core.study.{ IdName, StudyOrder }
 
 lazy val bits = lila.study.ui.StudyBits(helpers)
 lazy val ui = lila.study.ui.StudyUi(helpers)
@@ -15,7 +15,7 @@ lazy val list = lila.study.ui.ListUi(helpers, bits)
 def staffPicks(p: lila.cms.CmsPage.Render)(using Context) =
   Page(p.title).css("analyse.study.index", "bits.page"):
     main(cls := "page-menu")(
-      list.menu("staffPicks", Order.mine, Nil),
+      list.menu("staffPicks", StudyOrder.mine, Nil),
       main(cls := "page-menu__content box box-pad page"):
         views.cms.pageContent(p)
     )
@@ -51,8 +51,10 @@ def show(
   Page(s.name.value)
     .css("analyse.study")
     .css(ctx.pref.hasKeyboardMove.option("keyboardMove"))
-    .i18n(_.puzzle, _.study)
-    .i18nOpt(ctx.pref.hasSpeech || ctx.blind, _.nvui)
+    .css(ctx.blind.option("round.nvui"))
+    .i18n(_.study)
+    .i18n(_.variant)
+    .i18nOpt(ctx.speechSynthesis, _.nvui)
     .i18nOpt(ctx.blind, _.keyboardMove)
     .js(analyseNvuiTag)
     .js(
@@ -73,7 +75,7 @@ def show(
               timeout = c.timeout,
               writeable = ctx.userId.exists(s.canChat),
               public = true,
-              resourceId = lila.chat.Chat.ResourceId(s"study/${c.chat.id}"),
+              resource = lila.core.chat.PublicSource.Study(s.id),
               voiceChat = ctx.userId.exists(s.isMember),
               localMod = ctx.userId.exists(s.canContribute)
             ),

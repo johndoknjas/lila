@@ -1,4 +1,4 @@
-/* eslint no-restricted-syntax:"error" */ // no side effects allowed due to re-export by index.ts
+// no side effects allowed due to re-export by index.ts
 
 export const defined = <T>(value: T | undefined): value is T => value !== undefined;
 
@@ -132,6 +132,10 @@ export function escapeHtml(str: string): string {
 export function frag<T extends Node = Node>(html: string): T {
   const fragment = document.createRange().createContextualFragment(html);
   return (fragment.childElementCount === 1 ? fragment.firstElementChild : fragment) as unknown as T;
+}
+
+export function scopedQuery(scope: Element): <T extends Element = HTMLElement>(sel: string) => T | null {
+  return <T extends Element = HTMLElement>(sel: string) => scope.querySelector<T>(sel);
 }
 
 // The username with all characters lowercase

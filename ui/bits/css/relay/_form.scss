@@ -69,6 +69,11 @@
   @extend %image-preview-and-upload;
 }
 
+.relay-name-help {
+  margin-top: 1em;
+  display: block;
+}
+
 @include mq-subnav-side {
   .relay-form__subnav__group {
     display: block;
@@ -77,8 +82,9 @@
     color: $c-font-dimmer;
   }
   .relay-form__subnav__tour-parent {
+    border-radius: $box-radius-size;
     background: $c-bg-box;
-    border-radius: $box-radius-size 0 0 $box-radius-size;
+    margin-bottom: 5px;
   }
   .subnav {
     width: 30ch;

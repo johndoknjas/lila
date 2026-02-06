@@ -28,11 +28,13 @@ public/font/lichess.chess.{sfd,woff,woff2} | the [pgn4web](http://pgn4web.casasc
 Noto Sans in public/font | [Google](https://fonts.google.com/specimen/Noto+Sans) | [Apache 2.0](https://www.apache.org/licenses/LICENSE-2.0)
 Roboto in public/font | [Christian Robertson](https://fonts.google.com/specimen/Roboto) | [Apache 2.0](https://www.apache.org/licenses/LICENSE-2.0)
 Segment7 in public/font | [Cedders](https://www.fontspace.com/cedders) | [SIL Open Font License](https://www.fontspace.com/help#license-17)
-public/piece/horsey, public/images/emoji/horsey.png | cham, michael1241 | [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/)
+public/piece/horsey, public/images/emoji/horsey.webp | cham, michael1241 | [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/)
 public/images/staunton | [James Clarke](https://github.com/clarkerubber/Staunton-Pieces) | [MIT](https://github.com/clarkerubber/Staunton-Pieces/blob/master/LICENSE)
 public/images/staunton/piece/CubesAndPi | CubesAndPi | AGPLv3+
 public/images/trophy | [James Clarke](https://github.com/clarkerubber/Staunton-Pieces/tree/master/Trophies) | [MIT](https://github.com/clarkerubber/Staunton-Pieces/blob/master/LICENSE)
 public/flags | [Go Squared Ltd.](https://www.gosquared.com/resources/flag-icons/) | [MIT](https://github.com/gosquared/flags/blob/master/LICENSE.txt)
+public/flags/ES-AN.png | [Miguillen](https://commons.wikimedia.org/wiki/User:Miguillen) | [CC-BY-SA 4.0](https://commons.wikimedia.org/wiki/File:Flag_of_Andaluc%C3%ADa.svg)
+public/flags/PT-30.png | [Brian Boru](https://commons.wikimedia.org/wiki/User:Brian_Boru), [Nuno Tavares](https://commons.wikimedia.org/wiki/User:Nuno_Tavares) | [CC-BY-SA 1.0](https://commons.wikimedia.org/wiki/File:Flag_of_Madeira.svg)
 public/images/board | the lila authors and [pirouetti](https://lichess.org/@/pirouetti) | AGPLv3+
 public/images/learn/pieces | Thibault Duplessis and [Colin M.L. Burnett](https://en.wikipedia.org/wiki/User:Cburnett) | [GPLv2+](https://www.gnu.org/licenses/gpl-2.0.txt)
 public/piece/mono | Thibault Duplessis and [Colin M.L. Burnett](https://en.wikipedia.org/wiki/User:Cburnett) | [GPLv2+](https://www.gnu.org/licenses/gpl-2.0.txt)
@@ -72,6 +74,8 @@ public/sounds/sfx | [Enigmahack](https://github.com/Enigmahack) | AGPLv3+
 public/sounds/lisp | [EdinburghCollective](http://lichess.org/@/EdinburghCollective) | [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/)
 SVG in ui/learn/src/apple.ts | [Sensa](https://www.svgrepo.com/svg/434273/star) | [CC0 1.0](https://creativecommons.org/publicdomain/zero/1.0/deed.en)
 public/flair/img/symbols.neovim-mark.webp | Jason Long | [CC BY 3.0](https://creativecommons.org/licenses/by/3.0/) (Modified by converting to webp and resizing)
+public/images/practice/* [game-icons.net](https://game-icons.net/about.html) [CC BY 3.0](http://creativecommons.org/licenses/by/3.0/)
+public/images/puzzle-themes/* [game-icons.net](https://game-icons.net/about.html) [CC BY 3.0](http://creativecommons.org/licenses/by/3.0/)
 translation/source/puzzleTheme.xml | the lila authors and contributors | [CC0 1.0](https://creativecommons.org/publicdomain/zero/1.0/)
 ## Exceptions (non-free)
 
@@ -86,6 +90,7 @@ public/piece/leipzig | Armando Hernandez Marroquin | ["freeware"](http://www.enp
 public/piece/reillycraig | [Reilly Craig](https://instagram.com/fader_) |
 public/piece/riohacha | |
 public/images/staunton/piece/Staunton | [Eden Murs](https://userstyles.org/styles/134558/lichess-pieces-3d-staunton) (?) |
+public/piece/shahi-ivory-brown | Tamer Karatekin | Free for personal and commercial use, but non-derivative non-modify license (Şahî Chess & Shatranj Font License v1.0 – https://github.com/TamerKaratekin/shahi-chess-shatranj-font/blob/main/LICENSE.txt)
 
 - The other sounds in public/sound
 - The other artwork in public/images

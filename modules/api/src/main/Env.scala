@@ -45,6 +45,7 @@ final class Env(
     appealApi: lila.appeal.AppealApi,
     shutupEnv: lila.shutup.Env,
     titleEnv: lila.title.Env,
+    fideEnv: lila.fide.Env,
     modLogApi: lila.mod.ModlogApi,
     activityWriteApi: lila.activity.ActivityWriteApi,
     ublogApi: lila.ublog.UblogApi,
@@ -56,7 +57,8 @@ final class Env(
     tv: lila.tv.Tv,
     activityRead: lila.activity.ActivityReadApi,
     activityJson: lila.activity.JsonView,
-    webMobile: lila.web.Mobile
+    webMobile: lila.web.Mobile,
+    clasApi: lila.clas.ClasApi
 )(using scheduler: Scheduler)(using
     Mode,
     Executor,
@@ -95,6 +97,10 @@ final class Env(
   lazy val cli = wire[Cli]
 
   lazy val mobile = wire[MobileApi]
+
+  lazy val clas = wire[ClasApi]
+
+  lazy val gameStreamByOauthOrigin = wire[GameStreamByOauthOrigin]
 
   private lazy val linkCheck = wire[LinkCheck]
   lazy val chatFreshness = wire[ChatFreshness]

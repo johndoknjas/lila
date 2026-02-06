@@ -1,6 +1,6 @@
 import type { VNode } from 'snabbdom';
 import * as licon from 'lib/licon';
-import { numberFormat } from 'lib/i18n';
+import { displayLocale, numberFormat } from 'lib/i18n';
 import perfIcons from 'lib/game/perfIcons';
 import { bind, dataIcon, type MaybeVNode, type LooseVNodes, hl } from 'lib/view';
 import { view as renderConfig } from './explorerConfig';
@@ -68,13 +68,16 @@ function showMoveTable(ctrl: AnalyseCtrl, data: OpeningData): VNode | null {
             move.san,
           ),
           hl('td', ((total / sumTotal) * 100).toFixed(0) + '%'),
-          hl('td', numberFormat(total)),
+          hl('td', bigNumberFormatter ? bigNumberFormatter.format(total) : numberFormat(total)),
           hl('td', { attrs: { title: moveStatsTooltip(ctrl, move) } }, resultBar(move)),
         ]);
       }),
     ),
   ]);
 }
+
+const bigNumberFormatter =
+  window.Intl && Intl.NumberFormat ? new Intl.NumberFormat(displayLocale, { notation: 'compact' }) : null;
 
 function moveStatsTooltip(ctrl: AnalyseCtrl, move: OpeningMoveStats): string {
   if (!move.uci) return 'Total';
@@ -326,7 +329,7 @@ const explorerTitle = (explorer: ExplorerCtrl) => {
       nodes,
     );
   const playerName = explorer.config.data.playerName.value();
-  const masterDbExplanation = i18n.site.masterDbExplanation(2200, '1952', '2024-08'),
+  const masterDbExplanation = i18n.site.masterDbExplanation(2200, '1952', '2026-01'),
     lichessDbExplanation = i18n.site.lichessDbExplanation;
   const data = explorer.current();
   const queuePosition = data && isOpening(data) && data.queuePosition;

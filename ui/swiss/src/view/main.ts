@@ -1,6 +1,15 @@
 import * as licon from 'lib/licon';
-import { spinnerVdom, initMiniGames, prompt } from 'lib/view';
-import { type VNode, dataIcon, bind, onInsert, type LooseVNodes, hl } from 'lib/view';
+import {
+  spinnerVdom,
+  initMiniGames,
+  prompt,
+  type VNode,
+  dataIcon,
+  bind,
+  onInsert,
+  type LooseVNodes,
+  hl,
+} from 'lib/view';
 import { numberRow } from 'lib/view/util';
 import type SwissCtrl from '../ctrl';
 import { players, renderPager } from '../pagination';
@@ -151,7 +160,7 @@ function joinButton(ctrl: SwissCtrl): VNode | undefined {
           i18n.site.join,
         );
 
-  if (d.me && d.status != 'finished')
+  if (d.me && d.status !== 'finished')
     return d.me.absent
       ? ctrl.joinSpinner
         ? spinnerVdom()
@@ -249,7 +258,9 @@ function stats(ctrl: SwissCtrl) {
       hl('br'),
       hl(
         'a.text',
-        { attrs: { 'data-icon': licon.InfoCircle, href: 'https://lichess.org/api#tag/Swiss-tournaments' } },
+        {
+          attrs: { 'data-icon': licon.InfoCircle, href: '/api#tag/swiss-tournaments' },
+        },
         'Swiss API documentation',
       ),
     ]),

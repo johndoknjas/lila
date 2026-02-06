@@ -7,12 +7,13 @@ import play.api.libs.json.*
 import lila.common.Json.{ *, given }
 import lila.core.LightUser
 import lila.core.game.{ Blurs, Game, Player, Pov, Source }
+import lila.game.GameExt.{ expirable, timeForFirstMove }
 
 final class JsonView(rematches: Rematches):
 
   import JsonView.given
 
-  def base(game: Game, initialFen: Option[Fen.Full]) =
+  def immutable(game: Game, initialFen: Option[Fen.Full]) =
     Json
       .obj(
         "id" -> game.id,
@@ -20,30 +21,31 @@ final class JsonView(rematches: Rematches):
         "speed" -> game.speed.key,
         "perf" -> game.perfKey,
         "rated" -> game.rated,
-        "fen" -> Fen.write(game.chess),
-        "turns" -> game.ply,
         "source" -> game.source,
-        "status" -> game.status,
         "createdAt" -> game.createdAt
       )
       .add("startedAtTurn" -> game.chess.startedAtPly.some.filter(_ > 0))
       .add("initialFen" -> initialFen)
-      .add("threefold" -> game.history.threefoldRepetition)
-      .add("boosted" -> game.boosted)
       .add("tournamentId" -> game.tournamentId)
       .add("swissId" -> game.swissId)
+      .add("rules" -> game.metadata.nonEmptyRules)
+
+  def base(game: Game, initialFen: Option[Fen.Full]) =
+    immutable(game, initialFen) ++ Json
+      .obj(
+        "fen" -> Fen.write(game.chess).some,
+        "turns" -> game.ply,
+        "status" -> game.status
+      )
+      .add("threefold" -> game.history.threefoldRepetition)
       .add("winner" -> game.winnerColor)
       .add("rematch" -> rematches.getAcceptedId(game.id))
-      .add("rules" -> game.metadata.nonEmptyRules)
       .add("drawOffers" -> (!game.drawOffers.isEmpty).option(game.drawOffers.normalizedPlies))
 
-  // adds fields that could be computed by the client instead
+  // adds fields that should be computed by the client instead
   def baseWithChessDenorm(game: Game, initialFen: Option[Fen.Full]) =
     base(game, initialFen) ++ Json
-      .obj(
-        "player" -> game.turnColor,
-        "fen" -> Fen.write(game.chess)
-      )
+      .obj("player" -> game.turnColor)
       .add("check" -> game.position.checkSquare.map(_.key))
       .add("lastMove" -> game.lastMoveKeys)
 
@@ -101,6 +103,13 @@ final class JsonView(rematches: Rematches):
       .add("blindfold" -> p.blindfold)
 
 object JsonView:
+
+  def expiration(game: Game) =
+    game.expirable.option:
+      Json.obj(
+        "idleMillis" -> (nowMillis - game.movedAt.toMillis),
+        "millisToMove" -> game.timeForFirstMove.millis
+      )
 
   given OWrites[chess.Status] = OWrites: s =>
     Json.obj(

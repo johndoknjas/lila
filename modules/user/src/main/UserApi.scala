@@ -9,7 +9,7 @@ import lila.core.LightUser
 import lila.core.email.NormalizedEmailAddress
 import lila.core.lilaism.LilaInvalid
 import lila.core.perf.{ UserPerfs, UserWithPerfs }
-import lila.core.user.{ GameUsers, UserMark, WithEmails, WithPerf }
+import lila.core.user.{ GameUsers, UserMark, WithEmails, WithPerf, KidMode, SetKidMode }
 import lila.db.dsl.{ *, given }
 import lila.memo.CacheApi
 import lila.rating.PerfType
@@ -106,29 +106,35 @@ final class UserApi(userRepo: UserRepo, perfsRepo: UserPerfsRepo, cacheApi: Cach
     for _ <- ups.all.map(perfsRepo.updatePerfs).parallelVoid
     yield gamePlayers.cache.invalidate(ups.map(_._1.id.some).toPair -> gamePerfType)
 
-  def withPerfs[U: UserIdOf](u: U): Fu[Option[UserWithPerfs]] =
-    userRepo.coll
-      .aggregateOne(): framework =>
-        import framework.*
-        Match($id(u.id)) -> List:
-          PipelineOperator(perfsRepo.aggregate.lookup)
-      .map: docO =>
-        for
-          doc <- docO
-          user <- doc.asOpt[User]
-          perfs = perfsRepo.aggregate.readFirst(doc, user)
-        yield UserWithPerfs(user, perfs)
+  def withPerfs[U: UserIdOf](u: U): Fu[Option[UserWithPerfs]] = u.id
+    .isnt(UserId.undefined)
+    .so:
+      userRepo.coll
+        .aggregateOne(): framework =>
+          import framework.*
+          Match($id(u.id)) -> List:
+            PipelineOperator(perfsRepo.aggregate.lookup)
+        .map: docO =>
+          for
+            doc <- docO
+            user <- doc.asOpt[User]
+            perfs = perfsRepo.aggregate.readFirst(doc, user)
+          yield UserWithPerfs(user, perfs)
 
   def enabledWithPerf[U: UserIdOf](id: U, perfType: PerfType): Fu[Option[WithPerf]] =
     byIdWithPerf(id, perfType).dmap(_.filter(_.user.enabled.yes))
 
-  def listWithPerfs[U: UserIdOf](us: List[U]): Fu[List[UserWithPerfs]] =
+  def listWithPerfs[U: UserIdOf](
+      us: List[U],
+      includeClosed: Boolean,
+      fromPri: Boolean = false
+  ): Fu[List[UserWithPerfs]] =
     us.nonEmpty.so:
       val ids = us.map(_.id)
       userRepo.coll
-        .aggregateList(Int.MaxValue): framework =>
+        .aggregateList(Int.MaxValue, if fromPri then _.pri else _.sec): framework =>
           import framework.*
-          Match($inIds(ids)) -> List(
+          Match($inIds(ids) ++ includeClosed.not.so(userRepo.enabledSelect)) -> List(
             PipelineOperator(perfsRepo.aggregate.lookup),
             AddFields($sort.orderField(ids)),
             Sort(Ascending("_order"))
@@ -144,7 +150,7 @@ final class UserApi(userRepo: UserRepo, perfsRepo: UserPerfsRepo, cacheApi: Cach
     userRepo.byId(id).flatMapz(perfsRepo.withPerf(_, pk).dmap(some))
 
   def pairWithPerfs(userIds: ByColor[Option[UserId]]): Fu[ByColor[Option[UserWithPerfs]]] =
-    listWithPerfs(userIds.flatten).map: users =>
+    listWithPerfs(userIds.flatten, includeClosed = true, fromPri = true).map: users =>
       userIds.map(_.flatMap(id => users.find(_.id == id)))
 
   def listWithPerf[U: UserIdOf](
@@ -222,11 +228,21 @@ final class UserApi(userRepo: UserRepo, perfsRepo: UserPerfsRepo, cacheApi: Cach
         userRepo.setRoles(user.id, Nil) >>
         perfsRepo.setBotInitialPerfs(user.id)
 
+  def setKid(user: User, v: KidMode): Fu[Option[KidMode]] =
+    (user.kid != v)
+      .option:
+        for
+          _ <- userRepo.setKid(user, v)
+          _ = lila.common.Bus.pub(SetKidMode(user.copy(kid = v)))
+        yield v
+      .sequence
+
   def visibleBotsByIds(ids: Iterable[UserId]): Fu[List[UserWithPerfs]] =
     userRepo.coll
       .aggregateList(onlineBotVisible.value, _.sec): framework =>
         import framework.*
-        Match($inIds(ids) ++ userRepo.botWithBioSelect ++ userRepo.enabledSelect ++ userRepo.notLame) -> List(
+        val inIds = ids.nonEmpty.so($inIds(ids))
+        Match(inIds ++ userRepo.botWithBioSelect ++ userRepo.enabledSelect ++ userRepo.notLame) -> List(
           Sort(Descending(BSONFields.roles), Descending("time.human")),
           Limit(onlineBotVisible.value),
           PipelineOperator(perfsRepo.aggregate.lookup)
@@ -238,7 +254,7 @@ final class UserApi(userRepo: UserRepo, perfsRepo: UserPerfsRepo, cacheApi: Cach
           perfs = perfsRepo.aggregate.readFirst(doc, user)
         yield UserWithPerfs(user, perfs)
 
-  def byIdsSortRatingNoBot(ids: Iterable[UserId], nb: Int): Fu[List[UserWithPerfs]] =
+  private[user] def byIdsSortRatingNoBot(ids: Iterable[UserId], nb: Int): Fu[List[UserWithPerfs]] =
     perfsRepo.coll
       .aggregateList(nb, _.sec): framework =>
         import framework.*

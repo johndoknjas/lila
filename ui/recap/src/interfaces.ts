@@ -2,6 +2,10 @@ export interface Opts {
   recap?: Recap;
   user: LightUser;
   navigation: boolean;
+  costs?: {
+    amount: number;
+    currency: string;
+  };
 }
 
 interface NbWin {
@@ -16,10 +20,6 @@ export interface Opening {
 export interface Counted<A> {
   value: A;
   count: number;
-}
-export interface ByColor<A> {
-  white: A;
-  black: A;
 }
 export interface Sources {
   friend: number;

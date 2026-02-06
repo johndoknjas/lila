@@ -123,22 +123,20 @@ final class ModUi(helpers: Helpers):
                     .map: perm =>
                       val id = s"permission-${perm.dbKey}"
                       div(
-                        cls := Granter.of(perm)(u).option("granted"),
+                        cls := List("form-check__container" -> true, "granted" -> Granter.of(perm)(u)),
                         title := Granter
                           .of(perm)(u)
                           .so:
                             findGranterPackage(Permission(u), perm).map: p =>
                               s"Granted by package: $p"
                       )(
-                        span(
-                          form3.cmnToggle(
-                            id,
-                            "permissions[]",
-                            checked = u.roles.contains(perm.dbKey),
-                            value = perm.dbKey
-                          )
+                        form3.nativeCheckbox(
+                          id,
+                          "permissions[]",
+                          checked = u.roles.contains(perm.dbKey),
+                          value = perm.dbKey
                         ),
-                        label(`for` := id)(perm.name)
+                        label(`for` := id, cls := "form-label")(perm.name)
                       )
                 )
           ),
@@ -330,6 +328,8 @@ final class ModUi(helpers: Helpers):
       Granter(_.Admin).option(a(cls := itemCls(active, "mods"), href := routes.Mod.table)("Mods")),
       Granter(_.Presets)
         .option(a(cls := itemCls(active, "presets"), href := routes.Mod.presets("PM"))("Msg presets")),
+      Granter(_.IpTiers)
+        .option(a(cls := itemCls(active, "ip-tiers"), href := routes.Dev.ipTiers)("IP limit tiers")),
       Granter(_.Settings)
         .option(a(cls := itemCls(active, "setting"), href := routes.Dev.settings)("Settings")),
       Granter(_.Cli).option(a(cls := itemCls(active, "cli"), href := routes.Dev.cli)("CLI"))

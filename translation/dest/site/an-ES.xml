@@ -407,7 +407,6 @@
   <string name="pasteTheFenStringHere">Apega lo texto FEN aquí</string>
   <string name="pasteThePgnStringHere">Apega lo texto PGN aquí</string>
   <string name="orUploadPgnFile">U penchar un fichero PGN</string>
-  <string name="fromPosition">Dende posición</string>
   <string name="continueFromHere">Continar dende aquí</string>
   <string name="toStudy">Estudiar</string>
   <string name="importGame">Importar partida</string>
@@ -454,10 +453,6 @@
   <string name="player">Chugador</string>
   <string name="list">Lista</string>
   <string name="graph">Grafico</string>
-  <plurals name="lessThanNbMinutes">
-    <item quantity="one">Menos de %s minuto</item>
-    <item quantity="other">Menos de %s minutos</item>
-  </plurals>
   <string name="required">Obligatorio.</string>
   <string name="openTournaments">Torneyos ubiertos</string>
   <string name="duration">Duración</string>

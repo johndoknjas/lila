@@ -7,9 +7,8 @@ import java.time.ZoneId
 import scalalib.model.Language
 import lila.memo.{ Dimensions, PicfitUrl }
 import lila.core.id.ImageId
-import lila.core.fide.FideTC
 import lila.core.study.Visibility
-import chess.TournamentClock
+import chess.{ FideTC, TournamentClock }
 import chess.tiebreak.Tiebreak
 
 case class RelayTour(
@@ -31,10 +30,12 @@ case class RelayTour(
     teamTable: Boolean = false,
     players: Option[RelayPlayersTextarea] = None,
     teams: Option[RelayTeamsTextarea] = None,
+    showTeamScores: Boolean = false,
     image: Option[ImageId] = None,
     dates: Option[RelayTour.Dates] = None, // denormalized from round dates
     pinnedStream: Option[RelayPinnedStream] = None,
-    note: Option[String] = None
+    note: Option[String] = None,
+    orphanWarn: Boolean = true
 ):
   def slug = name.toSlug
 
@@ -55,7 +56,7 @@ case class RelayTour(
           else ownerIds.filterNot(_ == UserId.broadcaster).toNel | ownerIds
       )
 
-  def path = routes.RelayTour.show(slug, id).url
+  def call = routes.RelayTour.show(slug, id)
 
   def tierIs(selector: RelayTour.Tier.Selector) = tier.has(selector(RelayTour.Tier))
 
@@ -71,6 +72,7 @@ object RelayTour:
   opaque type Name = String
   object Name extends OpaqueString[Name]:
     extension (name: Name)
+      def translate(using lila.core.i18n.Translate): String = RelayI18n(name)
       def toSlug =
         val s = scalalib.StringOps.slug(name.value)
         if s.isEmpty then "-" else s
@@ -153,3 +155,5 @@ object RelayTour:
       picfitUrl.thumbnail(image)(size(thumbnail).dimensions)
 
   def makeId = RelayTourId(scalalib.ThreadLocalRandom.nextString(8))
+
+  private[relay] def tierPriority(t: RelayTour) = -t.tier.so(_.v)

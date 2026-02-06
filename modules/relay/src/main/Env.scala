@@ -3,16 +3,12 @@ package lila.relay
 import com.softwaremill.macwire.*
 import com.softwaremill.tagging.*
 import play.api.libs.ws.StandaloneWSClient
-import scalalib.paginator.Paginator
-
 import scala.util.matching.Regex
 
 import lila.core.config.*
-
 import lila.common.Bus
 import lila.memo.SettingStore
 import lila.memo.SettingStore.Formable.given
-import lila.relay.RelayTour.WithLastRound
 import lila.core.id.RelayRoundId
 
 @Module
@@ -32,10 +28,11 @@ final class Env(
     guessPlayer: lila.core.fide.GuessPlayer,
     getPlayer: lila.core.fide.GetPlayer,
     getPlayerFollowers: lila.core.fide.GetPlayerFollowers,
+    getPhotosJson: lila.core.fide.PhotosJson.Get,
     cacheApi: lila.memo.CacheApi,
     settingStore: SettingStore.Builder,
     irc: lila.core.irc.IrcApi,
-    baseUrl: BaseUrl,
+    routeUrl: RouteUrl,
     notifyApi: lila.core.notify.NotifyApi,
     picfitApi: lila.memo.PicfitApi,
     picfitUrl: lila.memo.PicfitUrl,
@@ -71,7 +68,9 @@ final class Env(
 
   lazy val markdown = wire[RelayMarkdown]
 
-  lazy val jsonView = wire[JsonView]
+  lazy val jsonView = wire[RelayJsonView]
+
+  lazy val defaults = wire[RelayDefaults]
 
   lazy val listing = wire[RelayListing]
 
@@ -87,7 +86,11 @@ final class Env(
 
   lazy val pgnStream = wire[RelayPgnStream]
 
+  lazy val groupApi = wire[RelayGroupApi]
+
   lazy val teamTable = wire[RelayTeamTable]
+
+  lazy val teamLeaderboard = wire[RelayTeamLeaderboard]
 
   lazy val playerTour = wire[RelayPlayerTour]
 
@@ -95,10 +98,7 @@ final class Env(
 
   lazy val videoEmbed = wire[lila.relay.RelayVideoEmbedStore]
 
-  def top(page: Int): Fu[(List[RelayCard], Paginator[WithLastRound])] =
-    (page == 1).so(listing.active).zip(pager.inactive(page))
-
-  val topJson = (page: Int) => (_: JsonView.Config) ?=> top(page).map(jsonView.top)
+  lazy val home = wire[lila.relay.RelayHomeApi]
 
   private lazy val sync = wire[RelaySync]
 

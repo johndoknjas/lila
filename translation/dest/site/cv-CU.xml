@@ -209,7 +209,6 @@
   <string name="leaderboard">Лидӗрсен йышӗ</string>
   <string name="pasteTheFenStringHere">FEN текстне кунта кӗрт</string>
   <string name="pasteThePgnStringHere">PGN текстне кунта кӗрт</string>
-  <string name="fromPosition">Тӑрӑмран</string>
   <string name="continueFromHere">Кунтан малалла тӑс</string>
   <string name="importGame">Вӑйӑ импортласси</string>
   <plurals name="nbImportedGames">
@@ -243,9 +242,6 @@
   <string name="player">Вӑйӑҫӑ</string>
   <string name="list">Тапӑл</string>
   <string name="graph">Графӗк</string>
-  <plurals name="lessThanNbMinutes">
-    <item quantity="other">%s минутран сахалтарах</item>
-  </plurals>
   <string name="required">Тивӗҫлӗ.</string>
   <string name="openTournaments">Уҫӑ турнирсем</string>
   <string name="duration">Вӑрӑмӑш</string>

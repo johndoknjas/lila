@@ -32,14 +32,14 @@ final class PuzzleStreakApi(colls: PuzzleColls, cacheApi: CacheApi)(using Execut
     2649 -> 21,
     2799 -> 21
   )
-  private val poolSize = buckets.map(_._2).sum
+  private val poolSize = buckets._2F.sum
   private val theme = lila.puzzle.PuzzleTheme.mix.key
 
   private val current = cacheApi.unit[Option[PuzzleStreak]]:
     _.refreshAfterWrite(30.seconds).buildAsyncTimeout(20.seconds): _ =>
       colls
         .path:
-          _.aggregateList(poolSize, _.sec): framework =>
+          _.aggregateList(poolSize): framework =>
             import framework.*
             Facet(
               buckets.map: (rating, nbPuzzles) =>

@@ -152,10 +152,11 @@ final class IrcApi(
       id: RelayRoundId,
       name: String,
       chapterId: StudyChapterId,
-      boardName: StudyChapterName
+      boardName: StudyChapterName,
+      tier: String
   ): Funit =
-    zulip(_.broadcast, "lila orphan boards"):
-      s"""Orphan board "${boardName}" in ${markdown.broadcastGameLink(id, chapterId, name)}"""
+    zulip(_.broadcast, s"orphan boards - $tier tier"):
+      s"""${markdown.broadcastGameLink(id, chapterId, name)} $boardName"""
 
   def userAppeal(user: LightUser)(using mod: LightUser.Me): Funit =
     zulip
@@ -168,6 +169,15 @@ final class IrcApi(
   def nameClosePreset(name: UserName): Funit =
     zulip(_.mod.adminGeneral, "name 48h closure"):
       s"@**remind** here in 48h to close ${markdown.userLink(name)}"
+
+  def fidePhoto(playerPath: String, picUrl: Url)(using me: Me): Funit =
+    zulip(_.content, "/fide player photos"):
+      s":camera: $playerPath by ${markdown.modLink(me.username)}\n" +
+        s"${markdown.fixImageUrl(picUrl.value)}"
+
+  def fidePhotoCredits(playerPath: String, credits: String)(using me: Me): Funit =
+    zulip(_.content, "/fide player photos"):
+      s":note: $playerPath by ${markdown.modLink(me.username)}\n> $credits"
 
   def stop(): Funit = zulip(_.general, "lila")("Lichess is restarting.")
 

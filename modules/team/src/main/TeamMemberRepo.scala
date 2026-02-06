@@ -26,8 +26,11 @@ final class TeamMemberRepo(val coll: Coll)(using Executor):
   def exists[U: UserIdOf](teamId: TeamId, user: U): Fu[Boolean] =
     coll.exists(selectId(teamId, user))
 
-  def add(teamId: TeamId, userId: UserId, perms: Set[TeamSecurity.Permission] = Set.empty): Funit =
-    coll.insert.one(TeamMember.make(team = teamId, user = userId).copy(perms = perms)).void
+  def add(teamId: TeamId, userId: UserId, perms: Set[TeamSecurity.Permission] = Set.empty): Fu[Boolean] =
+    coll.insert
+      .one(TeamMember.make(team = teamId, user = userId).copy(perms = perms))
+      .inject(true)
+      .recover(lila.db.recoverDuplicateKey(_ => false))
 
   def remove(teamId: TeamId, userId: UserId): Fu[WriteResult] =
     coll.delete.one(selectId(teamId, userId))
@@ -36,9 +39,8 @@ final class TeamMemberRepo(val coll: Coll)(using Executor):
     coll.countSel(teamQuery(teamId))
 
   private[team] def filterUserIdsInTeam[U: UserIdOf](teamId: TeamId, users: Iterable[U]): Fu[Set[UserId]] =
-    users.nonEmpty.so(
+    users.nonEmpty.so:
       coll.distinctEasy[UserId, Set]("user", $inIds(users.map { TeamMember.makeId(teamId, _) }))
-    )
 
   def isSubscribed[U: UserIdOf](team: Team, user: U): Fu[Boolean] =
     coll.exists(selectId(team.id, user) ++ $doc("unsub" -> true)).not
@@ -117,7 +119,7 @@ final class TeamMemberRepo(val coll: Coll)(using Executor):
         "_id"
       )
       .map:
-        _.flatMap(TeamMember.parseId).groupBy(_._2).view.mapValues(_.map(_._1)).toMap
+        _.flatMap(TeamMember.parseId).groupBy(_._2).view.mapValues(_._1F).toMap
       .map: grouped =>
         teams.view.map(t => Team.WithPublicLeaderIds(t, grouped.getOrElse(t.id, Nil))).toList
 
@@ -128,7 +130,7 @@ final class TeamMemberRepo(val coll: Coll)(using Executor):
         "_id"
       )
       .map:
-        _.flatMap(TeamMember.parseId).view.map(_._1).toList
+        _.flatMap(TeamMember.parseId)._1F.toList
       .map(Team.WithPublicLeaderIds(team, _))
 
   def addMyLeadership(teams: Seq[Team])(using me: Option[MyId]): Fu[List[Team.WithMyLeadership]] =

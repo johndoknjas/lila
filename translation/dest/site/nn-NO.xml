@@ -4,12 +4,13 @@
   <string name="challengeAFriend" comment="be mindful how 'friend' translates in gendered languages. look for a more neutral term if there's an issue, or base your translation on a different phrase like 'invite to a game'. keep it short and convey the button's meaning without offense.">Utfordre ein ven</string>
   <string name="playAgainstComputer">Spel mot datamaskin</string>
   <string name="gameMode">Spelmodus</string>
-  <string name="createLobbyGame" comment="One of three buttons on the home page. Opens the modal to create a game that goes in the lobby.">Opprett lobbyparti</string>
-  <string name="youPlayAs">Du spelar som</string>
+  <string name="createLobbyGame">Opprett lobbyparti</string>
   <string name="toInviteSomeoneToPlayGiveThisUrl">Send denne lekkja til den du utfordrar</string>
   <string name="gameOver">Partiet er avslutta</string>
   <string name="waitingForOpponent">Ventar på motspelar</string>
   <string name="orLetYourOpponentScanQrCode">Eller la motspelaren din skanna denne QR-koden</string>
+  <string name="reusableChallengeUrl">Ombrukeleg utfordrings-URL</string>
+  <string name="permanentLinkForAnyoneToChallengeYou">Ei permanent lenke der kven som helst kan utfordra deg med eksakt desse innstillingane.</string>
   <string name="waiting">Ventar</string>
   <string name="yourTurn">Ditt trekk</string>
   <string name="aiNameLevelAiLevel">%1$s på nivå %2$s</string>
@@ -126,6 +127,10 @@
   <string name="bestMoveArrow">Pil for beste trekk</string>
   <string name="showVariationArrows">Vis variantpiler</string>
   <string name="evaluationGauge">Syn evaluering</string>
+  <string name="visualMotifs">Visuelt motiv</string>
+  <string name="undefendedPieces">Hengande konge</string>
+  <string name="pinnedPieces">Spidda brikker</string>
+  <string name="checkableKing">Konge som kan setjas i sjakk</string>
   <string name="multipleLines">Fleire variantar</string>
   <string name="cpus">Prosessorar</string>
   <string name="memory">Minne</string>
@@ -205,6 +210,7 @@
   <string name="minutesPerSide">Minutt per spelar</string>
   <string name="variant">Variant</string>
   <string name="variants">Variantar</string>
+  <string name="variantsDescription">Fleire spelemåtar</string>
   <string name="timeControl">Tidskontroll</string>
   <string name="realTime">Sanntid</string>
   <string name="correspondence">Fjernsjakk</string>
@@ -299,6 +305,7 @@
   <string name="standard">Standard</string>
   <string name="customPosition">Brukardefinert stilling</string>
   <string name="unlimited">Uavgrensa</string>
+  <string name="unlimitedDescription">Ta den tida du treng</string>
   <string name="mode">Modus</string>
   <string name="casual">Urangert</string>
   <string name="rated">Rangert</string>
@@ -424,10 +431,11 @@
   <string name="leaderboard">Leiartabell</string>
   <string name="screenshotCurrentPosition">Ta eit skjermbilete av gjeldande stilling</string>
   <string name="gameAsGIF">Parti som GIF</string>
+  <string name="playerNames">Namn på spelarane</string>
+  <string name="moveAnnotations">Trekknotasjon</string>
   <string name="pasteTheFenStringHere">Lim inn FEN-koden her</string>
   <string name="pasteThePgnStringHere">Lim inn PGN-koden her</string>
   <string name="orUploadPgnFile">Eller last opp ei PGN-fil</string>
-  <string name="fromPosition">Frå stilling</string>
   <string name="continueFromHere">Fortsett herfrå</string>
   <string name="toStudy">Studér</string>
   <string name="importGame">Importér parti</string>
@@ -475,10 +483,6 @@ få en computeranalyse, chatte eller dele ein URL.</string>
   <string name="player">Spelar</string>
   <string name="list">Liste</string>
   <string name="graph">Graf</string>
-  <plurals name="lessThanNbMinutes">
-    <item quantity="one">Mindre enn %s minutt</item>
-    <item quantity="other">Mindre enn %s minutt</item>
-  </plurals>
   <string name="required">Påkrevd.</string>
   <string name="openTournaments">Opne turneringar</string>
   <string name="duration">Tidslengd</string>
@@ -729,6 +733,7 @@ få en computeranalyse, chatte eller dele ein URL.</string>
   <string name="cyclePreviousOrNextVariation">Gå gjennom førre/neste variant</string>
   <string name="toggleGlyphAnnotations">Slå symbol-merknadar på/av</string>
   <string name="togglePositionAnnotations">Slå merknader for stillingar på/av</string>
+  <string name="toggleObservationAnnotations">Slå observasjonskommentarar av/på</string>
   <string name="variationArrowsInfo">Med hjelp av variantpiler kan du navigere utan å bruka trekklista.</string>
   <string name="playSelectedMove">spel valde trekk</string>
   <string name="newTournament">Ny turnering</string>
@@ -770,6 +775,7 @@ få en computeranalyse, chatte eller dele ein URL.</string>
   <string name="youCanAlsoScrollOverTheBoardToMoveInTheGame">Du kan også scrolle over brettet for å flytte.</string>
   <string name="scrollOverComputerVariationsToPreviewThem">Scroll over datamaskin-variasjonane for å førehandsvisa dei.</string>
   <string name="analysisShapesHowTo">Trykk shift-klikk eller høyreklikk for å tegne sirklar og piler på brettet.</string>
+  <string name="primaryColorArrowsHowTo">Ctrl = raud, Shift = gul, Command eller Alt = blå.</string>
   <string name="letOtherPlayersMessageYou">Lat andre spelarar ta kontakt med deg</string>
   <string name="receiveForumNotifications">Bli varsla når du vert nemd i forumet</string>
   <string name="shareYourInsightsData">Del den personlege spelarstatistikken din</string>
@@ -813,6 +819,7 @@ få en computeranalyse, chatte eller dele ein URL.</string>
   <string name="size">Storleik</string>
   <string name="opacity">Opasitet</string>
   <string name="brightness">Lysstyrke</string>
+  <string name="contrast">Kontrast</string>
   <string name="hue">Fargetone</string>
   <string name="boardReset">Sttendestill til standardfargar</string>
   <string name="pieceSet">Brikkesett</string>
@@ -911,6 +918,7 @@ få en computeranalyse, chatte eller dele ein URL.</string>
   <string name="agreementPolicy">Eg lovar at eg vil følge alle reglane til Lichess.</string>
   <string name="searchOrStartNewDiscussion">Søk eller start ein ny diskusjon</string>
   <string name="edit">Rediger</string>
+  <string name="ultraBullet" comment="Probably best left untranslated. Leave it as 'UltraBullet' unless your language has a better word for it.">UltraBullet</string>
   <string name="bullet" comment="Probably best left untranslated. Leave it as 'Bullet' unless your language has a better word for it.">Bullet</string>
   <string name="blitz" comment="Probably best left untranslated. Leave it as 'Blitz' unless your language has a better word for it.">Lyn</string>
   <string name="rapid">Snøggsjakk</string>
@@ -1021,4 +1029,5 @@ Alle kostnader for drift, utvikling og innhald vert finansiert eine og åleine a
   <string name="search">Søk</string>
   <string name="clearSearch">Nytt søk</string>
   <string name="tags">Etikettar</string>
+  <string name="enPassant">En passant</string>
 </resources>

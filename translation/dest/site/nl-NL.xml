@@ -4,12 +4,13 @@
   <string name="challengeAFriend" comment="be mindful how 'friend' translates in gendered languages. look for a more neutral term if there's an issue, or base your translation on a different phrase like 'invite to a game'. keep it short and convey the button's meaning without offense.">Daag een vriend uit</string>
   <string name="playAgainstComputer">Speel tegen de computer</string>
   <string name="gameMode">Spelmodus</string>
-  <string name="createLobbyGame" comment="One of three buttons on the home page. Opens the modal to create a game that goes in the lobby.">Maak een lobby spel aan</string>
-  <string name="youPlayAs">Je speelt als</string>
+  <string name="createLobbyGame">Maak een lobby spel aan</string>
   <string name="toInviteSomeoneToPlayGiveThisUrl">Deel deze link als u iemand wil uitnodigen om met u te spelen</string>
   <string name="gameOver">Partij afgelopen</string>
   <string name="waitingForOpponent">Wachten op een tegenstander</string>
   <string name="orLetYourOpponentScanQrCode">Of laat je tegenstander deze QR-code scannen</string>
+  <string name="reusableChallengeUrl">Herbruikbare URL</string>
+  <string name="permanentLinkForAnyoneToChallengeYou">Een permanente link voor iedereen om je uit te dagen met exact deze instellingen.</string>
   <string name="waiting">Even geduld a.u.b.</string>
   <string name="yourTurn">U bent aan zet</string>
   <string name="aiNameLevelAiLevel">%1$s niveau %2$s</string>
@@ -126,6 +127,10 @@
   <string name="bestMoveArrow">Beste zet-pijl</string>
   <string name="showVariationArrows">Toon variantpijlen</string>
   <string name="evaluationGauge">Evaluatiemeter</string>
+  <string name="visualMotifs">Visuele motieven</string>
+  <string name="undefendedPieces">Onverdedigde stukken</string>
+  <string name="pinnedPieces">Gepende stukken</string>
+  <string name="checkableKing">Schaakbare koning</string>
   <string name="multipleLines">Meerdere varianten</string>
   <string name="cpus">CPUs</string>
   <string name="memory">Geheugen</string>
@@ -205,6 +210,7 @@
   <string name="minutesPerSide">Minuten per speler</string>
   <string name="variant">Variant</string>
   <string name="variants">Varianten</string>
+  <string name="variantsDescription">Meer manieren om te spelen</string>
   <string name="timeControl">Speeltempo</string>
   <string name="realTime">Live</string>
   <string name="correspondence">Correspondentie</string>
@@ -299,6 +305,7 @@
   <string name="standard">Standaard</string>
   <string name="customPosition">Aangepaste positie</string>
   <string name="unlimited">Onbeperkt</string>
+  <string name="unlimitedDescription">Neem alle tijd die je nodig hebt</string>
   <string name="mode">Instelling</string>
   <string name="casual">Vrijblijvend</string>
   <string name="rated">Met rating</string>
@@ -424,10 +431,11 @@
   <string name="leaderboard">Ranglijst</string>
   <string name="screenshotCurrentPosition">Schermafbeelding huidige stelling</string>
   <string name="gameAsGIF">Download partij als GIF</string>
+  <string name="playerNames">Spelersnamen</string>
+  <string name="moveAnnotations">Aantekeningen</string>
   <string name="pasteTheFenStringHere">Plak de FEN-code hier</string>
   <string name="pasteThePgnStringHere">Plak de PGN-code hier</string>
   <string name="orUploadPgnFile">Of upload een PGN-bestand</string>
-  <string name="fromPosition">Vanuit een stelling</string>
   <string name="continueFromHere">Ga vanaf hier verder</string>
   <string name="toStudy">Studie</string>
   <string name="importGame">Importeer partij</string>
@@ -474,10 +482,6 @@
   <string name="player">Speler</string>
   <string name="list">Lijst</string>
   <string name="graph">Grafiek</string>
-  <plurals name="lessThanNbMinutes">
-    <item quantity="one">Minder dan %s minuut</item>
-    <item quantity="other">Minder dan %s minuten</item>
-  </plurals>
   <string name="required">Vereist.</string>
   <string name="openTournaments">Open toernooien</string>
   <string name="duration">Tijdsduur</string>
@@ -724,10 +728,11 @@
   <string name="keyNextInaccuracy">Volgende onnauwkeurigheid</string>
   <string name="keyPreviousBranch">Vorige vertakking</string>
   <string name="keyNextBranch">Volgende vertakking</string>
-  <string name="toggleVariationArrows">Schakel variatiepijlen in/uit</string>
+  <string name="toggleVariationArrows">Variatiepijlen in/uitschakelen</string>
   <string name="cyclePreviousOrNextVariation">Bekijk vorige/volgende variant</string>
-  <string name="toggleGlyphAnnotations">Zet glyph-aantekeningen aan of uit</string>
-  <string name="togglePositionAnnotations">Zet stellingsaantekeningen aan of uit</string>
+  <string name="toggleGlyphAnnotations">Zetaantekeningen in-/uitschakelen</string>
+  <string name="togglePositionAnnotations">Stellingsaantekeningen in-/uitschakelen</string>
+  <string name="toggleObservationAnnotations">Observatie-aantekeningen in-/uitschakelen</string>
   <string name="variationArrowsInfo">Met de variantpijlen kunt u navigeren zonder de zettenlijst te gebruiken.</string>
   <string name="playSelectedMove">speel geselecteerde zet</string>
   <string name="newTournament">Nieuw toernooi</string>
@@ -813,6 +818,7 @@
   <string name="size">Grootte</string>
   <string name="opacity">Transparantie</string>
   <string name="brightness">Helderheid</string>
+  <string name="contrast">Contrast</string>
   <string name="hue">Kleurschakering</string>
   <string name="boardReset">Kleuren terugzetten naar standaard</string>
   <string name="pieceSet">Schaakstukken</string>
@@ -911,6 +917,7 @@
   <string name="agreementPolicy">Ik ga ermee akkoord dat ik de Lichess-regels zal volgen.</string>
   <string name="searchOrStartNewDiscussion">Zoek of start een nieuwe discussie</string>
   <string name="edit">Wijzigen</string>
+  <string name="ultraBullet" comment="Probably best left untranslated. Leave it as 'UltraBullet' unless your language has a better word for it.">UltraBullet</string>
   <string name="bullet" comment="Probably best left untranslated. Leave it as 'Bullet' unless your language has a better word for it.">Bullet</string>
   <string name="blitz" comment="Probably best left untranslated. Leave it as 'Blitz' unless your language has a better word for it.">Blitz</string>
   <string name="rapid">Rapid</string>
@@ -1021,4 +1028,5 @@ Alle exploitatiekosten, ontwikkeling en inhoud worden enkel gefinancierd door do
   <string name="search">Zoeken</string>
   <string name="clearSearch">Zoekopdracht wissen</string>
   <string name="tags">Labels</string>
+  <string name="enPassant">En passant</string>
 </resources>

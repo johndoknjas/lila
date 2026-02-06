@@ -4,12 +4,13 @@
   <string name="challengeAFriend" comment="be mindful how 'friend' translates in gendered languages. look for a more neutral term if there's an issue, or base your translation on a different phrase like 'invite to a game'. keep it short and convey the button's meaning without offense.">Erronka jo lagun bati</string>
   <string name="playAgainstComputer">Jokatu ordenagailuaren aurka</string>
   <string name="gameMode">Jokuaren modua</string>
-  <string name="createLobbyGame" comment="One of three buttons on the home page. Opens the modal to create a game that goes in the lobby.">Sortu egongelako partida</string>
-  <string name="youPlayAs">Kolore hau izango duzu</string>
+  <string name="createLobbyGame">Sortu egongelako partida</string>
   <string name="toInviteSomeoneToPlayGiveThisUrl">Norbait jokatzera gonbidatzeko, URL hau bidali iezaiozu</string>
   <string name="gameOver">Partida amaitu da</string>
   <string name="waitingForOpponent">Aurkariaren zain</string>
   <string name="orLetYourOpponentScanQrCode">Edo utzi zure aurkariari QR kode hau eskaneatzen</string>
+  <string name="reusableChallengeUrl">Berrerabili daitekeen erronkaren esteka</string>
+  <string name="permanentLinkForAnyoneToChallengeYou">Ezarpen hauekin edonork zuri erronka botatzeko helbidea.</string>
   <string name="waiting">Zain</string>
   <string name="yourTurn">Zure txanda</string>
   <string name="aiNameLevelAiLevel">%1$s, %2$s. maila</string>
@@ -126,6 +127,10 @@
   <string name="bestMoveArrow">Jokaldi onenaren gezia</string>
   <string name="showVariationArrows">Erakutsi aldaeren geziak</string>
   <string name="evaluationGauge">Ebaluazio langa</string>
+  <string name="visualMotifs">Ikurrak</string>
+  <string name="undefendedPieces">Defentsarik ez duten piezak</string>
+  <string name="pinnedPieces">Iltzatutako piezak</string>
+  <string name="checkableKing">Xake egin dakiokeen erregea</string>
   <string name="multipleLines">Linea anitz</string>
   <string name="cpus">CPU</string>
   <string name="memory">Memoria</string>
@@ -205,6 +210,7 @@
   <string name="minutesPerSide">Minutuak alde bakoitzeko</string>
   <string name="variant">Aldaera</string>
   <string name="variants">Aldaerak</string>
+  <string name="variantsDescription">Jokatzeko modu gehiago</string>
   <string name="timeControl">Denbora kontrola</string>
   <string name="realTime">Partida arinak</string>
   <string name="correspondence">Posta bidezko partidak</string>
@@ -299,6 +305,7 @@
   <string name="standard">Ohikoa</string>
   <string name="customPosition">Posizio pertsonalizatua</string>
   <string name="unlimited">Mugagabea</string>
+  <string name="unlimitedDescription">Hartu behar duzun denbora</string>
   <string name="mode">Modua</string>
   <string name="casual">Lagunartekoa</string>
   <string name="rated">Sailkapenerako baliogarria</string>
@@ -424,10 +431,11 @@
   <string name="leaderboard">Jokalaririk onenak</string>
   <string name="screenshotCurrentPosition">Uneko posizioaren irudia</string>
   <string name="gameAsGIF">Partida GIF gisa</string>
+  <string name="playerNames">Jokalarien izenak</string>
+  <string name="moveAnnotations">Jokaldien komentarioak</string>
   <string name="pasteTheFenStringHere">FEN-a kodea hemen jarri</string>
   <string name="pasteThePgnStringHere">PGN-a kodea hemen jarri</string>
   <string name="orUploadPgnFile">Edo kargatu PGN fitxategi bat</string>
-  <string name="fromPosition">Posizio jakin batetik</string>
   <string name="continueFromHere">Hemendik jarraitu</string>
   <string name="toStudy">Aztertu</string>
   <string name="importGame">Partida inportatu</string>
@@ -474,10 +482,6 @@
   <string name="player">Jokalaria</string>
   <string name="list">Zerrenda</string>
   <string name="graph">Grafikoa</string>
-  <plurals name="lessThanNbMinutes">
-    <item quantity="one">%s minutu baino gutxiago</item>
-    <item quantity="other">%s minutu baino gutxiago</item>
-  </plurals>
   <string name="required">Beharrezkoa.</string>
   <string name="openTournaments">Txapelketa irekiak</string>
   <string name="duration">Iraupena</string>
@@ -728,6 +732,7 @@
   <string name="cyclePreviousOrNextVariation">Aldatu aurreko/hurrengo ingurabidean</string>
   <string name="toggleGlyphAnnotations">Aktibatu/Desaktibatu ikur bidezko oharrak</string>
   <string name="togglePositionAnnotations">Aktibatu/Desaktibatu posizioko oharrak</string>
+  <string name="toggleObservationAnnotations">Aktibatu/Desaktibatu oharrak</string>
   <string name="variationArrowsInfo">Ingurabidearen geziek jokaldi zerrenda erabili gabe nabigatzen uzten dute.</string>
   <string name="playSelectedMove">jokatu aukeratutako jokaldia</string>
   <string name="newTournament">Txapelketa berria</string>
@@ -813,6 +818,7 @@
   <string name="size">Tamaina</string>
   <string name="opacity">Gardentasuna</string>
   <string name="brightness">Argitasuna</string>
+  <string name="contrast">Kontrastea</string>
   <string name="hue">Ñabardura</string>
   <string name="boardReset">Berrezarri koloreak defektuzkoetara</string>
   <string name="pieceSet">Pieza formatua</string>
@@ -911,6 +917,7 @@
   <string name="agreementPolicy">Lichessek ezarritako politikak beteko ditut.</string>
   <string name="searchOrStartNewDiscussion">Hizketaldia bilatu edo berria hasi</string>
   <string name="edit">Aldatu</string>
+  <string name="ultraBullet" comment="Probably best left untranslated. Leave it as 'UltraBullet' unless your language has a better word for it.">UltraBullet</string>
   <string name="bullet" comment="Probably best left untranslated. Leave it as 'Bullet' unless your language has a better word for it.">Bullet</string>
   <string name="blitz" comment="Probably best left untranslated. Leave it as 'Blitz' unless your language has a better word for it.">Blitz</string>
   <string name="rapid">Aktiboa</string>
@@ -1020,4 +1027,5 @@ Garapen eta mantentze-kostu guztiak erabiltzaileen dohaintzekin ordaintzen dira.
   <string name="search">Bilatu</string>
   <string name="clearSearch">Garbitu bilaketa</string>
   <string name="tags">Etiketak</string>
+  <string name="enPassant">Igarotzean harrapatzea</string>
 </resources>

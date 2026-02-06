@@ -165,7 +165,7 @@ final class Plan(env: Env) extends LilaController(env):
       giftTo: Option[lila.user.User]
   )(using Context, Me) =
     env.plan.api.stripe
-      .createSession(checkout, customerId, giftTo, env.net.baseUrl)
+      .createSession(checkout, customerId, giftTo, routeUrl)
       .fold(badStripeApiCall, JsonOk)
 
   def switchStripePlan(money: Money)(using me: Me) =
@@ -194,6 +194,7 @@ final class Plan(env: Env) extends LilaController(env):
             ,
             data =>
               val checkout = data.fixFreq
+              lila.mon.plan.intent("stripe", data.money.currency, data.coverFees).increment()
               for
                 gifted <- checkout.giftTo.filterNot(ctx.is).so(env.user.repo.enabledById)
                 customer <- env.plan.api.stripe.userCustomer(me)
@@ -222,9 +223,9 @@ final class Plan(env: Env) extends LilaController(env):
               .createPaymentUpdateSession(
                 sub,
                 NextUrls(
-                  cancel = s"${env.net.baseUrl}${routes.Plan.index}",
+                  cancel = routeUrl(routes.Plan.index()),
                   success =
-                    s"${env.net.baseUrl}${routes.Plan.updatePaymentCallback}?session={CHECKOUT_SESSION_ID}"
+                    routeUrl(routes.Plan.updatePaymentCallback).map(_ + "?session={CHECKOUT_SESSION_ID}")
                 )
               )
               .map(session => JsonOk(Json.obj("session" -> Json.obj("id" -> session.id.value))))
@@ -253,6 +254,7 @@ final class Plan(env: Env) extends LilaController(env):
           ,
           data =>
             val checkout = data.fixFreq
+            lila.mon.plan.intent("paypal", data.money.currency, data.coverFees).increment()
             if checkout.freq.renew then
               env.plan.api.payPal
                 .createSubscription(checkout, me)
