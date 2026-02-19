@@ -56,7 +56,9 @@ export default class TournamentController {
     );
     setTimeout(() => (this.disableClicks = false), 1500);
     this.loadPage(this.data.standing);
-    this.scrollToMe();
+    const player = new URLSearchParams(location.search).get('player')?.trim().replace(/^@\/?/, '');
+    if (player && /^[a-zA-Z0-9_-]{2,20}$/.test(player)) this.jumpToPageOf(player);
+    else this.scrollToMe();
     sound.end(this.data);
     sound.countDown(this.data);
     this.setupBattle();
