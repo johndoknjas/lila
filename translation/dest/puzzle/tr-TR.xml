@@ -42,7 +42,7 @@
     <item quantity="one">%s kez çözüldü</item>
     <item quantity="other">%s kez çözüldü</item>
   </plurals>
-  <string name="fromGameLink">Maçın linki: %s</string>
+  <string name="fromGameLink">%s oyunundan</string>
   <string name="continueTraining">Pratik yapmaya devam et</string>
   <string name="difficultyLevel">Zorluk seviyesi</string>
   <string name="normal">Normal</string>
@@ -92,6 +92,6 @@
   </plurals>
   <string name="percentSolved">%s çözüldü</string>
   <string name="noPuzzlesToShow">Gösterilecek bir şey yok. Önce biraz bulmaca çöz!</string>
-  <string name="improvementAreasDescription">Gelişiminizi optimize etmek için bunlar üzerine çalışın!</string>
+  <string name="improvementAreasDescription" comment="Appears in the improvement areas section: https://lichess.org/training/dashboard/30/improvementAreas">Gelişiminizi optimize etmek için bunlar üzerine çalışın!</string>
   <string name="strengthDescription">En iyi performansı bu temalarda gösteriyorsunuz</string>
 </resources>

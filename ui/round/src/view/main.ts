@@ -1,8 +1,8 @@
 import { next, prev, view } from '../keyboard';
 import crazyView from '../crazy/crazyView';
 import type RoundController from '../ctrl';
-import { stepwiseScroll } from 'lib/view';
-import { type VNode, hl, bind } from 'lib/view';
+import { stepwiseScroll, type VNode, hl, bind } from 'lib/view';
+import { renderBlindfoldToggle } from 'lib/view/blindfold';
 import { render as renderKeyboardMove } from 'keyboardMove';
 import { render as renderGround } from '../ground';
 import { renderTable } from './table';
@@ -35,6 +35,7 @@ export function main(ctrl: RoundController): VNode {
           },
         },
         [
+          renderBlindfoldToggle(ctrl.blindfold),
           hl(
             'div.round__app__board.main-board' + (hideBoard ? '.blindfold' : ''),
             {
@@ -43,14 +44,14 @@ export function main(ctrl: RoundController): VNode {
                   ? undefined
                   : bind(
                       'wheel',
-                      stepwiseScroll((e: WheelEvent, scroll: boolean) => {
-                        if (scroll && !ctrl.isPlaying()) {
-                          e.preventDefault();
+                      stepwiseScroll(
+                        e => {
                           if (e.deltaY > 0) next(ctrl);
                           else if (e.deltaY < 0) prev(ctrl);
                           ctrl.redraw();
-                        }
-                      }),
+                        },
+                        () => ctrl.isPlaying(),
+                      ),
                       undefined,
                       false,
                     ),
@@ -68,8 +69,9 @@ export function main(ctrl: RoundController): VNode {
 }
 
 export function endGameView(): void {
-  if ($('body').hasClass('zen-auto') && $('body').hasClass('zen')) {
-    $('body').toggleClass('zen');
+  const $body = $('body');
+  if ($body.hasClass('zen-auto') && $body.hasClass('zen')) {
+    $body.toggleClass('zen');
     window.dispatchEvent(new Event('resize'));
   }
 }

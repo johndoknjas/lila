@@ -1,5 +1,5 @@
 .plan {
-  grid-gap: $block-gap;
+  gap: $block-gap;
 
   .all {
     margin-top: 20px;
@@ -154,6 +154,22 @@
       }
     }
 
+    .cover-fees {
+      @extend %flex-center-nowrap;
+      margin-bottom: 1.5em;
+      font-size: 0.95em;
+
+      input {
+        margin-inline-end: 0.5em;
+        transform: scale(1.2);
+      }
+      label {
+        cursor: pointer;
+        color: $c-font-dim;
+        user-select: none;
+      }
+    }
+
     .service {
       .buttons {
         @extend %flex-between;
@@ -185,8 +201,7 @@
     }
 
     .gift {
-      @extend %flex-center;
-      justify-content: center;
+      @extend %flex-center-center;
       margin: -1em 0 1em 0;
     }
   }
@@ -264,12 +279,15 @@
     }
 
     h2 {
-      margin: 300px 0 0.4em 0;
+      margin: 188px 0 0.4em 0;
       border-bottom: $border;
     }
 
     a {
       color: $c-font-page;
+      &:hover {
+        color: $c-link;
+      }
     }
   }
 }

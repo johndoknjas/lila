@@ -2,8 +2,8 @@
   border: none;
 
   .player {
-    padding-left: 0px;
-    padding-right: 0px;
+    padding-left: 0;
+    padding-right: 0;
 
     .name {
       @extend %nowrap-ellipsis;
@@ -35,7 +35,7 @@
     @include transition(opacity, 0.3s);
   }
 
-  &:not(.created):not(.loading) tbody tr:hover {
+  &:not(.created, .loading) tbody tr:hover {
     background: $m-primary_bg--mix-15;
     cursor: pointer;
   }
@@ -78,9 +78,7 @@
       min-height: 3.5em;
 
       & > * {
-        @extend %flex-center;
-
-        justify-content: center;
+        @extend %flex-center-center;
         flex: 0 0 2em;
         text-align: center;
       }
@@ -89,7 +87,6 @@
     .ongoing {
       color: $c-link;
 
-      // background: mix($c-link, $c-bg-box, 15%);
       &:hover {
         background: $m-primary_bg--mix-35;
       }
@@ -98,7 +95,6 @@
     .win {
       color: $c-good;
 
-      // background: mix($c-good, $c-bg-box, 15%);
       &:hover {
         background: $m-secondary_bg--mix-35;
       }
@@ -107,7 +103,6 @@
     .loss {
       color: $m-bad_bg--mix-60;
 
-      // background: mix($c-bad, $c-bg-box, 10%);
       &:hover {
         background: $m-bad_bg--mix-20;
       }
@@ -149,7 +144,7 @@
   &.long {
     .user-link .rating {
       display: block;
-      padding-inline-start: 0px;
+      padding-inline-start: 0;
     }
 
     .pairings div > * {

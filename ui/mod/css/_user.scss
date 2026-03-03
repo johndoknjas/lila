@@ -143,9 +143,6 @@
     bottom: 0;
     background: $c-brag;
     z-index: $z-mz-menu-4;
-
-    // border-top: 1px solid $c-brag;
-    // border-width: 3px 2px 0 2px;
     padding: 0;
 
     a {
@@ -195,7 +192,7 @@
         display: block;
         height: 30px;
         width: 30px;
-        background: no-repeat url(../images/icons/octopus.svg);
+        background: no-repeat url('../images/icons/octopus.svg');
         background-size: 80%;
         background-position: 50% 50%;
       }
@@ -335,6 +332,9 @@
 
     .appeal-recent {
       color: $c-brag;
+    }
+    .appeal-old {
+      color: $c-font-dim;
     }
     .appeal-muted {
       color: $c-bad;

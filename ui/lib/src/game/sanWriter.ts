@@ -1,12 +1,12 @@
-/* eslint no-restricted-syntax:"error" */ // no side effects allowed due to re-export by index.ts
+// no side effects allowed due to re-export by index.ts
 
-import { charToRole, type Square } from 'chessops';
+import { charToRole, makeSquare, type Square } from 'chessops';
 import { fixCrazySan } from './chess';
 
 type AlmostSan = string;
 
-export type Board = { pieces: { [key: number]: string }; turn: boolean };
-export type SanToUci = { [key: AlmostSan]: Uci };
+export type Board = { pieces: Record<number, string>; turn: boolean };
+export type SanToUci = Record<AlmostSan, Uci>;
 
 function decomposeUci(uci: string) {
   return [uci.slice(0, 2), uci.slice(2, 4), uci.slice(4, 5)];
@@ -89,7 +89,11 @@ function slidingMovesTo(s: number, deltas: number[], board: Board): number[] {
  * but lacks the check/checkmate flag,
  * and probably has incomplete disambiguation.
  * But it's quick. */
-export function almostSanOf(board: Board, uci: string): AlmostSan {
+export function almostSanOf(
+  board: Board,
+  uci: string,
+  legalUcis: Set<Uci> | undefined = undefined,
+): AlmostSan {
   if (uci.includes('@')) return fixCrazySan(uci);
 
   const move = decomposeUci(uci);
@@ -128,6 +132,7 @@ export function almostSanOf(board: Board, uci: string): AlmostSan {
     file = false;
   for (let i = 0; i < candidates.length; i++) {
     if (candidates[i] === from || board.pieces[candidates[i]] !== p) continue;
+    if (legalUcis && !legalUcis.has(makeSquare(candidates[i]) + move[1])) continue;
     if (from >> 3 === candidates[i] >> 3) file = true;
     if ((from & 7) === (candidates[i] & 7)) rank = true;
     else file = true;
@@ -141,11 +146,12 @@ export function almostSanOf(board: Board, uci: string): AlmostSan {
   return san;
 }
 
-export function sanWriter(fen: string, ucis: string[]): SanToUci {
+export function sanWriter(fen: string, ucis: Uci[]): SanToUci {
   const board = readFen(fen);
   const sans: SanToUci = {};
+  const legalUcis = new Set(ucis);
   ucis.forEach(function (uci) {
-    const san = almostSanOf(board, uci);
+    const san = almostSanOf(board, uci, legalUcis);
     sans[san] = uci;
     if (san.includes('x')) sans[san.replace('x', '')] = uci;
   });
@@ -159,7 +165,7 @@ export function sanToUci(san: string, legalSans: SanToUci): Uci | undefined {
   return;
 }
 
-const sanToWords = (san: string): string =>
+export const sanToWords = (san: string): string =>
   san
     .split('')
     .map(c => {

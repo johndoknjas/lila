@@ -51,7 +51,9 @@ def show(
   Page(s.name.value)
     .css("analyse.study")
     .css(ctx.pref.hasKeyboardMove.option("keyboardMove"))
+    .css(ctx.blind.option("round.nvui"))
     .i18n(_.study)
+    .i18n(_.variant)
     .i18nOpt(ctx.speechSynthesis, _.nvui)
     .i18nOpt(ctx.blind, _.keyboardMove)
     .js(analyseNvuiTag)
@@ -73,7 +75,7 @@ def show(
               timeout = c.timeout,
               writeable = ctx.userId.exists(s.canChat),
               public = true,
-              resourceId = lila.chat.Chat.ResourceId(s"study/${c.chat.id}"),
+              resource = lila.core.chat.PublicSource.Study(s.id),
               voiceChat = ctx.userId.exists(s.isMember),
               localMod = ctx.userId.exists(s.canContribute)
             ),
