@@ -36,6 +36,12 @@ final private class InsightIndexer(
       case Right(e) => storage.update(e)
       case _ => funit
 
+  private[insight] def lastIndexableGame(user: User): Fu[Option[Game]] =
+    gameRepo.coll
+      .find(gameQuery(user))
+      .sort(Query.sortAntiChronological)
+      .one[Game]
+
   private def fromScratch(user: User): Funit =
     fetchFirstGame(user).flatMapz: g =>
       computeFrom(user, g.createdAt)
@@ -55,7 +61,7 @@ final private class InsightIndexer(
         .so:
           gameRepo.coll
             .find(gameQuery(user))
-            .sort(Query.sortCreated)
+            .sort(Query.sortAntiChronological)
             .skip(maxGames.value - 1)
             .one[Game](ReadPref.sec)
         .orElse:
@@ -80,9 +86,9 @@ final private class InsightIndexer(
         gameRepo
           .sortedCursor(query, Query.sortChronological)
           .documentSource(maxGames.value)
-          .mapAsync(16)(toEntry)
+          .mapAsync(8)(toEntry)
           .via(LilaStream.collect)
           .grouped(100.atMost(maxGames.value))
-          .map(storage.bulkInsert)
+          .mapAsync(1)(storage.bulkInsert)
           .run()
           .void

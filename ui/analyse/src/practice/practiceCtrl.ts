@@ -83,19 +83,16 @@ export function make(root: AnalyseCtrl, customPlayableDepth?: () => number): Pra
       : false;
   }
 
-  function tbhitToEval(hit: TablebaseHit | undefined | null) {
-    return (
-      hit &&
-      (hit.winner
-        ? {
-            mate: hit.winner === 'white' ? 10 : -10,
-          }
-        : { cp: 0 })
-    );
-  }
-  function nodeBestUci(node: TreeNode): Uci | undefined {
-    return (node.tbhit && node.tbhit.best) || (node.ceval && node.ceval.pvs[0].moves[0]);
-  }
+  const tbhitToEval = (hit: TablebaseHit | undefined | null) =>
+    hit &&
+    (hit.winner
+      ? {
+          mate: hit.winner === 'white' ? 10 : -10,
+        }
+      : { cp: 0 });
+
+  const nodeBestUci = (node: TreeNode): Uci | undefined =>
+    (node.tbhit && node.tbhit.best) || (node.ceval && node.ceval.pvs[0].moves[0]);
 
   function makeComment(prev: TreeNode, node: TreeNode, path: TreePath): Comment {
     let verdict: Verdict, best: Uci | undefined;
@@ -143,9 +140,7 @@ export function make(root: AnalyseCtrl, customPlayableDepth?: () => number): Pra
     };
   }
 
-  function isMyTurn(): boolean {
-    return root.turnColor() === root.bottomColor();
-  }
+  const isMyTurn = (): boolean => root.turnColor() === root.bottomColor();
 
   function checkCeval() {
     const node = root.node;

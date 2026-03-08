@@ -20,7 +20,7 @@ export const completeNode =
     node.check = memoize(() => computeCheck(node.pos()));
     node.outcome ||= memoize(() => computeOutcome(node.pos()));
     node.children.forEach(completeNode(variant));
-    return node as TreeNode;
+    return node;
   };
 
 const computeDests = (position: PositionResult) => withPosition(position, new Map(), chessgroundDests);

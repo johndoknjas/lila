@@ -87,7 +87,7 @@ export function renderNvui({
           h('label', [
             ctrl.mode === 'view'
               ? 'Command input'
-              : `${i18n.puzzle[ctrl.pov === 'white' ? 'findTheBestMoveForWhite' : 'findTheBestMoveForBlack']}`,
+              : i18n.puzzle[ctrl.pov === 'white' ? 'findTheBestMoveForWhite' : 'findTheBestMoveForBlack'],
             h('input.move.mousetrap', {
               attrs: { name: 'move', type: 'text', autocomplete: 'off', autofocus: true },
             }),

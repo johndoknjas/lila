@@ -129,19 +129,23 @@ final class Relation(env: Env, apiC: => Api) extends LilaController(env):
   def blocks(page: Int) = Auth { ctx ?=> me ?=>
     Reasonable(page, Max(20)):
       Ok.async:
-        RelatedPager(api.blockingPaginatorAdapter(me), page).map:
+        RelatedPager(api.blockingPaginatorAdapter(me), page, includeClosed = true).map:
           views.relation.blocks(me, _)
   }
 
-  private def RelatedPager(adapter: AdapterLike[UserId], page: Int)(using Context) =
+  private def RelatedPager(adapter: AdapterLike[UserId], page: Int, includeClosed: Boolean = false)(using
+      Context
+  ) =
     Paginator(
-      adapter = adapter.mapFutureList(followship),
+      adapter = adapter.mapFutureList(followship.curried(includeClosed)),
       currentPage = page,
       maxPerPage = MaxPerPage(30)
     )
 
-  private def followship(userIds: Seq[UserId])(using ctx: Context): Fu[List[Related[UserWithPerfs]]] = for
-    users <- env.user.api.listWithPerfs(userIds.toList, includeClosed = false)
+  private def followship(includeClosed: Boolean, userIds: Seq[UserId])(using
+      ctx: Context
+  ): Fu[List[Related[UserWithPerfs]]] = for
+    users <- env.user.api.listWithPerfs(userIds.toList, includeClosed)
     followables <- ctx.isAuth.so(env.pref.api.followableIds(users.map(_.id)))
     rels <- users.sequentially: u =>
       ctx.userId

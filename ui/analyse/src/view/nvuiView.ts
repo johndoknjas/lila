@@ -1,4 +1,4 @@
-import { type VNode, type LooseVNodes, type VNodeChildren, hl, bind, noTrans } from 'lib/view';
+import { type VNode, type LooseVNodes, type VNodeChildren, hl, bind, noTrans, enter } from 'lib/view';
 import { defined } from 'lib';
 import { text as xhrText } from 'lib/xhr';
 import type AnalyseCtrl from '../ctrl';
@@ -109,7 +109,7 @@ export function renderNvui(ctx: AnalyseNvuiContext): VNode {
       !ctrl.retro && liveText(renderCurrentNode(ctx), 'polite', 'p.position.lastMove'),
       clocks &&
         hl('div.clocks', [
-          hl('h2', `${i18n.site.clock}`),
+          hl('h2', i18n.site.clock),
           hl('div.clocks', [hl('div.topc', clocks[0]), hl('div.botc', clocks[1])]),
         ]),
       hl('h2', i18n.nvui.inputForm),
@@ -166,11 +166,12 @@ export function renderNvui(ctx: AnalyseNvuiContext): VNode {
               });
             });
             root.find('.copy-fen').on('click', function (this: HTMLElement) {
-              const inputFen = document.querySelector('.analyse__underboard__fen input') as HTMLInputElement;
-              const fen = inputFen.value;
-              navigator.clipboard.writeText(fen).then(() => {
-                notify.set(i18n.nvui.copiedToClipboard('FEN'));
-              });
+              const fen = document.querySelector<HTMLInputElement>('.analyse__underboard__fen input')?.value;
+              if (fen) {
+                navigator.clipboard.writeText(fen).then(() => {
+                  notify.set(i18n.nvui.copiedToClipboard('FEN'));
+                });
+              }
             });
           },
         },
@@ -226,12 +227,13 @@ export function clickHook(main?: (el: HTMLElement) => void, post?: () => void) {
           main?.(el);
           post?.();
         });
-        el.addEventListener('keydown', (e: KeyboardEvent) => {
-          if (e.key === 'Enter') {
+        el.addEventListener(
+          'keydown',
+          enter(() => {
             main?.(el);
             post?.();
-          }
-        });
+          }),
+        );
       },
     },
   };
@@ -345,7 +347,7 @@ function onSubmit(ctx: AnalyseNvuiContext, $input: Cash) {
     if (command && !command.invalid?.(ctrl)) command.cb(ctx, input);
     else {
       const move = inputToMove(input, ctrl.node.fen, ctrl.chessground);
-      const isDrop = (u: undefined | string | DropMove) => !!(u && typeof u !== 'string');
+      const isDrop = (u?: string | DropMove) => !!(u && typeof u !== 'string');
       const isInvalidDrop = (d: DropMove) =>
         !ctrl.crazyValid(d.role, d.key) || ctrl.chessground.state.pieces.has(d.key);
       const isInvalidCrazy = isDrop(move) && isInvalidDrop(move);
@@ -480,7 +482,7 @@ function renderAcpl({ ctrl, moveStyle }: AnalyseNvuiContext): LooseVNodes {
               { attrs: { value: node.ply, selected: node.ply === ctrl.node.ply } },
               [
                 plyToTurn(node.ply),
-                renderSan(node.san!, node.uci, moveStyle.get()),
+                renderSan(node.san, node.uci, moveStyle.get()),
                 renderComments(node, moveStyle.get()),
               ].join(' '),
             ),
@@ -582,7 +584,9 @@ function renderStudyPlayer(ctrl: AnalyseCtrl, color: Color): VNode | undefined {
       keys
         .reduce<string[]>(
           (strs, [key, i18n]) =>
-            player[key] ? strs.concat(`${i18n}: ${key === 'fed' ? player[key].name : player[key]}`) : strs,
+            player[key]
+              ? strs.concat(`${i18n}: ${key === 'fed' ? player[key].i18nName : player[key]}`)
+              : strs,
           [],
         )
         .join(' '),

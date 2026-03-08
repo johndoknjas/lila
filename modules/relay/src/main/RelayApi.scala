@@ -254,9 +254,12 @@ final class RelayApi(
       (tour.id :: data.grouping.so(_.tourIds)).foreach(withTours.invalidate)
 
   private def updateGrouping(tour: RelayTour, data: RelayGroupData)(using me: Me): Funit =
-    (Granter(_.Relay) || !tour.official).so:
-      val canGroup = fuccess(Granter(_.StudyAdmin)) >>| tourRepo.isOwnerOfAll(me.userId, data.tourIds)
-      canGroup.flatMapz(groupRepo.update(tour.id, data))
+    for
+      isOwner <- fuccess(Granter(_.StudyAdmin)) >>| tourRepo.isOwnerOfAll(me.userId, data.tourIds)
+      hasOfficial <- tourRepo.hasOfficial(data.tourIds)
+      canGroup = isOwner && (!hasOfficial || Granter(_.Relay))
+      _ <- canGroup.so(groupRepo.update(tour.id, data))
+    yield ()
 
   def create(data: RelayRoundForm.Data, tour: RelayTour)(using me: Me): Fu[RelayRound.WithTourAndStudy] = for
     last <- roundRepo.lastByTour(tour)
@@ -427,7 +430,8 @@ final class RelayApi(
       ownerIds = NonEmptyList.one(me.userId),
       createdAt = nowInstant,
       syncedAt = none,
-      visibility = if from.official then lila.core.study.Visibility.`private` else from.visibility
+      visibility = if from.official then lila.core.study.Visibility.`private` else from.visibility,
+      spotlight = from.spotlight.map(_.copy(enabled = false))
     )
     for
       _ <- tourRepo.coll.insert.one(tour)

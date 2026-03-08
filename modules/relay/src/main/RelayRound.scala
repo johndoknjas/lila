@@ -1,5 +1,6 @@
 package lila.relay
 
+import java.time.temporal.ChronoUnit
 import play.api.mvc.Call
 import io.mola.galimatias.URL
 import reactivemongo.api.bson.Macros.Annotations.Key
@@ -70,6 +71,12 @@ case class RelayRound(
     !hasStarted && startsAtTime.match
       case Some(at) => at.isBefore(nowInstant.minusHours(3))
       case None => createdAt.isBefore(nowInstant.minusDays(1))
+
+  def daysSinceFinished = finishedAt.map(ChronoUnit.DAYS.between(_, nowInstant))
+
+  private[relay] def startsSoonOrAfterPrevious = startsAt.exists:
+    case RelayRound.Starts.At(at) => ChronoUnit.DAYS.between(nowInstant, at) <= 3
+    case RelayRound.Starts.AfterPrevious => true
 
   def withSync(f: Update[RelayRound.Sync]) = copy(sync = f(sync))
 
@@ -166,6 +173,7 @@ object RelayRound:
           case lccRegex(id, round) => round.toIntOption.map(Lcc(id, _))
           case _ => none
         def looksLikeLcc = url.host.toString.endsWith("livechesscloud.com")
+        def looksLikeIdChess = url.host.toString.endsWith("idchess.com")
     import url.*
 
     enum Upstream:
@@ -181,6 +189,10 @@ object RelayRound:
       def hasLcc = this match
         case Url(url) => url.looksLikeLcc
         case Urls(urls) => urls.exists(_.looksLikeLcc)
+        case _ => false
+      def hasIdChess = this match
+        case Url(url) => url.looksLikeIdChess
+        case Urls(urls) => urls.exists(_.looksLikeIdChess)
         case _ => false
       def hasUnsafeHttp: Option[URL] = this match
         case Url(url) => Option.when(url.scheme == "http")(url)

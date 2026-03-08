@@ -51,7 +51,7 @@ export const fetchUsers = async (term: string, opts: Partial<UserCompleteOpts>):
 export const checkDebouncedResultAgainstTerm =
   (term: string) =>
   (got: ResultOfTerm): Promise<LightUserOnline[]> =>
-    term === got.term ? Promise.resolve(got.result) : Promise.reject('Debounced ' + term);
+    term === got.term ? Promise.resolve(got.result) : Promise.reject(new Error('Debounced ' + term));
 
 export const renderUserEntry = (o: LightUserOnline, tag: string = 'a'): string => {
   const patronClass = o.patronColor ? ` paco${o.patronColor}` : '';

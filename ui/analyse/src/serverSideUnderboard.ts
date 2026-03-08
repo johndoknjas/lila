@@ -50,9 +50,9 @@ export default function (element: HTMLElement, ctrl: AnalyseCtrl) {
     pubsub.on('board.change', () => inputFen && updateGifLinks(inputFen.value));
     pubsub.on('analysis.comp.toggle', (v: boolean) => {
       if (v) {
-        setTimeout(() => $menu.find('.computer-analysis').first().trigger('mousedown'), 50);
+        setTimeout(() => $menu.find('.computer-analysis').first().trigger('click'), 50);
       } else {
-        $menu.find('span:not(.computer-analysis)').first().trigger('mousedown');
+        $menu.find('button:not(.computer-analysis)').first().trigger('click');
       }
     });
     pubsub.on('analysis.server.progress', (d: AnalyseData) => {
@@ -100,7 +100,7 @@ export default function (element: HTMLElement, ctrl: AnalyseCtrl) {
     if ((panel === 'computer-analysis' || ctrl.opts.hunter) && $('#acpl-chart-container').length)
       setTimeout(startAdvantageChart, 200);
   };
-  $menu.on('mousedown', 'span', function (this: HTMLElement) {
+  $menu.on('click', 'button', function (this: HTMLElement) {
     const panel = this.dataset.panel!;
     store.set(panel);
     setPanel(panel);
@@ -115,7 +115,7 @@ export default function (element: HTMLElement, ctrl: AnalyseCtrl) {
   if (foundStored) setPanel(stored);
   else {
     const $menuCt = $menu.children('[data-panel="ctable"]');
-    ($menuCt.length ? $menuCt : $menu.children(':first-child')).trigger('mousedown');
+    ($menuCt.length ? $menuCt : $menu.children(':first-child')).trigger('click');
   }
   if (!data.analysis) {
     $panels.find('form.future-game-analysis').on('submit', function (this: HTMLFormElement) {

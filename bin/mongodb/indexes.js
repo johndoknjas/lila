@@ -122,7 +122,10 @@ db.user4.createIndex(
 db.f_topic.createIndex({ categId: 1, troll: 1 });
 db.f_topic.createIndex({ categId: 1, updatedAt: -1, troll: 1 });
 db.f_topic.createIndex({ categId: 1, slug: 1 });
-db.f_topic.createIndex({ categId: 1 }, { partialFilterExpression: { sticky: true } });
+db.f_topic.createIndex(
+  { categId: 1, troll: 1, sticky: 1 },
+  { partialFilterExpression: { sticky: { $exists: 1 } } },
+);
 db.seek_archive.createIndex({ archivedAt: 1 }, { expireAfterSeconds: 604800 });
 db.seek_archive.createIndex({ gameId: 1 });
 db.swiss_player.createIndex({ s: 1, c: -1 });
@@ -325,7 +328,8 @@ db.kaladin_queue.createIndex(
   { partialFilterExpression: { 'response.at': { $exists: true } } },
 );
 db.tutor_queue.createIndex({ requestedAt: 1 });
-db.tutor_report.createIndex({ at: -1 });
+db.tutor_report.createIndex({ 'config.user': 1, at: -1 });
+db.tutor_report.createIndex({ at: -1 }); // for duration estimation
 
 // you may want to run these on the puzzle database
 db.puzzle2_round.createIndex({ p: 1 }, { partialFilterExpression: { t: { $exists: true } } });

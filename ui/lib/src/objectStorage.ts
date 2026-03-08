@@ -240,7 +240,7 @@ async function dbConnect(info: DbInfo): Promise<IDBDatabase> {
   const dbName = info.db ?? info.store;
 
   return new Promise<IDBDatabase>((resolve, reject) => {
-    if (!('indexedDB' in window) || !('open' in window.indexedDB)) reject('no indexedDB');
+    if (!('indexedDB' in window) || !('open' in window.indexedDB)) reject(new Error('no indexedDB'));
     const result = window.indexedDB.open(dbName, info?.version ?? 1);
 
     result.onsuccess = (e: Event) => resolve((e.target as IDBOpenDBRequest).result);

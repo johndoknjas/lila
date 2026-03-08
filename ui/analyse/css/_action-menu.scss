@@ -19,8 +19,8 @@
     white-space: nowrap;
     display: table;
 
-    &:before,
-    &:after {
+    &::before,
+    &::after {
       border-top: $border;
       content: '';
       display: table-cell;
@@ -29,11 +29,11 @@
       width: 45%;
     }
 
-    &:before {
+    &::before {
       @include inline-end(8px);
     }
 
-    &:after {
+    &::after {
       @include inline-start(8px);
     }
   }
@@ -45,7 +45,7 @@
 
     button,
     > a {
-      @extend %button-none;
+      color: $c-font;
       display: flex;
       align-items: center;
       line-height: 1.2em;
@@ -98,7 +98,6 @@
 
     input[type='range'] {
       flex: 1 4 auto;
-      padding: 0;
       height: 1.6em;
       width: 100%;
       margin: 0 1ch;

@@ -45,10 +45,8 @@ function renderPgnTags(game: Game): string {
   return txt;
 }
 
-export function renderFullTxt(ctrl: AnalyseCtrl): string {
-  const g = ctrl.data.game;
-  return renderPgnTags(g) + renderNodesTxt(ctrl.tree.root, true);
-}
+export const renderFullTxt = (ctrl: AnalyseCtrl): string =>
+  renderPgnTags(ctrl.data.game) + renderNodesTxt(ctrl.tree.root, true);
 
 export function renderNodesHtml(nodes: PgnNode[]): MaybeVNodes {
   if (!nodes[0]) return [];

@@ -13,7 +13,7 @@ import type { Api as CgApi } from '@lichess-org/chessground/api';
 import type { Rules, Square } from 'chessops/types';
 import { Board } from 'chessops/board';
 import { type Setup, Material, RemainingChecks, defaultSetup } from 'chessops/setup';
-import { Castles, defaultPosition, Position, PositionError, setupPosition } from 'chessops/variant';
+import { Castles, defaultPosition, Position, setupPosition } from 'chessops/variant';
 import { makeFen, parseFen, parseCastlingFen, INITIAL_FEN, EMPTY_FEN } from 'chessops/fen';
 import { lichessRules } from 'chessops/compat';
 import { defined, prop, type Prop } from 'lib';
@@ -168,7 +168,7 @@ export default class EditorCtrl {
     return makeFen(this.getSetup());
   }
 
-  getPosition(): Result<Position, PositionError> {
+  getPosition(): Result<Position> {
     return setupPosition(this.getRules(), this.getSetup());
   }
 

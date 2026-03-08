@@ -12,7 +12,6 @@ import {
   Tooltip,
 } from 'chart.js';
 import {
-  animation,
   blackFill,
   fontColor,
   fontFamily,
@@ -132,7 +131,7 @@ export default async function (
         intersect: false,
       },
       scales: axisOpts(firstPly + 1, mainline.length + firstPly),
-      animations: animation(500 / (mainline.length - 1)),
+      animation: false,
       maintainAspectRatio: false,
       responsive: true,
       plugins: {
@@ -201,26 +200,27 @@ const glyphProperties = (node: TreeNodeIncomplete): { advice?: Advice; color?: s
 const toBlurArray = (player: Player) => player.blurs?.bits?.split('') ?? [];
 
 function christmasTree(chart: AcplChart, mainline: TreeNodeIncomplete[], hoverColors: string[]) {
-  $('div.advice-summary').on('mouseenter', 'div.symbol', function (this: HTMLElement) {
-    const symbol = this.getAttribute('data-symbol');
-    const playerColorBit = this.getAttribute('data-color') === 'white' ? 1 : 0;
-    const acplDataset = chart.data.datasets[0];
-    if (symbol === '??' || symbol === '?!' || symbol === '?') {
-      acplDataset.pointHoverBackgroundColor = hoverColors;
-      acplDataset.pointBorderColor = hoverColors;
-      const points = mainline
-        .filter(
-          node => node.glyphs?.some(glyph => glyph.symbol === symbol) && (node.ply & 1) === playerColorBit,
-        )
-        .map(node => ({ datasetIndex: 0, index: node.ply - mainline[0].ply - 1 }));
-      chart.setActiveElements(points);
+  $('div.advice-summary')
+    .on('mouseenter', 'div.symbol', function (this: HTMLElement) {
+      const symbol = this.getAttribute('data-symbol');
+      const playerColorBit = this.getAttribute('data-color') === 'white' ? 1 : 0;
+      const acplDataset = chart.data.datasets[0];
+      if (symbol === '??' || symbol === '?!' || symbol === '?') {
+        acplDataset.pointHoverBackgroundColor = hoverColors;
+        acplDataset.pointBorderColor = hoverColors;
+        const points = mainline
+          .filter(
+            node => node.glyphs?.some(glyph => glyph.symbol === symbol) && (node.ply & 1) === playerColorBit,
+          )
+          .map(node => ({ datasetIndex: 0, index: node.ply - mainline[0].ply - 1 }));
+        chart.setActiveElements(points);
+        chart.update('none');
+      }
+    })
+    .on('mouseleave', 'div.symbol', function (this: HTMLElement) {
+      chart.setActiveElements([]);
+      chart.data.datasets[0].pointHoverBackgroundColor = orangeAccent;
+      chart.data.datasets[0].pointBorderColor = orangeAccent;
       chart.update('none');
-    }
-  });
-  $('div.advice-summary').on('mouseleave', 'div.symbol', function (this: HTMLElement) {
-    chart.setActiveElements([]);
-    chart.data.datasets[0].pointHoverBackgroundColor = orangeAccent;
-    chart.data.datasets[0].pointBorderColor = orangeAccent;
-    chart.update('none');
-  });
+    });
 }

@@ -15,8 +15,8 @@ $col2-panel-height: 240px;
     justify-content: center;
     align-items: flex-start;
 
-    > span {
-      @extend %roboto, %box-radius-top, %page-text, %ellipsis;
+    > button {
+      @extend %roboto, %box-radius-top, %page-text, %nowrap-ellipsis;
 
       flex: 1 1 0;
       text-align: center;
@@ -24,13 +24,12 @@ $col2-panel-height: 240px;
       padding: 0.4em 0.1em;
       cursor: pointer;
       position: relative;
-      white-space: nowrap;
+      border-bottom: $border;
 
       &:hover {
         background: $c-body-gradient;
       }
 
-      border-bottom: 1px solid $c-border;
       &.active {
         border-color: $c-accent;
       }

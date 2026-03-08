@@ -131,9 +131,16 @@
   <string name="evaluationGauge">Indicator de evaluare</string>
   <string name="visualMotifs">Motive vizuale</string>
   <string name="undefendedPieces">Piese neapărate</string>
+  <string name="pinnedPieces">Piese țintuite</string>
+  <string name="checkableKing">Rege expus la șah</string>
   <string name="multipleLines">Mutări multiple</string>
+  <string name="searchTime">Timp de căutare</string>
+  <string name="threads">Fire de execuție</string>
+  <string name="threadsDescription">Setați această valoare sub numărul maxim de fire de execuție al procesorului, bifele marchează o alegere sigură</string>
+  <string name="threadsDescriptionMobile">Mai multe fire de execuţie vor folosi mai multă baterie pentru o analiză mai bună</string>
   <string name="cpus">Procesoare</string>
   <string name="memory">Memorie</string>
+  <string name="memoryDescription">Valorile mai mari pot îmbunătăți performanța</string>
   <string name="infiniteAnalysis">Analiză infinită</string>
   <string name="removesTheDepthLimit">Elimină limita de adâncime (și încălzește computerul)</string>
   <string name="blunder">Gafă</string>
@@ -250,7 +257,7 @@
   <string name="changeUsernameNotSame">Se poate interschimba doar din minuscule în majuscule. De exemplu: „johndoe” în „JohnDoe”.</string>
   <string name="changeUsernameDescription">Schimbă-ți numele de utilizator. Această operație poate fi efectuată o singură dată și presupune doar schimbarea literelor din minuscule în majuscule și invers.</string>
   <string name="signupUsernameHint">Asigurați-vă că alegeți un nume de utilizator decent. Nu îl puteți schimba mai târziu și orice cont cu nume de utilizator indecent va fi închis!</string>
-  <string name="signupEmailHint">Îl vom folosi doar pentru resetarea parolei.</string>
+  <string name="signupEmailPromise">Îți vom trimite doar e-mailuri despre contul tău și niciodată nu îți vom distribui e-mailul.</string>
   <string name="password">Parolă</string>
   <string name="changePassword">Schimbă parola</string>
   <string name="changeEmail">Schimbă emailul</string>
@@ -758,17 +765,13 @@
   <string name="keyCycleSelectedVariation">Următoarea variație</string>
   <string name="keyShowOrHideComments">arată/ascunde comentarii</string>
   <string name="keyEnterOrExitVariation">acceptă/respinge variație</string>
-  <string name="keyRequestComputerAnalysis">Solicită analiza calculatorului, Învață din greșelile tale</string>
-  <string name="keyNextLearnFromYourMistakes">Următorul (Învață din greșelile tale)</string>
-  <string name="keyNextBlunder">Următoarea greșeală gravă</string>
-  <string name="keyNextMistake">Următoarea greșeală</string>
-  <string name="keyNextInaccuracy">Următoarea neacuratețe</string>
   <string name="keyPreviousBranch">Ramura precedentă</string>
   <string name="keyNextBranch">Ramura următoare</string>
   <string name="toggleVariationArrows">Comută săgețile de variație</string>
   <string name="cyclePreviousOrNextVariation">Ciclu de variație precedentă/următoare</string>
   <string name="toggleGlyphAnnotations">Comută comentarii la mutări</string>
   <string name="togglePositionAnnotations">Activează/Dezactivează adnotările pozițiilor</string>
+  <string name="toggleObservationAnnotations">Comută adnotări observaționale</string>
   <string name="variationArrowsInfo">Săgețile de variație vă permit să navigați fără a utiliza lista mutărilor.</string>
   <string name="playSelectedMove">joacă mutarea selectată</string>
   <string name="newTournament">Turneu nou</string>
@@ -1069,4 +1072,5 @@ Toate costurile de operare și de dezvoltare sunt finanțate doar din donațiile
   <string name="search">Căutare</string>
   <string name="clearSearch">Șterge căutarea</string>
   <string name="tags">Etichete</string>
+  <string name="enPassant">En passant legale</string>
 </resources>

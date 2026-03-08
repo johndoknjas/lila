@@ -105,7 +105,7 @@ export class Pubsub {
     if (found) return found.promise as Promise<OneTimeEvents[K]>;
 
     const handler = {} as OneTimeHandler<OneTimeEvents[K]>;
-    handler.promise = new Promise<OneTimeEvents[K]>(resolve => (handler!.resolve = resolve));
+    handler.promise = new Promise<OneTimeEvents[K]>(resolve => (handler.resolve = resolve));
     this.oneTimeEvents.set(event, handler);
 
     return handler.promise;

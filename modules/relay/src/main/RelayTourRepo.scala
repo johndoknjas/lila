@@ -74,6 +74,9 @@ final private class RelayTourRepo(val coll: Coll)(using Executor):
   def byIds(ids: List[RelayTourId]): Fu[List[RelayTour]] =
     coll.byOrderedIds[RelayTour, RelayTourId](ids, unsetHeavyOptionalFields.some)(_.id)
 
+  def hasOfficial(ids: List[RelayTourId]): Fu[Boolean] =
+    coll.exists($inIds(ids) ++ selectors.official)
+
   def isOwnerOfAll(u: UserId, ids: List[RelayTourId]): Fu[Boolean] =
     coll.exists($doc($inIds(ids), "ownerIds".$ne(u))).not
 

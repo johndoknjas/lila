@@ -54,6 +54,7 @@ import { alert } from 'lib/view';
 import { displayColumns } from 'lib/device';
 import type { Glyph, Shape, TreeComment, TreeNode, TreePath } from 'lib/tree/types';
 import { completeNode } from 'lib/tree/node';
+import studyKeyboard from './studyKeyboard';
 
 interface Handlers {
   path(d: WithWhoAndPos): void;
@@ -62,7 +63,7 @@ interface Handlers {
   promote(d: WithWhoAndPos & { toMainline: boolean }): void;
   liking(d: WithWho & { l: { likes: number; me: boolean } }): void;
   shapes(d: WithWhoAndPos & { s: DrawShape[] }): void;
-  members(d: { [id: string]: { user: { name: string; id: string }; role: 'r' | 'w' } }): void;
+  members(d: Record<string, { user: { name: string; id: string }; role: 'r' | 'w' }>): void;
   setComment(d: WithWhoAndPos & { c: TreeComment }): void;
   deleteComment(d: WithWhoAndPos & { id: string }): void;
   glyphs(d: WithWhoAndPos & { g: Glyph[] }): void;
@@ -71,7 +72,7 @@ interface Handlers {
   chapters(d: ChapterPreviewFromServer[]): void;
   reload(d: { reason?: 'overweight' }): void;
   changeChapter(d: WithWhoAndPos): void;
-  updateChapter(d: WithWhoAndChap): void;
+  reloadStudy(d: WithWho): void;
   descChapter(d: WithWhoAndChap & { desc?: string }): void;
   descStudy(d: WithWho & { desc?: string }): void;
   setTopics(d: WithWho & { topics: string[] }): void;
@@ -162,7 +163,6 @@ export default class StudyCtrl {
       defined(relayData),
       () => this.setTab('chapters'),
       chapterId => xhr.chapterConfig(data.id, chapterId),
-      () => this.data.federations,
       this.ctrl,
     );
     this.multiCloudEval = this.isCevalAllowed()
@@ -253,6 +253,8 @@ export default class StudyCtrl {
 
     this.instantiateGamebookPlay();
 
+    studyKeyboard(this);
+
     window.addEventListener('popstate', () => window.location.reload());
   }
 
@@ -327,13 +329,13 @@ export default class StudyCtrl {
     pubsub.emit('chat.writeable', this.data.features.chat);
     // official broadcasts cannot have local mods
     pubsub.emit('chat.permissions', { local: canContribute && !this.relay?.isOfficial() });
-    pubsub.emit('voiceChat.toggle', this.data.features.chat && !!this.members.myMember());
+    pubsub.emit('voiceChat.toggle', this.data.features.chat && !!this.members.myMember() && !this.relay);
     if (!this.data.chapter.features.explorer) this.ctrl.explorer.disable();
     this.ctrl.explorer.allowed(this.data.chapter.features.explorer);
   };
 
   isCevalAllowed = () =>
-    !this.relay?.tourShow() &&
+    (!this.relay?.tourShow() || site.blindMode) &&
     !this.isGamebookPlay() &&
     !!(this.data.chapter.features.computer || this.data.chapter.practice);
 
@@ -362,7 +364,7 @@ export default class StudyCtrl {
     this.data.description = s.description;
     this.chapterDesc.set(this.data.chapter.description);
     this.studyDesc.set(this.data.description);
-    document.title = this.data.name;
+    document.title = this.relay?.fullRoundName() ?? this.data.name;
     this.members.dict(s.members);
     if (s.chapters) this.chapters.loadFromServer(s.chapters);
     this.ctrl.flipped = this.chapterFlipMapProp(this.data.chapter.id);
@@ -405,7 +407,8 @@ export default class StudyCtrl {
 
   xhrReload = throttlePromiseDelay(
     () => 400,
-    (withChapters: boolean = false, callback: () => void = () => {}) => {
+    /* `callback` runs immediately after the xhr, and is not affected by the delay */
+    (withChapters: boolean = false, immediateCallback: () => void = () => {}) => {
       this.vm.loading = true;
       return xhr
         .reload(
@@ -415,7 +418,7 @@ export default class StudyCtrl {
           withChapters,
         )
         .then(this.onReload, site.reload)
-        .then(callback);
+        .then(immediateCallback);
     },
   );
 
@@ -477,8 +480,7 @@ export default class StudyCtrl {
   likeToggler = debounce(() => this.send('like', { liked: this.data.liked }), 1000);
 
   setChapter = async (idOrNumber: ChapterId | number, force?: boolean): Promise<boolean> => {
-    const prev = this.chapters.list.get(idOrNumber);
-    const id = prev?.id;
+    const id = this.chapters.list.get(idOrNumber)?.id;
     if (!id) {
       console.warn(`Chapter ${idOrNumber} not found`);
       return false;
@@ -607,6 +609,11 @@ export default class StudyCtrl {
     if (this.relay) this.relayRecProp(this.vm.mode.write);
     else this.nonRelayRecMapProp(this.data.id, this.vm.mode.write);
     this.xhrReload();
+  };
+  toggleStudyFormIfAllowed = () => {
+    if (!this.members.isOwner()) return;
+    this.form.open.toggle();
+    this.redraw();
   };
   goToPrevChapter = () => {
     const chapter = this.prevChapter();
@@ -749,7 +756,7 @@ export default class StudyCtrl {
         this.redraw();
       }
     },
-    updateChapter: d => {
+    reloadStudy: d => {
       this.setMemberActive(d.w);
       this.xhrReload();
     },

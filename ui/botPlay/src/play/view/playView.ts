@@ -22,9 +22,11 @@ import boardMenu from './boardMenu';
 import { renderMaterialDiffs } from 'lib/game/view/material';
 import { type TopOrBottom } from 'lib/game';
 import { renderClock } from 'lib/game/clock/clockView';
+import { renderBlindfoldToggle } from 'lib/view/blindfold';
 
 export const playView = (ctrl: PlayCtrl) =>
   hl(`main.bot-app.bot-game.unique-game-${ctrl.game.id}.bot-color--${ctrl.opts.bot.key}`, [
+    renderBlindfoldToggle(ctrl.blindfold),
     viewBoard(ctrl),
     hl('div.bot-game__table'),
     viewTable(ctrl),
@@ -191,11 +193,13 @@ const boardScroll = (ctrl: PlayCtrl) =>
     ? undefined
     : bind(
         'wheel',
-        stepwiseScroll((e: WheelEvent, scroll: boolean) => {
-          e.preventDefault();
-          if (e.deltaY > 0 && scroll) ctrl.goDiff(1);
-          else if (e.deltaY < 0 && scroll) ctrl.goDiff(-1);
-        }),
+        stepwiseScroll(
+          e => {
+            if (e.deltaY > 0) ctrl.goDiff(1);
+            else if (e.deltaY < 0) ctrl.goDiff(-1);
+          },
+          () => false,
+        ),
         undefined,
         false,
       );

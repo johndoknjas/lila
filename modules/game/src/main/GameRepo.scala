@@ -76,7 +76,7 @@ final class GameRepo(c: Coll)(using Executor) extends lila.core.game.GameRepo(c)
       .dmap:
         _.flatMap(Pov(_, user))
 
-  def recentPovsByUserFromSecondary(user: User, nb: Int, select: Bdoc = $empty): Fu[List[Pov]] =
+  def recentPovsByUserFromSecondary[U: UserIdOf](user: U, nb: Int, select: Bdoc = $empty): Fu[List[Pov]] =
     recentGamesFromSecondaryCursor(Query.user(user) ++ select)
       .list(nb)
       .map { _.flatMap(Pov(_, user)) }
@@ -277,18 +277,6 @@ final class GameRepo(c: Coll)(using Executor) extends lila.core.game.GameRepo(c)
       .sort($sort.desc(F.createdAt))
       .one[Bdoc]
       .dmap { _.flatMap(_.getAsOpt[GameId](F.id)) }
-
-  def lastFinishedRatedNotFromPosition(user: User): Fu[Option[Game]] =
-    coll
-      .find(
-        Query.user(user.id) ++
-          Query.rated ++
-          Query.finished ++
-          Query.turnsGt(2) ++
-          Query.notFromPosition
-      )
-      .sort(Query.sortAntiChronological)
-      .one[Game]
 
   def setTv(id: GameId) = coll.updateFieldUnchecked($id(id), F.tvAt, nowInstant)
 

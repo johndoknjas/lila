@@ -53,6 +53,8 @@
   <string name="endgame">Эндшпиль</string>
   <string name="endgameDescription">Тактика в последней стадии игры.</string>
   <string name="enPassantDescription">Тактика с применением правила «взятие на проходе», где своя пешка может взять пешку противника, сходившую на две клетки из своего начального положения, и при этом пропущенное поле было под боем своей пешки.</string>
+  <string name="epauletteMate">Эполетный мат</string>
+  <string name="epauletteMateDescription">Две соседние клетки для спасения короля, оказавшегося под шахом, заняты другими фигурами.</string>
   <string name="exposedKing">Открытый король</string>
   <string name="exposedKingDescription">Незащищённый или слабо защищённый король часто становится жертвой матовой атаки.</string>
   <string name="fork">Вилка</string>
@@ -71,6 +73,8 @@
   <string name="pillsburysMateDescription">Ладья ставит мат, в то время как слон контролирует угловое поле.</string>
   <string name="morphysMate">Мат Морфи</string>
   <string name="morphysMateDescription">Слон ставит мат, в то время как ладья контролирует соседнюю вертикаль.</string>
+  <string name="swallowstailMate">Мат \"Ласточкин хвост\"</string>
+  <string name="swallowstailMateDescription">Матовая конструкция, напоминающая собой хвост ласточки; также напоминает букву \"V\".</string>
   <string name="triangleMate">Треугольный мат</string>
   <string name="triangleMateDescription">Ферзь и ладья находятся на соседних полях с вражеским королём, на той же горизонтали или вертикали, образуюя треугольник.</string>
   <string name="vukovicMate">Мат Вуковича</string>

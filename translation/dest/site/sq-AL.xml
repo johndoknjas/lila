@@ -132,8 +132,15 @@
   <string name="pinnedPieces">Gurë të fiksuar</string>
   <string name="checkableKing">Mbret të cilit mund t’i jepet shah</string>
   <string name="multipleLines">Linja të shumta</string>
+  <string name="multipleLinesDescription">Caktoni numër rreshtash vleftësimi dhe kalojini shigjetat te fusha</string>
+  <string name="searchTime">Kohë kërkimi</string>
+  <string name="searchTimeDescription">Caktoni kohën për vleftësim pozicionesh të freskëta</string>
+  <string name="threads">Rrjedha</string>
+  <string name="threadsDescription">Vëreni këtë nën numër rrjedhash të CPU-së tuaj, shenjat tregojnë një zgjedhje të mirë të parrezik</string>
+  <string name="threadsDescriptionMobile">Më tepër rrjedha do të përdorin më tepër bateri për analizim më të mirë</string>
   <string name="cpus">Procesorë</string>
   <string name="memory">Kujtesë</string>
+  <string name="memoryDescription">Vlera më të mëdha mund të përmirësojnë funksionimin</string>
   <string name="infiniteAnalysis">Analizë e pafundme</string>
   <string name="removesTheDepthLimit">Heq kufirin e thellësisë dhe e mban të ngrohtë kompjuterin tuaj</string>
   <string name="blunder">Gafë</string>
@@ -237,7 +244,7 @@
   <string name="changeUsernameNotSame">Mund të bëhet vetëm ndryshim nga shkronjë e madhe në të vogël dhe anasjelltas. Për shembull, “neshatbishti” në “NeshatBishti”.</string>
   <string name="changeUsernameDescription">Ndryshoni emrin tuaj të përdoruesit. Kjo mund të bëhet vetëm një herë edhe ju lejohet vetëm të ndryshoni shkronja të vogla në të mëdha dhe anasjelltas te emri juaj i përdoruesit.</string>
   <string name="signupUsernameHint">Sigurohuni se zgjidhni një emër përdoruesi të përshtatshëm për familje. S’mund ta ndryshoni më vonë dhe cilado llogari me emra përdoruesish të papërshtatshëm do të mbyllet!</string>
-  <string name="signupEmailHint">Do ta përdorim vetëm për ricaktim fjalëkalimi.</string>
+  <string name="signupEmailPromise">Do t’ju dërgojmë email-e vetëm rreth llogarisë tuaj dhe s’do ta japim kurrë email-in tuaj gjetkë.</string>
   <string name="password">Fjalëkalim</string>
   <string name="changePassword">Ndryshoni fjalëkalimin</string>
   <string name="changeEmail">Ndryshoni email-in</string>
@@ -666,7 +673,7 @@ loje dhe URL për ta ndarë me të tjerë.</string>
   <string name="onlyExistingConversations">Vetëm bisedat ekzistuese</string>
   <string name="onlyFriends">Vetëm shokë</string>
   <string name="menu">Menu</string>
-  <string name="castling" comment="Label for a box on the right side of the board editor, where the user can select castling rights. Noun.&#10;&#10;NOTE: this string used to read &quot;Castling&quot;, with &quot;rights&quot; added in 2026 for clarity.">Rokadë</string>
+  <string name="castling">Rokadë</string>
   <string name="whiteCastlingKingside">I bardhi O-O</string>
   <string name="blackCastlingKingside">I ziu O-O</string>
   <plurals name="nbForumPosts">
@@ -722,11 +729,6 @@ loje dhe URL për ta ndarë me të tjerë.</string>
   <string name="keyGoToStartOrEnd">shko në fillim/fund</string>
   <string name="keyShowOrHideComments">shfaq/fshih komentet</string>
   <string name="keyEnterOrExitVariation">hyr/dil nga varianti</string>
-  <string name="keyRequestComputerAnalysis">Kërkoni analizim nga kompjuteri, Mësoni nga gabimet tuaja</string>
-  <string name="keyNextLearnFromYourMistakes">Pasuesi (Mësoni nga gabimet tuaja)</string>
-  <string name="keyNextBlunder">Gafa pasuese</string>
-  <string name="keyNextMistake">Gabimi pasues</string>
-  <string name="keyNextInaccuracy">Pasaktësia pasuese</string>
   <string name="keyPreviousBranch">Dega e mëparshme</string>
   <string name="keyNextBranch">Dega pasuese</string>
   <string name="toggleVariationArrows">Shfaq/fshih shigjeta variantesh</string>

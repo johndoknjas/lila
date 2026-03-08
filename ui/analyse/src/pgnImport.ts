@@ -77,7 +77,7 @@ export default function (pgn: string): Partial<AnalyseData> {
   };
 }
 
-const rulesToVariantKey: { [key: string]: VariantKey } = {
+const rulesToVariantKey: Record<string, VariantKey> = {
   chess: 'standard',
   kingofthehill: 'kingOfTheHill',
   '3check': 'threeCheck',

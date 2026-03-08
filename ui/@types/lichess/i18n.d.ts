@@ -293,6 +293,8 @@ interface I18n {
     fullDescription: string;
     /** Optional long description of the tournament. %1$s is available. Length must be less than %2$s characters. */
     fullDescriptionHelp: I18nFormat;
+    /** Game Points */
+    gamePoints: string;
     /** Games in this tournament */
     gamesThisTournament: string;
     /** Game %s */
@@ -311,6 +313,12 @@ interface I18n {
     liveboard: string;
     /** Live tournament broadcasts */
     liveBroadcasts: string;
+    /** Matches */
+    matches: string;
+    /** Match History */
+    matchHistory: string;
+    /** Match Points */
+    matchPoints: string;
     /** Men */
     menTournament: string;
     /** My broadcasts */
@@ -371,6 +379,8 @@ interface I18n {
     sourceSingleUrl: string;
     /** URL that Lichess will check to get PGN updates. It must be publicly accessible from the Internet. */
     sourceUrlHelp: string;
+    /** Standings are calculated using broadcasted games and may differ from official results. */
+    standingsDisclaimer: string;
     /** Optional, if you know when the event starts */
     startDateHelp: string;
     /** Start date in the tournament local timezone: %s */
@@ -383,6 +393,8 @@ interface I18n {
     subscribedBroadcasts: string;
     /** Subscribe to be notified when each round starts. You can toggle bell or push notifications for broadcasts in your account preferences. */
     subscribeTitle: string;
+    /** Team Results */
+    teamResults: string;
     /** Teams */
     teams: string;
     /** The following term(s) will be automatically translated: %s. */
@@ -2605,6 +2617,10 @@ interface I18n {
     clearance: string;
     /** A move, often with tempo, that clears a square, file or diagonal for a follow-up tactical idea. */
     clearanceDescription: string;
+    /** Collinear move */
+    collinearMove: string;
+    /** Two opposing pieces face each other, and one slides along the line of attack without capturing the enemy piece. */
+    collinearMoveDescription: string;
     /** Corner mate */
     cornerMate: string;
     /** Confine the king to the corner using a rook or queen and a knight to engage the checkmate. */
@@ -2647,6 +2663,10 @@ interface I18n {
     endgameDescription: string;
     /** A tactic involving the en passant rule, where a pawn can capture an opponent pawn that has bypassed it using its initial two-square move. */
     enPassantDescription: string;
+    /** Epaulette mate */
+    epauletteMate: string;
+    /** Two adjacent escape squares for a checked king are occupied by other pieces. */
+    epauletteMateDescription: string;
     /** Equality */
     equality: string;
     /** Come back from a losing position, and secure a draw or a balanced position. (eval ≤ 200cp) */
@@ -2809,6 +2829,10 @@ interface I18n {
     superGM: string;
     /** Puzzles from games played by the best players in the world. */
     superGMDescription: string;
+    /** Swallow's tail mate */
+    swallowstailMate: string;
+    /** A checkmate pattern that visually resembles the appearance of a swallow’s tail, similar to a V shape. */
+    swallowstailMateDescription: string;
     /** Trapped piece */
     trappedPiece: string;
     /** A piece is unable to escape capture as it has limited moves. */
@@ -3503,7 +3527,7 @@ interface I18n {
     'error.minLength': I18nFormat;
     /** Please don't use your username as your password. */
     'error.namePassword': string;
-    /** Please provide at least one link to a game with suspected cheating. */
+    /** Please provide at least one link to a game for review. */
     'error.provideOneCheatedGameLink': string;
     /** This field is required */
     'error.required': string;
@@ -3697,20 +3721,10 @@ interface I18n {
     keyGoToStartOrEnd: string;
     /** move backward/forward */
     keyMoveBackwardOrForward: string;
-    /** Next blunder */
-    keyNextBlunder: string;
     /** Next branch */
     keyNextBranch: string;
-    /** Next inaccuracy */
-    keyNextInaccuracy: string;
-    /** Next (Learn from your mistakes) */
-    keyNextLearnFromYourMistakes: string;
-    /** Next mistake */
-    keyNextMistake: string;
     /** Previous branch */
     keyPreviousBranch: string;
-    /** Request computer analysis, Learn from your mistakes */
-    keyRequestComputerAnalysis: string;
     /** show/hide comments */
     keyShowOrHideComments: string;
     /** Kid mode */
@@ -3809,6 +3823,8 @@ interface I18n {
     memberSince: string;
     /** Memory */
     memory: string;
+    /** Higher values may improve performance */
+    memoryDescription: string;
     /** mentioned you in "%1$s". */
     mentionedYouInX: I18nFormat;
     /** Menu */
@@ -3849,6 +3865,8 @@ interface I18n {
     moveTimes: string;
     /** Multiple lines */
     multipleLines: string;
+    /** Set number of evaluation lines and move arrows on the board */
+    multipleLinesDescription: string;
     /** Must be in team %s */
     mustBeInTeam: I18nFormat;
     /** Name */
@@ -4271,6 +4289,10 @@ interface I18n {
     search: string;
     /** Search or start new conversation */
     searchOrStartNewDiscussion: string;
+    /** Search time */
+    searchTime: string;
+    /** Set time to evaluate fresh positions */
+    searchTimeDescription: string;
     /** Security */
     security: string;
     /** See best move */
@@ -4303,8 +4325,8 @@ interface I18n {
     signIn: string;
     /** Register */
     signUp: string;
-    /** We will only use it for password reset and account activation. */
-    signupEmailHint: string;
+    /** We will only send you emails about your account and never share your email. */
+    signupEmailPromise: string;
     /** Sign up to host or join a simul */
     signUpToHostOrJoinASimul: string;
     /** Make sure to choose a username that's appropriate for all ages. You cannot change it later and any accounts with inappropriate usernames will get closed! */
@@ -4427,6 +4449,12 @@ interface I18n {
     thisTopicIsArchived: string;
     /** This topic is now closed. */
     thisTopicIsNowClosed: string;
+    /** Threads */
+    threads: string;
+    /** Set this below your CPU's thread count, the ticks mark a good safe choice */
+    threadsDescription: string;
+    /** More threads will use more battery for better analysis */
+    threadsDescriptionMobile: string;
     /** Three checks */
     threeChecks: string;
     /** Threefold repetition */

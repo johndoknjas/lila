@@ -3,7 +3,7 @@ th[role='columnheader']:not([data-sort-method='none']) {
   cursor: pointer;
 }
 
-th[role='columnheader']:not([data-sort-method='none']):after {
+th[role='columnheader']:not([data-sort-method='none'])::after {
   @extend %data-icon;
   @include prevent-select;
   content: $licon-UpTriangle;
@@ -15,14 +15,14 @@ th[role='columnheader']:not([data-sort-method='none']):after {
   font-size: 14px;
 }
 
-th[aria-sort='descending']:not([data-sort-method='none']):after {
+th[aria-sort='descending']:not([data-sort-method='none'])::after {
   content: $licon-DownTriangle;
 }
 
 th[aria-sort]:not([data-sort-method='none']) {
   background: $m-accent--fade-85;
   color: $c-font-clear;
-  &:after {
+  &::after {
     visibility: visible;
     opacity: 0.7;
   }
@@ -31,7 +31,7 @@ th[aria-sort]:not([data-sort-method='none']) {
 th[role='columnheader']:not([data-sort-method='none']):hover {
   color: $c-font-clear;
 
-  &:after {
+  &::after {
     opacity: 1;
   }
 }

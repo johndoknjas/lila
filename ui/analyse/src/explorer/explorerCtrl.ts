@@ -1,4 +1,4 @@
-import { type Prop, prop, defined } from 'lib';
+import { type Prop, prop, defined, myUserId } from 'lib';
 import { storedBooleanProp } from 'lib/storage';
 import { pieceCount, fenColor } from 'lib/game/chess';
 import { debounce, defer, sync, type Sync } from 'lib/async';
@@ -73,6 +73,8 @@ export default class ExplorerCtrl {
       if (e) this.reload();
     }
   };
+
+  isAuth = () => defined(myUserId());
 
   reload = () => {
     this.cache = {};
@@ -150,7 +152,7 @@ export default class ExplorerCtrl {
     pieceCount(fen) - 1 <= tablebasePieces(variant) && this.root.isCevalAllowed();
 
   setNode = () => {
-    if (!this.enabled()) return;
+    if (!this.isAuth() || !this.enabled()) return;
     this.gameMenu(null);
     const node = this.root.node;
     if (node.ply >= MAX_DEPTH && !this.tablebaseRelevant(this.effectiveVariant, node.fen))

@@ -65,6 +65,10 @@ case class RelayTour(
 
   def canView(using me: Option[Me]) = !isPrivate || me.so(isOwnedBy)
 
+  def daysSinceFinished =
+    import java.time.temporal.ChronoUnit
+    dates.flatMap(_.end).map(ChronoUnit.DAYS.between(_, nowInstant))
+
 object RelayTour:
 
   val maxRelays = Max(64)
@@ -101,16 +105,16 @@ object RelayTour:
   case class Info(
       format: Option[String],
       tc: Option[String],
-      fideTc: Option[FideTC],
+      fideTC: Option[FideTC],
       location: Option[String],
       timeZone: Option[ZoneId],
       players: Option[String],
       website: Option[URL],
       standings: Option[URL]
   ):
-    def nonEmpty = List(format, tc, fideTc, location, players, website, standings).exists(_.nonEmpty)
-    override def toString = List(format, tc, fideTc, location, players).flatten.mkString(" | ")
-    lazy val fideTcOrGuess: FideTC = fideTc | FideTC.standard
+    def nonEmpty = List(format, tc, fideTC, location, players, website, standings).exists(_.nonEmpty)
+    override def toString = List(format, tc, fideTC, location, players).flatten.mkString(" | ")
+    lazy val fideTCOrGuess: FideTC = fideTC | FideTC.standard
     def timeZoneOrDefault: ZoneId = timeZone | ZoneId.systemDefault
     def clock: Option[TournamentClock] = tc.flatMap(TournamentClock.parse(false))
 

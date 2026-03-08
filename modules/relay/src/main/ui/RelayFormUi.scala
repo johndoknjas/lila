@@ -28,7 +28,7 @@ final class RelayFormUi(helpers: Helpers, ui: RelayUi, pageMenu: RelayMenuUi):
   import helpers.{ *, given }
   import trans.{ broadcast as trb, site as trs }
 
-  private def navigationMenu(nav: FormNavigation)(using Context) =
+  private def navigationMenu(nav: FormNavigation)(using ctx: Context) =
     def tourAndRounds(shortName: Option[RelayTour.Name]) = frag(
       a(
         href := routes.RelayTour.edit(nav.tour.id),
@@ -52,15 +52,17 @@ final class RelayFormUi(helpers: Helpers, ui: RelayUi, pageMenu: RelayMenuUi):
               else Icon.DiscOutline
             )
           )(r.name.translate),
-        a(
-          href := routes.RelayRound.create(nav.tour.id),
-          cls := List(
-            "subnav__subitem text" -> true,
-            "active" -> nav.newRound,
-            "button" -> (nav.rounds.isEmpty && !nav.newRound)
-          ),
-          dataIcon := Icon.PlusButton
-        )(trb.addRound())
+        (Granter.opt(_.StudyAdmin) || ctx.me.exists(nav.tour.isOwnedBy)).option(
+          a(
+            href := routes.RelayRound.create(nav.tour.id),
+            cls := List(
+              "subnav__subitem text" -> true,
+              "active" -> nav.newRound,
+              "button" -> (nav.rounds.isEmpty && !nav.newRound)
+            ),
+            dataIcon := Icon.PlusButton
+          )(trb.addRound())
+        )
       )
     )
     lila.ui.bits.pageMenuSubnav(
@@ -120,7 +122,7 @@ final class RelayFormUi(helpers: Helpers, ui: RelayUi, pageMenu: RelayMenuUi):
         r: RelayRound,
         form: Form[RelayRoundForm.Data],
         nav: FormNavigation
-    )(using Context) =
+    )(using ctx: Context) =
       page(r.name.translate, nav):
         val rt = r.withTour(nav.tour)
         frag(
@@ -143,11 +145,12 @@ final class RelayFormUi(helpers: Helpers, ui: RelayUi, pageMenu: RelayMenuUi):
                 em(trb.deleteAllGamesOfThisRound())
               )
             ),
-            postForm(action := routes.Study.delete(r.studyId))(
-              submitButton(
-                cls := "button button-red button-empty yes-no-confirm"
-              )(strong(trb.deleteRound()), em(trb.definitivelyDeleteRound()))
-            )
+            (Granter.opt(_.StudyAdmin) || ctx.me.exists(nav.tour.isOwnedBy)).option:
+              postForm(action := routes.Study.delete(r.studyId))(
+                submitButton(
+                  cls := "button button-red button-empty yes-no-confirm"
+                )(strong(trb.deleteRound()), em(trb.definitivelyDeleteRound()))
+              )
           )
         )
 
@@ -468,7 +471,7 @@ Hanna Marie ; Kozul, Zdenko"""),
           )
         )
 
-    def edit(form: Form[RelayTourForm.Data], nav: FormNavigation)(using Context, Me) =
+    def edit(form: Form[RelayTourForm.Data], nav: FormNavigation)(using ctx: Context, me: Me) =
       page(nav.tour.name.value, menu = Right(nav)).markdownTextarea:
         frag(
           boxTop(h1(a(href := routes.RelayTour.show(nav.tour.slug, nav.tour.id))(nav.tour.name))),
@@ -482,11 +485,13 @@ Hanna Marie ; Kozul, Zdenko"""),
             )
           ),
           div(cls := "relay-form__actions")(
-            postForm(action := routes.RelayTour.delete(nav.tour.id))(
-              submitButton(
-                cls := "button button-red button-empty yes-no-confirm"
-              )(strong(trb.deleteTournament()), em(trb.definitivelyDeleteTournament()))
-            ),
+            (!nav.tour.official && (Granter.opt(_.StudyAdmin) || nav.tour.isOwnedBy(me))).option:
+              postForm(action := routes.RelayTour.delete(nav.tour.id))(
+                submitButton(
+                  cls := "button button-red button-empty yes-no-confirm"
+                )(strong(trb.deleteTournament()), em(trb.definitivelyDeleteTournament()))
+              )
+            ,
             Granter
               .opt(_.Relay)
               .option(
@@ -525,7 +530,8 @@ Hanna Marie ; Kozul, Zdenko"""),
                 Visibility.public.key -> "Public",
                 Visibility.unlisted.key -> "Unlisted (from URL only)",
                 Visibility.`private`.key -> "Private (invited members only)"
-              )
+              ),
+              disabled = tg.flatMap(_.tour.tier).isDefined && !Granter(_.Relay)
             )
           )
         ),
@@ -566,7 +572,7 @@ Hanna Marie ; Kozul, Zdenko"""),
               half = true
             )(form3.input(_)),
             form3.group(
-              form("info.fideTc"),
+              form("info.fideTC"),
               trb.fideRatingCategory(),
               help = frag("Which FIDE ratings to use").some,
               half = true
@@ -702,9 +708,9 @@ Team Dogs ; Scooby Doo"""),
             )
           )
         ,
-        tg.isDefined.option:
+        tg.map: t =>
           form3.fieldset("Grouping", toggle = false.some):
-            grouping(form)
+            grouping(form, t.tour)
         ,
         if Granter.opt(_.Relay) then
           frag(
@@ -827,7 +833,7 @@ Team Dogs ; Scooby Doo"""),
         )
       )
 
-  private def grouping(form: Form[RelayTourForm.Data])(using Context) =
+  private def grouping(form: Form[RelayTourForm.Data], tour: RelayTour)(using Context) =
     div(cls := "relay-form__grouping")(
       form3.group(
         form("grouping.info"),
@@ -846,7 +852,14 @@ https://lichess.org/broadcast/dutch-championships-2025--women--first-stage/PGFBk
 https://lichess.org/broadcast/dutch-championships-2025--open--quarterfinals/Zi12QchK
 """)
         ).some
-      )(form3.textarea(_)(rows := 5, spellcheck := "false", cls := "monospace")),
+      )(
+        form3.textarea(_)(
+          rows := 5,
+          spellcheck := "false",
+          cls := "monospace",
+          (tour.tier.isDefined && !Granter.opt(_.Relay)).option(disabled)
+        )
+      ),
       form3.group(
         form("grouping.scoreGroups"),
         "Optional: Divide the group into score groups",

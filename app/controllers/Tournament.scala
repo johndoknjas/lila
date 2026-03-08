@@ -72,10 +72,14 @@ final class Tournament(env: Env, apiC: => Api)(using akka.stream.Materializer) e
           myInfo <- ctx.me.so { jsonView.fetchMyInfo(tour, _) }
           verdicts <- api.getVerdicts(tour, myInfo.isDefined)
           version <- env.tournament.version(tour.id)
+          playerId = getUserStr("player").map(_.id)
+          (page, playerInfo) <- playerId
+            .so(api.playerPage(tour))
+            .map(_.fold(page -> none)((page, player) => page.some -> player.some))
           json <- jsonView(
             tour = tour,
             page = page,
-            playerInfoExt = none,
+            playerInfoExt = playerInfo,
             socketVersion = version.some,
             partial = false,
             withScores = true,
@@ -336,9 +340,8 @@ final class Tournament(env: Env, apiC: => Api)(using akka.stream.Materializer) e
       bindForm(lila.tournament.TeamBattle.DataForm.empty)(
         err => BadRequest.page(views.tournament.teamBattle.edit(tour, err)),
         res =>
-          api
-            .teamBattleUpdate(tour, res, env.team.api.filterExistingIdsNoClas)
-            .inject(Redirect(routes.Tournament.show(tour.id)))
+          for _ <- api.teamBattleUpdate(tour, res, env.team.api.filterExistingIdsNoClas)
+          yield Redirect(routes.Tournament.show(tour.id))
       )
   }
 
@@ -457,7 +460,7 @@ final class Tournament(env: Env, apiC: => Api)(using akka.stream.Materializer) e
       f: Tour => Fu[Result]
   )(using ctx: Context, me: Me): Fu[Result] =
     WithVisibleTournament(id): t =>
-      if (t.createdBy.is(me) && !t.isFinished) || isGranted(_.ManageTournament)
+      if isGranted(_.ManageTournament) || (t.createdBy.is(me) && (!t.isFinished || ctx.req.method == "GET"))
       then f(t)
       else Redirect(routes.Tournament.show(t.id))
 

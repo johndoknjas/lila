@@ -1,4 +1,4 @@
-import { prop } from 'lib';
+import { blurIfPrimaryClick, prop } from 'lib';
 import { bind, spinnerVdom } from 'lib/view';
 import { throttle } from 'lib/async';
 import { h, type VNode } from 'snabbdom';
@@ -16,9 +16,12 @@ const renderGlyph = (ctrl: GlyphForm, node: TreeNode) => (glyph: Glyph) =>
   h(
     'button',
     {
-      hook: bind('click', () => ctrl.toggleGlyph(glyph.id)),
+      hook: bind('click', e => {
+        ctrl.toggleGlyph(glyph.id);
+        blurIfPrimaryClick(e);
+      }),
       attrs: { 'data-symbol': glyph.symbol, type: 'button' },
-      class: { active: !!node.glyphs && !!node.glyphs.find(g => g.id === glyph.id) },
+      class: { active: !!node.glyphs && node.glyphs.some(g => g.id === glyph.id) },
     },
     [glyph.name],
   );

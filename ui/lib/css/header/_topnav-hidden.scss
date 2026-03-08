@@ -107,7 +107,7 @@
 
   #topnav {
     @include if-transp {
-      @include back-blur();
+      @include back-blur;
     }
     display: flex;
     flex-flow: row wrap;

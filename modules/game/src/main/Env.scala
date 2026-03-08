@@ -45,7 +45,7 @@ final class Env(
 
   val uciMemo = wire[UciMemo]
 
-  lazy val gifExport = new GifExport(ws, lightUserApi, routeUrl, config.gifUrl)
+  lazy val gifExport = GifExport(ws, lightUserApi, routeUrl, config.gifUrl)
 
   lazy val paginator = wire[PaginatorBuilder]
 

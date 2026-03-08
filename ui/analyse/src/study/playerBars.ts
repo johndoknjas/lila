@@ -153,7 +153,7 @@ function renderPlayer(
 
 function resultOf(tags: TagMap, isWhite: boolean): string | undefined {
   const both = tags.get('result')?.split('-');
-  const mine = both && both.length === 2 ? both[isWhite ? 0 : 1] : undefined;
+  const mine = both?.length === 2 ? both[isWhite ? 0 : 1] : undefined;
   return mine === '1/2' ? '½' : mine;
 }
 
@@ -162,6 +162,6 @@ export const playerFedFlag = (fed?: Federation): VNode | undefined =>
   hl('img.mini-game__flag', {
     attrs: {
       src: site.asset.fideFedSrc(fed.id),
-      title: `Federation: ${fed.name}`,
+      title: `Federation: ${fed.i18nName}`,
     },
   });

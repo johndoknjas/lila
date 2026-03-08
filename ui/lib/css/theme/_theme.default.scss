@@ -1,11 +1,11 @@
 @import 'gen/mix';
 @import '../abstract/patron-colors';
 
-@function _clear($color, $weight: 20%) {
+@function clear($color, $weight: 20%) {
   @return mix(#fff, $color, $weight);
 }
 
-@function _dim($color, $weight: 20%) {
+@function dim($color, $weight: 20%) {
   @return mix(#000, $color, $weight);
 }
 
@@ -83,8 +83,8 @@ $patron-colors: $patron-colors-dark;
   --c-font-page: var(--c-font-dim);
   --c-font-shadow: hsla(0, 0, 0%, 0);
 
-  --c-primary-dim: #{_dim($c-primary, 15%)};
-  --c-link-hover: #{_clear(saturate($c-primary, 100%), 25%)};
+  --c-primary-dim: #{dim($c-primary, 15%)};
+  --c-link-hover: #{clear(saturate($c-primary, 100%), 25%)};
   --c-chat-host-bg: rgba(78, 122, 29, 0.4);
   --c-chat-mention-bg: rgba(59, 92, 22, 0.4);
   --c-fancy: hsl(294, 62%, 48%);
@@ -94,11 +94,10 @@ $patron-colors: $patron-colors-dark;
   --c-border-tour: #{mix(hsl(0, 0%, 22%), $c-bg-page, 50)};
   --c-border-light: hsl(0, 0%, 40%);
   --c-primary: #{$c-primary};
-  --c-primary-clear: #{_clear($c-primary)};
+  --c-primary-clear: #{clear($c-primary)};
   --c-secondary: #{$c-secondary};
-  --c-secondary-dim: #{_dim($c-secondary, 20%)};
-  --c-secondary-dimmer: #{_dim($c-secondary, 40%)};
-  --c-good: #{$c-secondary};
+  --c-secondary-dim: #{dim($c-secondary, 20%)};
+  --c-secondary-dimmer: #{dim($c-secondary, 40%)};
   --c-accent: #{$c-accent};
   --c-link: #{$c-primary};
   --c-link-dim: var(--c-primary-dim);
@@ -106,9 +105,9 @@ $patron-colors: $patron-colors-dark;
   --c-over: #fff;
   --c-brag: #{$c-brag};
   --c-contours: #{mix($c-brag, $c-shade, 80%)};
-  --c-accent-dim: #{_dim($c-accent)};
+  --c-accent-dim: #{dim($c-accent)};
   --c-accent-faint: hsla(22, 100%, 42%, 0.4);
-  --c-accent-clear: #{_dim($c-accent)};
+  --c-accent-clear: #{dim($c-accent)};
 
   --c-dasher: #{$c-secondary};
   --c-bot: var(--c-fancy);

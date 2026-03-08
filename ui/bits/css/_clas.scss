@@ -20,11 +20,10 @@ body {
 }
 
 %archived {
-  @extend %box-radius, %flex-between;
+  @extend %flex-between;
 
   background: $c-bg-zebra2;
   padding: 1em 2em;
-  margin-bottom: 2em;
 }
 
 .page-menu__content.box {
@@ -48,21 +47,9 @@ body {
   }
 
   &.student {
-    em {
-      @extend %roboto;
-
-      display: none;
-    }
-
-    @include mq-subnav-side {
-      font-weight: bold;
-      padding: 0.4rem 2vw 0.4rem 0.8rem;
-
-      em {
-        font-weight: normal;
-        display: block;
-      }
-    }
+    @extend %roboto;
+    padding: 0.4rem 2vw 0.4rem 2rem;
+    line-height: 1.2em;
   }
 }
 
@@ -389,7 +376,7 @@ h1 {
           color: $c-over;
         }
 
-        border-inline-end: 1px solid $c-border;
+        border-inline-end: $border;
 
         &:last-child {
           border: 0;
@@ -457,9 +444,7 @@ h1 {
   }
 
   &__actions {
-    @extend %flex-center;
-
-    justify-content: center;
+    @extend %flex-center-center;
     margin-top: 4em;
 
     .button {
@@ -592,7 +577,7 @@ h1 {
   &__choice {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(20em, 1fr));
-    grid-gap: var(---box-padding);
+    gap: var(---box-padding);
     align-items: center;
 
     h2 {
@@ -662,8 +647,7 @@ h1 {
   }
 
   &__login {
-    @extend %flex-center;
-    justify-content: center;
+    @extend %flex-center-center;
     form {
       @extend %flex-center;
       align-items: stretch;
@@ -707,7 +691,7 @@ h1 {
   &__cards {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-    grid-gap: 1em;
+    gap: 1em;
   }
   &__card {
     @extend %box-neat, %flex-column;

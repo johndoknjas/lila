@@ -70,7 +70,7 @@ square {
     background-color: rgba(155, 199, 0, 0.41);
 
     body[data-board='horsey'] .is2d &:not(.move-dest) {
-      background: url(../images/board/horsey.last-move.png);
+      background: url('../images/board/horsey.last-move.png');
       background-size: cover;
     }
   }
@@ -89,7 +89,7 @@ square {
     background-color: rgba(20, 85, 30, 0.5);
 
     body[data-board='horsey'] .is2d & {
-      background: url(../images/board/horsey.selected.png);
+      background: url('../images/board/horsey.selected.png');
       background-size: cover;
     }
   }
@@ -98,7 +98,7 @@ square {
     background-color: rgba(20, 30, 85, 0.5) !important;
 
     body[data-board='horsey'] .is2d & {
-      background: url(../images/board/horsey.current-premove.png);
+      background: url('../images/board/horsey.current-premove.png');
       background-size: cover;
     }
   }
@@ -108,7 +108,7 @@ square {
       background: rgba(20, 85, 30, 0.3);
 
       body[data-board='horsey'] .is2d & {
-        background: url(../images/board/horsey.move-dest.png);
+        background: url('../images/board/horsey.move-dest.png');
         background-size: cover;
       }
     }
@@ -169,8 +169,8 @@ cg-container .cg-custom-below,
 cg-auto-pieces {
   overflow: visible;
   position: absolute;
-  top: 0px;
-  left: 0px;
+  top: 0;
+  left: 0;
   width: 100%;
   height: 100%;
   pointer-events: none;

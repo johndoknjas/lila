@@ -26,6 +26,8 @@
   <string name="castlingDescription">Traga o seu rei para a segurança, e prepare sua torre para o ataque.</string>
   <string name="capturingDefender">Capture o defensor</string>
   <string name="capturingDefenderDescription">Remover uma peça que seja importante na defesa de outra, permitindo que agora a peça indefesa seja capturada na jogada seguinte.</string>
+  <string name="collinearMove" comment="Description for this theme (translateable separately):&#10;Two opposing pieces face each other, and one slides along the line of attack without capturing the enemy piece.&#10;&#10;Collinear is a term that comes from the field of geometry: https://en.wiktionary.org/wiki/collinear">Lance colinear</string>
+  <string name="collinearMoveDescription" comment="Description for the puzzle theme 'Collinear move' (translateable separately).">Duas peças opostas se encaram, e uma desliza ao longo da linha de ataque sem capturar a peça inimiga.</string>
   <string name="cornerMate">Mate de canto</string>
   <string name="cornerMateDescription">Confine o rei no canto usando uma torre ou dama e um cavalo para executar o xeque-mate.</string>
   <string name="crushing">Punindo</string>
@@ -34,7 +36,7 @@
   <string name="discoveredCheckDescription">Movimente uma peça para revelar um xeque de uma peça atacante escondida, que costuma levar a uma vantagem decisiva.</string>
   <string name="doubleBishopMate">Mate de dois bispos</string>
   <string name="doubleBishopMateDescription">Dois bispos atacantes em diagonais adjacentes dão um mate em um rei obstruído por peças amigas.</string>
-  <string name="dovetailMate">Mate da cauda de andorinha</string>
+  <string name="dovetailMate">Mate de Cozio</string>
   <string name="dovetailMateDescription">Uma dama dá um mate em um rei adjacente, cujos únicos dois quadrados de fuga estão obstruídos por peças amigas.</string>
   <string name="equality">Igualdade</string>
   <string name="equalityDescription">Saia de uma posição perdida, e assegure um empate ou uma posição equilibrada. (aval ≤ 200cp)</string>
@@ -53,6 +55,8 @@
   <string name="endgame">Finais</string>
   <string name="endgameDescription">Tática durante a última fase do jogo.</string>
   <string name="enPassantDescription">Uma tática envolvendo a regra do en passant, onde um peão pode capturar um peão do oponente que passou por ele usando seu movimento inicial de duas casas.</string>
+  <string name="epauletteMate">Mate epaulette</string>
+  <string name="epauletteMateDescription">Duas casas de fuga adjacentes ao rei em xeque são ocupadas por outras peças.</string>
   <string name="exposedKing">Rei exposto</string>
   <string name="exposedKingDescription">Uma tática que envolve um rei com poucos defensores ao seu redor, muitas vezes levando a xeque-mate.</string>
   <string name="fork">Garfo (ou duplo)</string>
@@ -71,6 +75,8 @@
   <string name="pillsburysMateDescription">A torre realiza o checkmate, enquanto o bispo ajuda a prender o rei.</string>
   <string name="morphysMate">Mate de Morphy</string>
   <string name="morphysMateDescription">Use o bispo para dar xeque no rei, enquanto sua torre ajuda a confiná-lo.</string>
+  <string name="swallowstailMate">Mate gueridon</string>
+  <string name="swallowstailMateDescription">Uma padrão de xeque-mate que se assemelha visualmente à cauda de uma andorinha, em formato de V.</string>
   <string name="triangleMate">Mate do triângulo</string>
   <string name="triangleMateDescription">A dama e a torre, há uma casa de distância do rei inimigo, estão na mesma fila ou coluna, separadas por uma casa, formando um triângulo.</string>
   <string name="vukovicMate">Mate de Vukovic</string>

@@ -36,7 +36,7 @@ export default function renderClocks(ctrl: AnalyseCtrl, path: TreePath): [VNode,
   if (lastMoveAt) {
     const spent = (Date.now() - lastMoveAt) / 10;
     const i = isWhiteTurn ? 0 : 1;
-    if (centis[i]) centis[i] = Math.max(0, centis[i]! - spent);
+    if (centis[i]) centis[i] = Math.max(0, centis[i] - spent);
   }
 
   const showTenths = !study?.relay;
@@ -83,8 +83,7 @@ function clockContent(opts: ClockOpts): MaybeVNodes {
   return [...pauseNodes, ...timeNodes];
 }
 
-function clockContentNvui(opts: ClockOpts): MaybeVNode {
-  return !opts.centis && opts.centis !== 0 ? 'None' : formatClockTimeVerbal(opts.centis * 10);
-}
+const clockContentNvui = (opts: ClockOpts): MaybeVNode =>
+  !opts.centis && opts.centis !== 0 ? 'None' : formatClockTimeVerbal(opts.centis * 10);
 
 const pad2 = (num: number): string => (num < 10 ? '0' : '') + num;

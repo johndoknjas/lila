@@ -74,7 +74,7 @@ export async function initModule(opts?: DiagnosticOpts): Promise<void> {
   dlg.show();
 }
 
-const storageProxy: { [key: string]: { storageKey: string; validate: (val?: string) => boolean } } = {
+const storageProxy: Record<string, { storageKey: string; validate: (val?: string) => boolean }> = {
   wsPing: {
     storageKey: 'socket.ping.interval',
     validate: (val?: string) => parseInt(val ?? '') > 249,
@@ -89,7 +89,7 @@ const storageProxy: { [key: string]: { storageKey: string; validate: (val?: stri
   },
 };
 
-const ops: { [op: string]: (val?: string) => boolean } = {
+const ops: Record<string, (val?: string) => boolean> = {
   set: (data: string) => {
     try {
       const kv = atob(data).split('=');

@@ -134,8 +134,15 @@
   <string name="pinnedPieces">Pripete figure</string>
   <string name="checkableKing">Kralj, ki ga je mogoče šahirati</string>
   <string name="multipleLines">Več variant</string>
+  <string name="multipleLinesDescription">Nastavite število vrstic za ocenjevanje in premaknite puščice na tabli</string>
+  <string name="searchTime">Čas iskanja</string>
+  <string name="searchTimeDescription">Določite čas za oceno novih pozicij</string>
+  <string name="threads">Teme</string>
+  <string name="threadsDescription">Nastavite to pod število niti vašega procesorja, kljukice označujejo dobro in varno izbiro</string>
+  <string name="threadsDescriptionMobile">Več niti bo porabilo več baterije za boljšo analizo</string>
   <string name="cpus">CPU-ji</string>
   <string name="memory">Spomin</string>
+  <string name="memoryDescription">Višje vrednosti lahko izboljšajo delovanje</string>
   <string name="infiniteAnalysis">Neskončna analiza</string>
   <string name="removesTheDepthLimit">Odstrani omejitev globine in ohrani računalnik topel</string>
   <string name="blunder">Spodrsljaj</string>
@@ -264,7 +271,7 @@
   <string name="changeUsernameNotSame">Črkam je mogoče le zamenjati velikost v male ali velike tiskane. Naprimer \"janeznovak\" v \"JanezNovak\".</string>
   <string name="changeUsernameDescription">Spremenite svoje uporabniško ime. To je mogoče opraviti le enkrat in spremiti samo velikost tiskanih črk v male ali velike.</string>
   <string name="signupUsernameHint">Ne pozabite izbrati družini prijaznega uporabniškega imena. Pozneje ga ne morete spremeniti in vsa neprimerna uporabniška imena bodo zaprta!</string>
-  <string name="signupEmailHint">Uporabljali ga bomo samo za ponastavitev gesla.</string>
+  <string name="signupEmailPromise">Poslali vam bomo le e-poštna sporočila o vašem računu in nikoli ne bomo delili vašega e-poštnega naslova.</string>
   <string name="password">Geslo</string>
   <string name="changePassword">Zamenjaj geslo</string>
   <string name="changeEmail">Zamenjaj E-poštnega naslova</string>
@@ -736,7 +743,7 @@
   <string name="onlyExistingConversations">Samo obstoječi pogovori</string>
   <string name="onlyFriends">Samo prijatelji</string>
   <string name="menu">Meni</string>
-  <string name="castling" comment="Label for a box on the right side of the board editor, where the user can select castling rights. Noun.&#10;&#10;NOTE: this string used to read &quot;Castling&quot;, with &quot;rights&quot; added in 2026 for clarity.">Rokada</string>
+  <string name="castling">Rokada</string>
   <string name="whiteCastlingKingside">Beli O-O</string>
   <string name="blackCastlingKingside">Črni O-O</string>
   <plurals name="nbForumPosts">
@@ -795,11 +802,6 @@
   <string name="keyCycleSelectedVariation">Preglej izbrano varianto</string>
   <string name="keyShowOrHideComments">pokaži/skrij komentarje</string>
   <string name="keyEnterOrExitVariation">vstopi/izstopi v varianto</string>
-  <string name="keyRequestComputerAnalysis">Zahtevajte računalniško analizo, učite se iz svojih napak</string>
-  <string name="keyNextLearnFromYourMistakes">Naslednji (Učite se iz svojih napak)</string>
-  <string name="keyNextBlunder">Naslednji spodrsljaj</string>
-  <string name="keyNextMistake">Naslednja napaka</string>
-  <string name="keyNextInaccuracy">Naslednja nepravilnost</string>
   <string name="keyPreviousBranch">Prejšnja veja</string>
   <string name="keyNextBranch">Naslednja veja</string>
   <string name="toggleVariationArrows">Preklopi prikaz variant s puščicami</string>
@@ -1111,5 +1113,5 @@ Vsi operativni stroški, razvoj in vsebina se financirajo izključno iz donacij 
   <string name="search">Išči</string>
   <string name="clearSearch">Počisti iskanje</string>
   <string name="tags">Oznake</string>
-  <string name="enPassant" comment="Appears in the board editor (https://lichess.org/editor).&#10;&#10;It is for a setting to determine if en passant will be available for that current position.&#10;&#10;If it is selected, then it will be added to the FEN for that position - meaning that if you play the game from that exact position, it will be possible to capture en passant.&#10;&#10;NOTE: this string used to read &quot;En passant&quot;, with &quot;rights&quot; added in 2026 for clarity.">En passant</string>
+  <string name="enPassant">En passant</string>
 </resources>

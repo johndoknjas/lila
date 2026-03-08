@@ -20,7 +20,7 @@ export class FilterPane extends Pane {
   info: FilterInfo;
   graphEl: HTMLElement;
   graph: Chart;
-  facets = {} as { [key in FilterFacetKey]: FacetToggle };
+  facets = {} as Record<FilterFacetKey, FacetToggle>;
 
   constructor(p: PaneArgs) {
     super(p);
@@ -225,7 +225,7 @@ const ticks: Record<number, string> = {
   8: '4m',
 };
 
-const tooltips: { [key in FilterFacetKey]: string } = {
+const tooltips: Record<FilterFacetKey, string> = {
   move: 'vary the filter parameter by number of full moves since start of game',
   score: `vary the filter parameter by current outcome expectancy for bot`,
   time: 'vary the filter parameter by think time in seconds per move',

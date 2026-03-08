@@ -1,6 +1,5 @@
 import { sparkline } from '@fnando/sparkline';
 import { text as xhrText, form as xhrForm } from 'lib/xhr';
-import { throttlePromiseDelay } from 'lib/async';
 import { type Prop, myUserId, withEffect } from 'lib';
 import { makeVoice, type VoiceCtrl } from 'voice';
 import { storedBooleanProp, storedProp } from 'lib/storage';
@@ -16,9 +15,10 @@ import type {
 import { pubsub } from 'lib/pubsub';
 import type { ColorChoice } from 'lib/setup/color';
 import { COLORS } from 'chessops';
+import { toggleZenMode } from 'lib/view/zen';
 
 const orientationFromColorChoice = (colorChoice: ColorChoice): Color =>
-  (colorChoice === 'random' ? COLORS[Math.round(Math.random())] : colorChoice) as Color;
+  colorChoice === 'random' ? COLORS[Math.round(Math.random())] : colorChoice;
 
 const randomChoice = (max: number) => Math.floor(Math.random() * max);
 
@@ -43,7 +43,7 @@ const targetSvg = (target: 'current' | 'next'): string => $html`
     <rect class="${target}-target" fill="none" stroke-width="10" x="-50" y="-50" width="100" height="100" rx="5" />
   </g>`;
 
-const rankWords: { [_: string]: string } = {
+const rankWords: Record<string, string> = {
   one: '1',
   two: '2',
   three: '3',
@@ -78,25 +78,10 @@ export default class CoordinateTrainerCtrl {
     readonly config: CoordinateTrainerConfig,
     readonly redraw: Redraw,
   ) {
-    const setZen = throttlePromiseDelay(
-      () => 1000,
-      zen =>
-        xhrText('/pref/zen', {
-          method: 'post',
-          body: xhrForm({ zen: zen ? 1 : 0 }),
-        }),
-    );
-
-    pubsub.on('zen', () => {
-      const zen = $('body').toggleClass('zen').hasClass('zen');
-      window.dispatchEvent(new Event('resize'));
-      setZen(zen);
-    });
+    pubsub.on('zen', () => toggleZenMode({ unconditional: true }));
 
     $('#zentog').on('click', () => pubsub.emit('zen'));
     site.mousetrap.bind('z', () => pubsub.emit('zen'));
-
-    site.mousetrap.bind('enter', () => (this.playing ? null : this.start()));
 
     window.addEventListener('resize', () => requestAnimationFrame(this.updateCharts), true);
     this.voice = makeVoice({ redraw: this.redraw, tpe: 'coords' });
@@ -107,12 +92,7 @@ export default class CoordinateTrainerCtrl {
   }
 
   colorChoice: Prop<ColorChoice> = withEffect<ColorChoice>(
-    storedProp<ColorChoice>(
-      'coordinateTrainer.colorChoice',
-      'random',
-      str => str as ColorChoice,
-      v => v,
-    ),
+    storedProp<ColorChoice>('coordinateTrainer.colorChoice', 'random', str => str as ColorChoice),
     () => this.setOrientationFromColorChoice(),
   );
 
@@ -129,7 +109,6 @@ export default class CoordinateTrainerCtrl {
       'coordinateTrainer.mode',
       window.location.hash === '#name' ? 'nameSquare' : 'findSquare',
       str => str as Mode,
-      v => v,
     ),
     () => this.onModeChange(),
   );
@@ -163,7 +142,6 @@ export default class CoordinateTrainerCtrl {
       'coordinateTrainer.timeControl',
       document.body.classList.contains('kid') ? 'untimed' : 'thirtySeconds',
       str => str as TimeControl,
-      v => v,
     ),
     this.redraw,
   );
@@ -207,7 +185,6 @@ export default class CoordinateTrainerCtrl {
       'coordinateTrainer.coordinateInputMethod',
       window.innerWidth >= 980 ? 'text' : 'buttons',
       str => str as InputMethod,
-      v => v,
     ),
     this.redraw,
   );
@@ -301,8 +278,8 @@ export default class CoordinateTrainerCtrl {
   updateCharts = () => {
     for (const color of COLORS) {
       const svgElement = document.getElementById(`${color}-sparkline`);
-      if (!svgElement) continue;
-      this.updateChart(svgElement as unknown as SVGSVGElement, color);
+      if (!svgElement || !(svgElement instanceof SVGSVGElement)) continue;
+      this.updateChart(svgElement, color);
     }
   };
 
@@ -312,7 +289,7 @@ export default class CoordinateTrainerCtrl {
     const tooltip = svgElement.nextElementSibling as HTMLSpanElement;
     svgElement.setAttribute('width', `${parent.offsetWidth}px`);
     const options = {
-      onmousemove(_event: any, datapoint: any) {
+      onmousemove(_: MouseEvent, datapoint: any) {
         tooltip.hidden = false;
         tooltip.textContent = scoreValues[datapoint.index].toString();
         tooltip.style.top = `${datapoint.y}px`;

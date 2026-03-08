@@ -25,7 +25,7 @@ interface Glyph {
 
 const autoScroll = throttle(150, (ctrl: PuzzleCtrl, el: HTMLElement) => {
   const cont = el.parentNode as HTMLElement;
-  const target = el.querySelector('.active') as HTMLElement | null;
+  const target = el.querySelector<HTMLElement>('.active');
   if (!target) {
     cont.scrollTop = ctrl.path === treePath.root ? 0 : 99999;
     return;
@@ -33,10 +33,6 @@ const autoScroll = throttle(150, (ctrl: PuzzleCtrl, el: HTMLElement) => {
   const targetOffset = target.getBoundingClientRect().y - el.getBoundingClientRect().y;
   cont.scrollTop = targetOffset - cont.offsetHeight / 2 + target.offsetHeight;
 });
-
-function pathContains(ctx: Ctx, path: TreePath): boolean {
-  return treePath.contains(ctx.ctrl.path, path);
-}
 
 export function renderIndex(ply: number, withDots: boolean): VNode {
   return hl('index', plyToTurn(ply) + (withDots ? (ply % 2 === 1 ? '.' : '...') : ''));
@@ -129,8 +125,7 @@ function renderMove(node: TreeNode): LooseVNodes {
 function renderVariationMoveOf(ctx: Ctx, node: TreeNode, opts: RenderOpts): VNode {
   const withIndex = opts.withIndex || node.ply % 2 === 1;
   const path = opts.parentPath + node.id;
-  const active = path === ctx.ctrl.path;
-  const classes: Classes = { active, parent: !active && pathContains(ctx, path) };
+  const classes: Classes = { active: path === ctx.ctrl.path };
   if (node.puzzle) classes[node.puzzle] = true;
   return hl('move', { attrs: { p: path }, class: classes }, [
     withIndex && renderIndex(node.ply, true),

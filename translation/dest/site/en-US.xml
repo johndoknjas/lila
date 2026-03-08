@@ -129,8 +129,14 @@
   <string name="evaluationGauge">Evaluation gauge</string>
   <string name="checkableKing">Checkable king</string>
   <string name="multipleLines">Multiple lines</string>
+  <string name="multipleLinesDescription">Set number of evaluation lines and move arrows on the board</string>
+  <string name="searchTime">Search time</string>
+  <string name="searchTimeDescription">Set time to evaluate fresh positions</string>
+  <string name="threads">Threads</string>
+  <string name="threadsDescriptionMobile">More threads will use more battery for better analysis</string>
   <string name="cpus">CPUs</string>
   <string name="memory">Memory</string>
+  <string name="memoryDescription">Higher values may improve performance</string>
   <string name="infiniteAnalysis">Infinite analysis</string>
   <string name="removesTheDepthLimit">Removes the depth limit, and keeps your computer warm</string>
   <string name="blunder">Blunder</string>
@@ -234,7 +240,7 @@
   <string name="changeUsernameNotSame">Only the case of the letters can change. For example \"johndoe\" to \"JohnDoe\".</string>
   <string name="changeUsernameDescription">Change your username. This can only be done once and you are only allowed to change the case of the letters in your username.</string>
   <string name="signupUsernameHint">Be sure to choose a family-friendly username. You cannot change it later, and any accounts with inappropriate usernames will be closed!</string>
-  <string name="signupEmailHint">We will only use it for password reset.</string>
+  <string name="signupEmailPromise">We will only send you emails about your account and never share your email.</string>
   <string name="password">Password</string>
   <string name="changePassword">Change password</string>
   <string name="changeEmail">Change email</string>
@@ -661,7 +667,7 @@
   <string name="onlyExistingConversations">Only existing conversations</string>
   <string name="onlyFriends">Only friends</string>
   <string name="menu">Menu</string>
-  <string name="castling" comment="Label for a box on the right side of the board editor, where the user can select castling rights. Noun.&#10;&#10;NOTE: this string used to read &quot;Castling&quot;, with &quot;rights&quot; added in 2026 for clarity.">Castling rights</string>
+  <string name="castling">Castling rights</string>
   <string name="whiteCastlingKingside">White O-O</string>
   <string name="blackCastlingKingside">Black O-O</string>
   <plurals name="nbForumPosts">
@@ -718,11 +724,6 @@
   <string name="keyCycleSelectedVariation">Cycle selected variation</string>
   <string name="keyShowOrHideComments">show/hide comments</string>
   <string name="keyEnterOrExitVariation">enter/exit variation</string>
-  <string name="keyRequestComputerAnalysis">Request computer analysis, Learn from your mistakes</string>
-  <string name="keyNextLearnFromYourMistakes">Next (Learn from your mistakes)</string>
-  <string name="keyNextBlunder">Next blunder</string>
-  <string name="keyNextMistake">Next mistake</string>
-  <string name="keyNextInaccuracy">Next inaccuracy</string>
   <string name="keyPreviousBranch">Previous branch</string>
   <string name="keyNextBranch">Next branch</string>
   <string name="toggleVariationArrows">Toggle variation arrows</string>
@@ -1024,5 +1025,5 @@ All operating costs, development, and content are funded solely by user donation
   <string name="search">Search</string>
   <string name="clearSearch">Clear search</string>
   <string name="tags">Tags</string>
-  <string name="enPassant" comment="Appears in the board editor (https://lichess.org/editor).&#10;&#10;It is for a setting to determine if en passant will be available for that current position.&#10;&#10;If it is selected, then it will be added to the FEN for that position - meaning that if you play the game from that exact position, it will be possible to capture en passant.&#10;&#10;NOTE: this string used to read &quot;En passant&quot;, with &quot;rights&quot; added in 2026 for clarity.">En passant rights</string>
+  <string name="enPassant">En passant rights</string>
 </resources>

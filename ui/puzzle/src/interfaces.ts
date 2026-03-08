@@ -8,11 +8,6 @@ import type { TreePath } from 'lib/tree/types';
 export type PuzzleId = string;
 export type ThemeKey = keyof I18n['puzzleTheme'];
 
-export interface AllThemes {
-  dynamic: ThemeKey[];
-  static: Set<ThemeKey>;
-}
-
 export interface NvuiPlugin {
   render(): VNode;
 }
@@ -69,7 +64,7 @@ export interface PuzzleData {
   puzzle: Puzzle;
   angle: Angle;
   game: PuzzleGame;
-  user: PuzzleUser | undefined;
+  user?: PuzzleUser;
   replay?: PuzzleReplay;
   streak?: string;
   externalEngines?: ExternalEngineInfo[];
@@ -122,9 +117,7 @@ export interface PuzzleResult {
   replayComplete?: boolean;
 }
 
-export type RoundThemes = {
-  [key in ThemeKey]: boolean;
-};
+export type RoundThemes = Record<ThemeKey, boolean>;
 
 export interface PuzzleRound {
   win: boolean;

@@ -1,18 +1,25 @@
 // no side effects allowed due to re-export by index.ts
 
 import { h } from 'snabbdom';
-import { type Toggle, myUserId, onClickAway } from '@/index';
+import { type Toggle, blurIfPrimaryClick, myUserId, onClickAway } from '@/index';
 import { addPointerListeners } from '@/pointer';
 import * as licon from '@/licon';
 import { type MaybeVNode, type MaybeVNodes, type VNode, dataIcon, onInsert } from './snabbdom';
-import { cmnToggleWrap, cmnToggleWrapProp } from '@/view/controls';
+import { cmnToggleWrap, cmnToggleWrapProp } from '@/view/cmn-toggle';
 import { pubsub } from '@/pubsub';
 
 export const toggleButton = (toggle: Toggle, title: string): VNode =>
   h('button.fbt.board-menu-toggle-btn', {
     class: { active: toggle() },
     attrs: { title, 'data-icon': licon.Hamburger },
-    hook: onInsert(el => addPointerListeners(el, { click: toggle.toggle })),
+    hook: onInsert(el =>
+      addPointerListeners(el, {
+        click: e => {
+          toggle.toggle();
+          blurIfPrimaryClick(e);
+        },
+      }),
+    ),
   });
 
 export const boardMenu = (

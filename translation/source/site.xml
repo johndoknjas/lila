@@ -132,8 +132,15 @@
   <string name="pinnedPieces">Pinned pieces</string>
   <string name="checkableKing">Checkable king</string>
   <string name="multipleLines">Multiple lines</string>
+  <string name="multipleLinesDescription">Set number of evaluation lines and move arrows on the board</string>
+  <string name="searchTime">Search time</string>
+  <string name="searchTimeDescription">Set time to evaluate fresh positions</string>
+  <string name="threads">Threads</string>
+  <string name="threadsDescription">Set this below your CPU's thread count, the ticks mark a good safe choice</string>
+  <string name="threadsDescriptionMobile">More threads will use more battery for better analysis</string>
   <string name="cpus">CPUs</string>
   <string name="memory">Memory</string>
+  <string name="memoryDescription">Higher values may improve performance</string>
   <string name="infiniteAnalysis">Infinite analysis</string>
   <string name="removesTheDepthLimit">Removes the depth limit, and keeps your computer warm</string>
   <string name="blunder">Blunder</string>
@@ -237,7 +244,7 @@
   <string name="changeUsernameNotSame">Only the case of the letters can change. For example "johndoe" to "JohnDoe".</string>
   <string name="changeUsernameDescription">Change your username. This can only be done once and you are only allowed to change the case of the letters in your username.</string>
   <string name="signupUsernameHint">Make sure to choose a username that's appropriate for all ages. You cannot change it later and any accounts with inappropriate usernames will get closed!</string>
-  <string name="signupEmailHint">We will only use it for password reset and account activation.</string>
+  <string name="signupEmailPromise">We will only send you emails about your account and never share your email.</string>
   <string name="password">Password</string>
   <string name="changePassword">Change password</string>
   <string name="changeEmail">Change email</string>
@@ -583,7 +590,7 @@
   <string name="reportCheatBoostHelp">Paste the link to the game(s) and explain what is wrong about this user's behaviour. Don't just say "they cheat", but tell us how you came to this conclusion.</string>
   <string name="reportUsernameHelp">Explain what about this username is offensive. Don't just say "it's offensive/inappropriate", but tell us how you came to this conclusion, especially if the insult is obfuscated, not in english, is in slang, or is a historical/cultural reference.</string>
   <string name="reportProcessedFasterInEnglish">Your report will be processed faster if written in English.</string>
-  <string name="error.provideOneCheatedGameLink">Please provide at least one link to a game with suspected cheating.</string>
+  <string name="error.provideOneCheatedGameLink">Please provide at least one link to a game for review.</string>
   <string name="by">by %s</string>
   <string name="importedByX">Imported by %s</string>
   <string name="thisTopicIsNowClosed">This topic is now closed.</string>
@@ -721,11 +728,6 @@
   <string name="keyCycleSelectedVariation">Cycle selected variation</string>
   <string name="keyShowOrHideComments">show/hide comments</string>
   <string name="keyEnterOrExitVariation">enter/exit variation</string>
-  <string name="keyRequestComputerAnalysis">Request computer analysis, Learn from your mistakes</string>
-  <string name="keyNextLearnFromYourMistakes">Next (Learn from your mistakes)</string>
-  <string name="keyNextBlunder">Next blunder</string>
-  <string name="keyNextMistake">Next mistake</string>
-  <string name="keyNextInaccuracy">Next inaccuracy</string>
   <string name="keyPreviousBranch">Previous branch</string>
   <string name="keyNextBranch">Next branch</string>
   <string name="toggleVariationArrows">Toggle variation arrows</string>

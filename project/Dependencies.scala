@@ -22,14 +22,14 @@ object Dependencies {
   val maxmind = "com.maxmind.geoip2" % "geoip2" % "4.0.1"
   val caffeine = "com.github.ben-manes.caffeine" % "caffeine" % "3.2.3" % "compile"
   val scaffeine = "com.github.blemale" %% "scaffeine" % "5.3.0" % "compile"
-  val googleOAuth = "com.google.auth" % "google-auth-library-oauth2-http" % "1.42.1"
+  val googleOAuth = "com.google.auth" % "google-auth-library-oauth2-http" % "1.43.0"
   val galimatias = "io.mola.galimatias" % "galimatias" % "0.2.2-NF"
   val scalatags = "com.lihaoyi" %% "scalatags" % "0.13.1"
-  val lettuce = "io.lettuce" % "lettuce-core" % "7.2.1.RELEASE"
+  val lettuce = "io.lettuce" % "lettuce-core" % "7.5.0.RELEASE"
   val nettyTransport =
-    ("io.netty" % s"netty-transport-native-$notifier" % "4.2.9.Final").classifier(s"$os-$arch")
+    ("io.netty" % s"netty-transport-native-$notifier" % "4.2.10.Final").classifier(s"$os-$arch")
   val lilaSearch = "com.github.lichess-org.lila-search" %% "client" % "3.3.0"
-  val munit = "org.scalameta" %% "munit" % "1.2.2" % Test
+  val munit = "org.scalameta" %% "munit" % "1.2.3" % Test
   val uaparser = "org.uaparser" %% "uap-scala" % "0.21.0"
   val apacheText = "org.apache.commons" % "commons-text" % "1.15.0"
   val apacheMath = "org.apache.commons" % "commons-math3" % "3.6.1"
@@ -85,7 +85,7 @@ object Dependencies {
   }
 
   object reactivemongo {
-    val rmVersion = "1.1.0-RC19"
+    val rmVersion = "1.1.0-RC20"
     val driver = "org.reactivemongo" %% "reactivemongo" % rmVersion
     val stream = "org.reactivemongo" %% "reactivemongo-akkastream" % rmVersion
     val shaded = "org.reactivemongo" % s"reactivemongo-shaded-native-$os-$dashArch" % rmVersion

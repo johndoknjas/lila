@@ -1,17 +1,8 @@
 import { isEmpty } from 'lib';
 import * as licon from 'lib/licon';
 import { displayColumns } from 'lib/device';
-import {
-  domDialog,
-  bind,
-  dataIcon,
-  hl,
-  type VNode,
-  type LooseVNodes,
-  type MaybeVNodes,
-  cmnToggleWrapProp,
-  cmnToggleWrap,
-} from 'lib/view';
+import { domDialog, bind, dataIcon, hl, type VNode, type LooseVNodes, type MaybeVNodes } from 'lib/view';
+import { cmnToggleWrapProp, cmnToggleWrap } from 'lib/view/cmn-toggle';
 import type { AutoplayDelay } from '../autoplay';
 import type AnalyseCtrl from '../ctrl';
 import { cont as contRoute } from 'lib/game/router';
@@ -133,13 +124,13 @@ export function view(ctrl: AnalyseCtrl): VNode {
         hl(
           'a',
           { hook: bind('click', () => ctrl.togglePractice()), attrs: dataIcon(licon.Bullseye) },
-          'Practice with computer',
+          i18n.site.practiceWithComputer,
         ),
       canRetro &&
         hl(
           'a',
           { hook: bind('click', ctrl.toggleRetro, ctrl.redraw), attrs: dataIcon(licon.GraduateCap) },
-          'Learn from your mistakes',
+          i18n.site.learnFromYourMistakes,
         ),
       canContinue &&
         hl(
@@ -172,8 +163,8 @@ export function view(ctrl: AnalyseCtrl): VNode {
     displayColumns() > 1 && hl('h2', i18n.site.computerAnalysis),
     cmnToggleWrap({
       id: 'all',
-      name: 'Show fishnet analysis',
-      title: 'Show fishnet analysis (Hotkey: z)',
+      name: i18n.site.computerAnalysis,
+      title: i18n.site.computerAnalysis + ' [z]',
       checked: ctrl.showFishnetAnalysis(),
       change: ctrl.toggleFishnetAnalysis,
       redraw: ctrl.redraw,
@@ -224,7 +215,7 @@ export function view(ctrl: AnalyseCtrl): VNode {
     !ctrl.ongoing &&
       cmnToggleWrap({
         id: 'move-annotation',
-        name: 'Annotations on board',
+        name: i18n.site.moveAnnotations,
         title: 'Display analysis symbols on the board',
         checked: ctrl.possiblyShowMoveAnnotationsOnBoard(),
         change: ctrl.togglePossiblyShowMoveAnnotationsOnBoard,
@@ -270,8 +261,8 @@ export function view(ctrl: AnalyseCtrl): VNode {
   ]);
 }
 
-function renderVariationOpacitySlider(ctrl: AnalyseCtrl) {
-  return hl('span.setting', [
+const renderVariationOpacitySlider = (ctrl: AnalyseCtrl) =>
+  hl('span.setting', [
     hl('label', 'Variation opacity'),
     hl('input.range', {
       key: 'variation-arrows',
@@ -296,4 +287,3 @@ function renderVariationOpacitySlider(ctrl: AnalyseCtrl) {
       },
     }),
   ]);
-}

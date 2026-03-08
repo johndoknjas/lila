@@ -199,7 +199,6 @@
   <string name="changeUsernameNotSame">Hanya huruf besar atau huruf kecil pada perkataan boleh ditukar. Contohnya, \"johndoe\" kepada \"JohnDoe\".</string>
   <string name="changeUsernameDescription">Tukar nama pengguna. Tindakan ini hanya boleh dibuat sekali dan anda hanya dibenarkan menukar huruf besar/huruf kecil pada nama pengguna anda.</string>
   <string name="signupUsernameHint">Pastikan anda memilih nama yang elok. Anda tidak boleh menukarnya kemudian dan jika sesuatu akaun menggunakan nama yang tidak elok, akaun tersebut akan ditutup!</string>
-  <string name="signupEmailHint">Kami hanya akan menggunakannya untuk penukaran kata laluan.</string>
   <string name="password">Kata kunci</string>
   <string name="changePassword">Tukar kata kunci</string>
   <string name="changeEmail">Tukar emel</string>
@@ -548,7 +547,7 @@ analisis komputer, perbualan dalam permainan dan URL kongsi bersama.</string>
   <string name="onlyExistingConversations">Hanya perbualan yang wujud</string>
   <string name="onlyFriends">Hanya rakan-rakan</string>
   <string name="menu">Menu</string>
-  <string name="castling" comment="Label for a box on the right side of the board editor, where the user can select castling rights. Noun.&#10;&#10;NOTE: this string used to read &quot;Castling&quot;, with &quot;rights&quot; added in 2026 for clarity.">Castling</string>
+  <string name="castling">Castling</string>
   <string name="whiteCastlingKingside">Putih O-O</string>
   <string name="blackCastlingKingside">Hitam O-O</string>
   <plurals name="nbForumPosts">

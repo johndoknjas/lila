@@ -1,6 +1,6 @@
 import type { AnalyseSocketSend } from '../socket';
 import * as licon from 'lib/licon';
-import { type VNode, iconTag, bind, onInsert, dataIcon, bindNonPassive, hl, cmnToggleWrap } from 'lib/view';
+import { type VNode, iconTag, bind, onInsert, dataIcon, bindNonPassive, hl } from 'lib/view';
 import { makeCtrl as inviteFormCtrl, type StudyInviteFormCtrl } from './inviteForm';
 import type { NotifCtrl } from './notif';
 import { prop, type Prop, scrollTo } from 'lib';
@@ -11,10 +11,11 @@ import { userLink } from 'lib/view/userLink';
 import type StudyCtrl from './studyCtrl';
 import { once } from 'lib/storage';
 import { pubsub } from 'lib/pubsub';
+import { cmnToggleWrap } from 'lib/view/cmn-toggle';
 
 interface Opts {
   initDict: StudyMemberMap;
-  myId: string | undefined;
+  myId?: string;
   ownerId: string;
   send: AnalyseSocketSend;
   tab: Prop<Tab>;
@@ -40,7 +41,7 @@ export class StudyMemberCtrl {
   confing = prop<string | null>(null);
   inviteForm: StudyInviteFormCtrl;
   readonly active: Map<string, () => void> = new Map();
-  online: { [id: string]: boolean } = {};
+  online: Record<string, boolean> = {};
   spectatorIds: string[] = [];
   max = 30;
 
@@ -202,18 +203,16 @@ export function view(ctrl: StudyCtrl): VNode {
   return hl('div.study__members', [
     hl(
       'div.study-list',
-      ordered
-        .map(member => {
-          const confing = members.confing() === member.user.id;
-          return [
-            hl('div', { key: member.user.id, class: { editing: !!confing } }, [
-              hl('div.left', [statusIcon(member), userLink({ ...member.user, line: false })]),
-              configButton(ctrl, member),
-            ]),
-            confing && memberConfig(member),
-          ];
-        })
-        .reduce((a, b) => a.concat(b), []),
+      ordered.flatMap(member => {
+        const confing = members.confing() === member.user.id;
+        return [
+          hl('div', { key: member.user.id, class: { editing: !!confing } }, [
+            hl('div.left', [statusIcon(member), userLink({ ...member.user, line: false })]),
+            configButton(ctrl, member),
+          ]),
+          confing && memberConfig(member),
+        ];
+      }),
     ),
     isOwner &&
       ordered.length < members.max &&

@@ -7,19 +7,16 @@ import { iconTag, bind, type MaybeVNodes } from 'lib/view';
 import { h, type Hooks, type VNode } from 'snabbdom';
 import type { Gamebook, TreeNode } from 'lib/tree/types';
 
-export function running(ctrl: AnalyseCtrl): boolean {
-  return (
-    !!ctrl.study &&
-    ctrl.study.data.chapter.gamebook &&
-    !ctrl.gamebookPlay() &&
-    ctrl.study.vm.gamebookOverride !== 'analyse'
-  );
-}
+export const running = (ctrl: AnalyseCtrl): boolean =>
+  !!ctrl.study &&
+  ctrl.study.data.chapter.gamebook &&
+  !ctrl.gamebookPlay() &&
+  ctrl.study.vm.gamebookOverride !== 'analyse';
 
 export function render(ctrl: AnalyseCtrl): VNode {
   const study = ctrl.study!,
     isMyMove = ctrl.turnColor() === ctrl.data.orientation,
-    isCommented = !!(ctrl.node.comments || []).find(c => c.text.length > 2),
+    isCommented = (ctrl.node.comments || []).some(c => c.text.length > 2),
     hasVariation = ctrl.tree.parentNode(ctrl.path).children.length > 1;
 
   let content: MaybeVNodes;
@@ -116,16 +113,14 @@ function renderDeviation(ctrl: AnalyseCtrl): VNode {
   ]);
 }
 
-function renderHint(ctrl: AnalyseCtrl): VNode {
-  const field = 'hint';
-  return h('div.hint', [
+const renderHint = (ctrl: AnalyseCtrl): VNode =>
+  h('div.hint', [
     h('div.legend', [iconTag(licon.InfoCircle), h('p', 'Optional, on-demand hint for the player:')]),
     h('textarea', {
       attrs: { placeholder: 'Give the player a tip so they can find the right move' },
-      hook: textareaHook(ctrl, field),
+      hook: textareaHook(ctrl, 'hint'),
     }),
   ]);
-}
 
 const saveNode = throttle(500, (ctrl: AnalyseCtrl, gamebook: Gamebook) => {
   ctrl.socket.send('setGamebook', {
@@ -136,9 +131,8 @@ const saveNode = throttle(500, (ctrl: AnalyseCtrl, gamebook: Gamebook) => {
   ctrl.redraw();
 });
 
-function nodeGamebookValue(node: TreeNode, field: 'deviation' | 'hint'): string {
-  return (node.gamebook && node.gamebook[field]) || '';
-}
+const nodeGamebookValue = (node: TreeNode, field: 'deviation' | 'hint'): string =>
+  (node.gamebook && node.gamebook[field]) || '';
 
 function textareaHook(ctrl: AnalyseCtrl, field: 'deviation' | 'hint'): Hooks {
   const value = nodeGamebookValue(ctrl.node, field);

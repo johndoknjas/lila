@@ -69,8 +69,9 @@ function rematchButtons(ctrl: RoundController): LooseVNodes {
     hl(
       'button.fbt.rematch.white',
       {
-        class: { me, glowing: them, disabled },
+        class: { me, glowing: them },
         attrs: {
+          disabled,
           title: them
             ? i18n.site.yourOpponentWantsToPlayANewGameWithYou
             : me
@@ -113,7 +114,7 @@ export function standard(
   return hl(
     'button.fbt.' + socketMsg,
     {
-      attrs: ctrl.nvui ? { disabled: !enabled() } : { disabled: !enabled(), title: hintFn() },
+      attrs: { disabled: !enabled(), ...(!ctrl.nvui ? { title: hintFn() } : {}) },
       hook: bind('click', () => {
         if (enabled()) onclick ? onclick() : ctrl.socket.sendLoading(socketMsg);
       }),
@@ -140,7 +141,10 @@ export function opponentGone(ctrl: RoundController): LooseVNode {
         ),
       ])
     : gone !== false &&
-        hl('div.suggestion', hl('p', i18n.site.opponentLeftCounter.asArray(gone, hl('strong', '' + gone))));
+        hl(
+          'div.suggestion.opponent-left-counter',
+          hl('p', i18n.site.opponentLeftCounter.asArray(gone, hl('strong', '' + gone))),
+        );
 }
 
 const fbtCancel = (f: (v: boolean) => void) =>

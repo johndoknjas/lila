@@ -10,7 +10,6 @@ export type ChapterTab = 'init' | 'edit' | 'game' | 'fen' | 'pgn';
 export type ToolTab = 'tags' | 'comments' | 'glyphs' | 'serverEval' | 'share' | 'multiBoard';
 export type Visibility = 'public' | 'unlisted' | 'private';
 export type ChapterId = string;
-export type TeamName = string;
 export type PointsStr = '1' | '0' | '1/2';
 export type GamePointsStr = '1-0' | '0-1' | '½-½' | '0-0' | '½-0' | '0-½';
 export type StatusStr = GamePointsStr | '*';
@@ -39,8 +38,6 @@ export interface StudyVm {
   gamebookOverride: GamebookOverride;
 }
 
-export type Federations = { [key: string]: string };
-
 export interface StudyData {
   id: string;
   name: string;
@@ -62,7 +59,6 @@ export interface StudyData {
   topics?: Topic[];
   admin: boolean;
   showRatings: boolean;
-  federations?: Federations;
 }
 
 export interface StudyDataFromServer extends StudyData {
@@ -130,11 +126,6 @@ export interface StudyChapterServerEval {
   path: string;
 }
 
-export interface StudyChapterRelay {
-  path: TreePath;
-  lastMoveAt?: number;
-}
-
 interface StudyChapterSetup {
   gameId?: string;
   variant: {
@@ -159,17 +150,13 @@ export type StudyMember = {
   role: string;
 };
 
-export interface StudyMemberMap {
-  [id: string]: StudyMember;
-}
+export type StudyMemberMap = Record<string, StudyMember>;
 
 export type TagTypes = string[];
 export type TagArray = [string, string];
 export type TagMap = Map<string, string>;
 
-export interface LocalPaths {
-  [chapterId: string]: TreePath;
-}
+export type LocalPaths = Record<string, TreePath>;
 
 export interface ChapterPreviewBase {
   id: ChapterId;
@@ -203,6 +190,7 @@ export type FederationId = string;
 export interface Federation {
   id: FederationId;
   name: string;
+  i18nName?: string;
 }
 export interface StudyPlayerBase {
   name?: string;

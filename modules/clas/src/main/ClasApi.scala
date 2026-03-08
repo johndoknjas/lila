@@ -13,6 +13,7 @@ import lila.db.dsl.{ *, given }
 import lila.rating.{ Perf, PerfType, UserPerfs }
 import lila.core.user.KidMode
 import lila.common.Bus
+import lila.core.perm.Granter
 
 final class ClasApi(
     colls: ClasColls,
@@ -27,6 +28,7 @@ final class ClasApi(
 )(using Executor, lila.core.i18n.Translator):
 
   import BsonHandlers.given
+  import colls.selectArchived
   export filters.{ student as isStudent, teacher as isTeacher }
 
   Bus.sub[lila.core.user.UserDelete]: del =>
@@ -50,15 +52,15 @@ final class ClasApi(
     def countOf(teacher: User): Fu[Int] =
       coll.countSel($doc("teachers" -> teacher.id))
 
-    private def byIds(clasIds: List[ClasId], nb: Int): Fu[List[Clas]] =
+    private def activeByIds(clasIds: List[ClasId], nb: Int): Fu[List[Clas]] =
       coll
-        .find($inIds(clasIds))
+        .find($inIds(clasIds) ++ selectArchived(false))
         .sort($sort.desc("createdAt"))
         .cursor[Clas]()
         .list(nb)
 
     def ofStudent(userId: UserId, nb: Int): Fu[List[Clas]] =
-      student.clasIdsOfUser(userId).flatMap(byIds(_, nb))
+      colls.clasIdsOfStudent(userId).flatMap(activeByIds(_, nb))
 
     def create(data: ClasForm.ClasData)(using teacher: Me): Fu[Clas] =
       val clas = data.make(teacher)
@@ -93,9 +95,9 @@ final class ClasApi(
     def teachers(clas: Clas): Fu[List[User]] =
       userRepo.byOrderedIds(clas.teachers.toList, readPref = _.sec)
 
-    def isTeacherOf(teacher: User, clasId: ClasId): Fu[Boolean] =
-      filters
-        .teacher(teacher.id)
+    def isTeacherIn(teacher: User, clasId: ClasId): Fu[Boolean] =
+      Granter
+        .of(_.Teacher)(teacher)
         .so:
           coll.exists($id(clasId) ++ $doc("teachers" -> teacher.id))
 
@@ -188,9 +190,26 @@ final class ClasApi(
           )
 
     def archive(from: Clas, v: Boolean)(using me: Me): Funit =
+      for clas <- doArchiveOnly(from, v)
+      yield teamSync(clas)
+
+    private def doArchiveOnly(from: Clas, v: Boolean)(using me: MyId): Fu[Clas] =
       val clas = from.copy(archived = v.option(Clas.Recorded(me.userId, nowInstant)))
       for _ <- coll.updateOrUnsetField($id(clas.id), "archived", clas.archived)
-      yield teamSync(clas)
+      yield clas
+
+    def archiveAllInactive: Funit =
+      for
+        inactiveClasses <- coll
+          .find(selectArchived(false) ++ "viewedAt".$lte(nowInstant.minusDays(30)))
+          .cursor[Clas](ReadPref.sec)
+          .list(100)
+        _ = inactiveClasses.nonEmptyOption.foreach: classes =>
+          logger.info(s"Archiving ${classes.size} inactive classes: ${classes.map(_.id).mkString(", ")}")
+        _ <- inactiveClasses.sequentiallyVoid: from =>
+          for clas <- doArchiveOnly(from, true)(using UserId.lichessAsMe)
+          yield teamSync(clas)(using None)
+      yield ()
 
   object student:
 
@@ -250,9 +269,6 @@ final class ClasApi(
         .sort($sort.asc("userId"))
         .cursor[Student]()
         .list(500)
-
-    private[ClasApi] def clasIdsOfUser(userId: UserId): Fu[List[ClasId]] =
-      coll.distinctEasy[ClasId, List]("clasId", $doc("userId" -> userId) ++ selectArchived(false), _.sec)
 
     def count(clasId: ClasId): Fu[Int] = coll.countSel($doc("clasId" -> clasId))
 
@@ -403,8 +419,6 @@ ${clas.desc}""",
           multi = true
         )
         .void
-
-    private def selectArchived(v: Boolean) = $doc("archived".$exists(v))
 
   end student
 

@@ -15,18 +15,21 @@
     }
   },
   "dependencies": {
-    "@lichess-org/chessground": "^10.0.1",
-    "@lichess-org/pgn-viewer": "^2.5.6",
+    "@lichess-org/chessground": "^10.0.2",
+    "@lichess-org/pgn-viewer": "^2.5.9",
     "@types/lichess": "workspace:*",
-    "@types/node": "^24.10.0",
+    "@types/node": "^24.10.13",
     "ab": "github:lichess-org/ab-stub",
     "chessops": "^0.15",
     "jsdom": "^27.1.0",
     "lint-staged": "^16.2.6",
-    "oxfmt": "^0.26.0",
-    "oxlint": "^1.41.0",
-    "oxlint-tsgolint": "^0.11.1",
+    "oxfmt": "^0.35.0",
+    "oxlint": "^1.50.0",
+    "oxlint-tsgolint": "^0.15.0",
     "snabbdom": "3.5.1",
+    "stylelint": "^17.3.0",
+    "stylelint-config-standard-scss": "^17.0.0",
+    "stylelint-scss": "^7.0.0",
     "tsx": "^4.20.6",
     "typescript": "^5.9.3"
   },
@@ -35,19 +38,21 @@
     "typescript above just to allow manual tsc. ui/.build/package.json's typescript version is the truth"
   ],
   "scripts": {
-    "format": "oxfmt --config=ui/.oxfmtrc.json ui",
-    "check-format": "oxfmt --config=ui/.oxfmtrc.json --check ui",
-    "add-hooks": "git config get --all core.hooksPath | grep -Fxq bin/git-hooks || git config set --append core.hooksPath bin/git-hooks",
-    "remove-hooks": "git config unset --value=bin/git-hooks core.hooksPath || true",
-    "lint": "oxlint --config=ui/.oxlintrc.json --tsconfig=ui/tsconfig.base.json --type-aware ui",
+    "format": "oxfmt",
+    "format:scala": "./lila.sh scalafmtAll",
+    "check-format": "oxfmt --check",
+    "lint": "oxlint --type-aware --tsconfig=ui/tsconfig.base.json && stylelint \"**/*.scss\"",
+    "lint:fix": "oxlint --type-aware --tsconfig=ui/tsconfig.base.json --fix && stylelint \"**/*.scss\" --fix",
     "journal": "journalctl --user -fu lila -o cat",
     "metals": "tail -F .metals/metals.log | stdbuf -oL cut -c 21- | rg -v '(notification for request|handleCancellation)'",
     "serverlog": "pnpm journal & pnpm metals",
     "i18n-file-gen": "pnpx tsx bin/i18n-file-gen.ts",
-    "multilog": "pnpm serverlog & ui/build -w"
+    "multilog": "pnpm serverlog & ui/build -w",
+    "add-hooks": "git config get --all core.hooksPath | grep -Fxq bin/git-hooks || git config set --append core.hooksPath bin/git-hooks",
+    "remove-hooks": "git config unset --value=bin/git-hooks core.hooksPath || true"
   },
   "lint-staged": {
-    "*.{json,scss,ts,mts,mjs}": "pnpm lint --fix && pnpm format"
+    "*.{json,scss,ts,mts,mjs,scss}": "pnpm lint:fix && pnpm format"
   },
   "browserslist": [
     "defaults",

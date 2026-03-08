@@ -1,7 +1,8 @@
 import type AnalyseCtrl from '@/ctrl';
 import RelayCtrl, { type RelayTab } from './relayCtrl';
 import * as licon from 'lib/licon';
-import { bind, dataIcon, onInsert, hl, type LooseVNode, cmnToggleWrap, copyMeInput } from 'lib/view';
+import { bind, dataIcon, onInsert, hl, type LooseVNode, copyMeInput } from 'lib/view';
+import { cmnToggleWrap } from 'lib/view/cmn-toggle';
 import type { VNode } from 'snabbdom';
 import { innerHTML, richHTML } from 'lib/richText';
 import type {
@@ -226,13 +227,13 @@ const share = (ctx: RelayViewContext) => {
     },
     [
       hl('fieldset.relay-tour__share.toggle-box.toggle-box--toggle', [
-        hl('legend', 'Share this broadcast by URL'),
+        hl('legend', { attrs: { tabindex: 0 } }, 'Share this broadcast by URL'),
         group && link(group.name, `/broadcast/${group.slug}/${group.id}`),
         link(tour.name, ctx.relay.tourPath()),
         link(tour.name + ' | ' + roundName, ctx.relay.roundPath()),
       ]),
       hl('fieldset.relay-tour__share.toggle-box.toggle-box--toggle.toggle-box--toggle-off', [
-        hl('legend', 'Download PGN'),
+        hl('legend', { attrs: { tabindex: 0 } }, 'Download PGN'),
         hl('p.form-group', [
           'We offer full PGN downloads for all our broadcasts.',
           hl('br'),
@@ -251,6 +252,12 @@ const share = (ctx: RelayViewContext) => {
             'our full database exports',
           ),
           '.',
+          hl('br'),
+          hl('p.form-help', [
+            'You can remove clocks and evals from the PGN by adding query parameters, for example: ',
+            hl('br'),
+            hl('code', '?clocks=false&comments=false'),
+          ]),
         ]),
         link('This round: ' + roundName, `${ctx.relay.roundPath()}.pgn`),
         link(
@@ -261,7 +268,7 @@ const share = (ctx: RelayViewContext) => {
         hl('p.form-group', 'Individual game download is available on each game page.'),
       ]),
       hl('fieldset.relay-tour__share.toggle-box.toggle-box--toggle.toggle-box--toggle-off', [
-        hl('legend', i18n.broadcast.embedThisBroadcast),
+        hl('legend', { attrs: { tabindex: 0 } }, i18n.broadcast.embedThisBroadcast),
         group &&
           link('Follow ongoing tournament', relayIframe(`/broadcast/${group.slug}/${group.id}`), iframeHelp),
         link('This tournament: ' + tour.name, relayIframe(ctx.relay.tourPath()), iframeHelp),
@@ -271,22 +278,33 @@ const share = (ctx: RelayViewContext) => {
   );
 };
 
-const groupSelect = (ctx: RelayViewContext, group: RelayGroup) => {
-  const toggle = ctx.relay.groupSelectShow;
-  const clickHook = { hook: bind('click', toggle.toggle, ctx.relay.redraw) };
+const tourSelect = (ctx: RelayViewContext, group: RelayGroup) => {
+  const { relay, study } = ctx;
+  const inputId = 'mselect-relay-tour';
+
+  const updateCheckboxAndToggle = () => {
+    const checkbox = document.querySelector<HTMLInputElement>(`#${inputId}`);
+    if (checkbox) checkbox.checked = false;
+    relay.tourSelectShow(!checkbox);
+  };
+
   return hl(
     'div.mselect.relay-tour__mselect.relay-tour__tour-select',
     {
-      class: { mselect__active: toggle() },
+      class: { mselect__active: relay.tourSelectShow() },
     },
     [
+      hl('input.mselect__toggle', {
+        attrs: { type: 'checkbox', id: inputId },
+        on: { change: relay.tourSelectShow.toggle },
+      }),
       hl(
         'label.mselect__label',
-        clickHook,
-        group.tours.find(t => t.id === ctx.relay.data.tour.id)?.name || ctx.relay.data.tour.name,
+        { attrs: { for: inputId } },
+        group.tours.find(t => t.id === relay.data.tour.id)?.name || relay.data.tour.name,
       ),
-      toggle() && [
-        hl('label.fullscreen-mask', clickHook),
+      relay.tourSelectShow() && [
+        hl('label.fullscreen-mask', { on: { click: updateCheckboxAndToggle } }),
         hl(
           'nav.mselect__list',
           group.tours.map(tour =>
@@ -294,9 +312,9 @@ const groupSelect = (ctx: RelayViewContext, group: RelayGroup) => {
               'a.mselect__item',
               {
                 class: {
-                  current: tour.id === ctx.relay.data.tour.id,
+                  current: tour.id === relay.data.tour.id,
                 },
-                attrs: { href: ctx.study.embeddablePath(`/broadcast/-/${tour.id}`) },
+                attrs: { href: study.embeddablePath(`/broadcast/-/${tour.id}`) },
               },
               [tour.name, tourStateIcon(tour, false)],
             ),
@@ -312,7 +330,7 @@ const tourStateIcon = (tour: RelayTourPreview, titleAsText: boolean) =>
     ? hl('span.tour-state.ongoing', {
         attrs: { ...dataIcon(licon.DiscBig), title: i18n.broadcast.ongoing },
       })
-    : tour.active === false
+    : !tour.active
       ? hl(
           'span.tour-state.finished',
           { attrs: { ...dataIcon(licon.Checkmark), title: !titleAsText && i18n.site.finished } },
@@ -321,22 +339,48 @@ const tourStateIcon = (tour: RelayTourPreview, titleAsText: boolean) =>
       : undefined;
 
 const roundSelect = (relay: RelayCtrl, study: StudyCtrl) => {
-  const toggle = relay.roundSelectShow;
-  const clickHook = { hook: bind('click', toggle.toggle, relay.redraw) };
-  const round = relay.round;
+  const { round } = relay;
   const icon = roundStateIcon(round, true);
+  const inputId = 'mselect-relay-round';
+
+  const updateCheckboxAndToggle = () => {
+    const checkbox = document.querySelector<HTMLInputElement>(`#${inputId}`);
+    if (checkbox) checkbox.checked = false;
+    relay.roundSelectShow(!checkbox);
+  };
+  const extractHrefAndNavigate = (e: PointerEvent, round: RelayRound) => {
+    if (e.metaKey) return;
+    const href = study.embeddablePath(relay.roundUrlWithHash(round));
+    if (href && href.split('#')[0] !== window.location.pathname) {
+      site.redirect(href);
+    } else {
+      e.preventDefault();
+      updateCheckboxAndToggle();
+    }
+  };
+
   return hl(
     'div.mselect.relay-tour__mselect.relay-tour__round-select',
     {
-      class: { mselect__active: toggle() },
+      class: { mselect__active: relay.roundSelectShow() },
     },
     [
-      hl('label.mselect__label.relay-tour__round-select__label', clickHook, [
-        hl('span.relay-tour__round-select__name', round.name),
-        hl('span.relay-tour__round-select__status', icon || (!!round.startsAt && timeago(round.startsAt))),
-      ]),
-      toggle() && [
-        hl('label.fullscreen-mask', clickHook),
+      hl('input.mselect__toggle', {
+        attrs: { type: 'checkbox', id: inputId },
+        on: { change: relay.roundSelectShow.toggle },
+      }),
+      hl(
+        'label.mselect__label.relay-tour__round-select__label',
+        {
+          attrs: { for: inputId },
+        },
+        [
+          hl('span.relay-tour__round-select__name', round.name),
+          hl('span.relay-tour__round-select__status', icon || (!!round.startsAt && timeago(round.startsAt))),
+        ],
+      ),
+      relay.roundSelectShow() && [
+        hl('label.fullscreen-mask', { on: { click: updateCheckboxAndToggle } }),
         hl(
           'div.relay-tour__round-select__list.mselect__list',
           {
@@ -347,50 +391,35 @@ const roundSelect = (relay: RelayCtrl, study: StudyCtrl) => {
                 ?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
             }),
           },
-          hl(
-            'table',
+          relay.data.rounds.map((round, i) =>
             hl(
-              'tbody',
+              'a.mselect__item',
               {
-                hook: bind('click', e => {
-                  const target = e.target as HTMLElement;
-                  if (target.tagName !== 'A') site.redirect($(target).parents('tr').find('a').attr('href')!);
-                }),
+                attrs: { href: study.embeddablePath(relay.roundUrlWithHash(round)) },
+                class: {
+                  'current-round': round.id === study.data.id,
+                  'ongoing-round': !!round.ongoing,
+                },
+                on: {
+                  click: (e: PointerEvent) => extractHrefAndNavigate(e, round),
+                },
               },
-              relay.data.rounds.map((round, i) =>
+              [
+                hl('span.name', round.name),
                 hl(
-                  'tr.mselect__item',
-                  {
-                    class: {
-                      ['current-round']: round.id === study.data.id,
-                      ['ongoing-round']: !!round.ongoing,
-                    },
-                  },
-                  [
-                    hl(
-                      'td.name',
-                      hl(
-                        'a',
-                        { attrs: { href: study.embeddablePath(relay.roundUrlWithHash(round)) } },
-                        round.name,
-                      ),
-                    ),
-                    hl(
-                      'td.time',
-                      !!round.startsAt
-                        ? commonDateFormat(new Date(round.startsAt))
-                        : round.startsAfterPrevious &&
-                            i18n.broadcast.startsAfter(
-                              relay.data.rounds[i - 1] ? relay.data.rounds[i - 1].name : 'the previous round',
-                            ),
-                    ),
-                    hl(
-                      'td.status',
-                      roundStateIcon(round, false) || (!!round.startsAt && timeago(round.startsAt)),
-                    ),
-                  ],
+                  'span.time',
+                  round.startsAt
+                    ? commonDateFormat(new Date(round.startsAt))
+                    : round.startsAfterPrevious &&
+                        i18n.broadcast.startsAfter(
+                          relay.data.rounds[i - 1] ? relay.data.rounds[i - 1].name : 'the previous round',
+                        ),
                 ),
-              ),
+                hl(
+                  'span.status',
+                  roundStateIcon(round, false) || (!!round.startsAt && timeago(round.startsAt)),
+                ),
+              ],
             ),
           ),
         ),
@@ -441,7 +470,7 @@ const header = (ctx: RelayViewContext) => {
       hl('div.relay-tour__header__content', [
         hl('h1', group?.name || d.tour.name),
         hl('div.relay-tour__header__selectors', [
-          group && groupSelect(ctx, group),
+          group && tourSelect(ctx, group),
           roundSelect(relay, ctx.study),
         ]),
       ]),
@@ -506,11 +535,13 @@ const makeTabs = (ctrl: AnalyseCtrl) => {
 
   const makeTab = (key: RelayTab, name: string) =>
     hl(
-      `span.relay-tour__tabs--${key}`,
+      `button.relay-tour__tabs--${key}`,
       {
         class: { active: relay.tab() === key },
         attrs: { role: 'tab' },
-        hook: bind('mousedown', () => relay.openTab(key)),
+        on: {
+          click: () => relay.openTab(key),
+        },
       },
       name,
     );
@@ -519,7 +550,7 @@ const makeTabs = (ctrl: AnalyseCtrl) => {
     makeTab('boards', i18n.broadcast.boards),
     makeTab('players', i18n.site.players),
     relay.teams && makeTab('teams', i18n.broadcast.teams),
-    relay.data.tour.showTeamScores && makeTab('team-results', 'Team Results'),
+    relay.data.tour.showTeamScores && makeTab('team-results', i18n.broadcast.teamResults),
     study.members.myMember() && !!relay.data.tour.tier
       ? makeTab('stats', i18n.site.stats)
       : ctrl.isEmbed &&

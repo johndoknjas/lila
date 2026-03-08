@@ -2,7 +2,6 @@ import type { Prop, Toggle } from 'lib';
 import type { VNode } from 'snabbdom';
 
 export type MsgType = 'full' | 'partial' | 'status' | 'error' | 'stop' | 'start';
-export type ListenMode = 'full' | 'partial';
 export type Listener = (msgText: string, msgType: MsgType) => void;
 
 export interface Microphone {

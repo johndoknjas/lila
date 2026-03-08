@@ -57,9 +57,7 @@ export function make(root: AnalyseCtrl, color: Color): RetroCtrl {
     if (!site.blindMode) root.redraw();
   }
 
-  function isPlySolved(ply: Ply): boolean {
-    return solvedPlies.includes(ply);
-  }
+  const isPlySolved = (ply: Ply): boolean => solvedPlies.includes(ply);
 
   function findNextNode(): TreeNode | undefined {
     const colorModulo = color === 'white' ? 1 : 0;
@@ -147,11 +145,10 @@ export function make(root: AnalyseCtrl, color: Color): RetroCtrl {
     root.setAutoShapes();
   }
 
-  function isCevalReady(node: TreeNode): boolean {
-    return node.ceval
+  const isCevalReady = (node: TreeNode): boolean =>
+    node.ceval
       ? node.ceval.depth >= 18 || (node.ceval.depth >= 14 && (node.ceval.millis ?? 0) > 6000)
       : false;
-  }
 
   function checkCeval(): void {
     const node = root.node,
@@ -197,20 +194,15 @@ export function make(root: AnalyseCtrl, color: Color): RetroCtrl {
     if (current()) solvedPlies.push(current()!.fault.node.ply);
   }
 
-  function hideComputerLine(node: TreeNode): boolean {
-    return (node.ply % 2 === 0) !== (color === 'white') && !isPlySolved(node.ply);
-  }
+  const hideComputerLine = (node: TreeNode): boolean =>
+    (node.ply % 2 === 0) !== (color === 'white') && !isPlySolved(node.ply);
 
   function showBadNode(): TreeNode | undefined {
     const cur = current();
-    if (cur && isSolving() && cur.prev.path === root.path) return cur.fault.node;
-    return undefined;
+    return cur && isSolving() && cur.prev.path === root.path ? cur.fault.node : undefined;
   }
 
-  function isSolving(): boolean {
-    const fb = feedback();
-    return fb === 'find' || fb === 'fail';
-  }
+  const isSolving = (): boolean => ['find', 'fail'].includes(feedback());
 
   jumpToNext();
 

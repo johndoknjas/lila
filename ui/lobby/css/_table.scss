@@ -24,6 +24,7 @@
         opacity: 0.2;
       }
       &::before {
+        @include transition(color);
         @extend %data-icon;
         font-size: 32px;
         color: $c-font-dimmer;

@@ -26,7 +26,7 @@
   <string name="asWhite">khi chơi quân trắng</string>
   <string name="asBlack">khi chơi quân đen</string>
   <string name="randomColor">Chọn màu quân ngẫu nhiên</string>
-  <string name="createAGame">Tạo một ván cờ</string>
+  <string name="createAGame">Tạo ván cờ mới</string>
   <string name="createTheGame">Khởi tạo ván cờ</string>
   <string name="whiteIsVictorious">Bên Trắng thắng</string>
   <string name="blackIsVictorious">Bên Đen thắng</string>
@@ -130,8 +130,15 @@
   <string name="pinnedPieces">Quân cờ bị ghim</string>
   <string name="checkableKing">Có thể chiếu tướng</string>
   <string name="multipleLines">Số hàng phân tích</string>
+  <string name="multipleLinesDescription">Đặt số dòng tính toán và các mũi tên nước đi trên bàn cờ</string>
+  <string name="searchTime">Thời gian tìm kiếm</string>
+  <string name="searchTimeDescription">Dành thời gian để tính toán các thế cờ mới</string>
+  <string name="threads">Số luồng</string>
+  <string name="threadsDescription">Hãy đặt giá trị này thấp hơn số luồng của CPU, giá trị có dấu tick là một lựa chọn an toàn và hợp lý</string>
+  <string name="threadsDescriptionMobile">Càng nhiều luồng xử lý sẽ càng tiêu hao nhiều pin để phân tích tốt hơn</string>
   <string name="cpus">CPU</string>
   <string name="memory">Bộ nhớ</string>
+  <string name="memoryDescription">Giá trị cao hơn có thể cải thiện hiệu suất</string>
   <string name="infiniteAnalysis">Phân tích vô hạn</string>
   <string name="removesTheDepthLimit">Bỏ giới hạn độ sâu và giữ máy tính của bạn mượt hơn</string>
   <string name="blunder">Sai lầm nghiêm trọng</string>
@@ -222,7 +229,7 @@
   <string name="changeUsernameNotSame">Bạn chỉ có thể thay đổi cách viết hoa/thường. Ví dụ \"dotrongkhanh04032012\" thành \"DoTrongKhanh04032012\".</string>
   <string name="changeUsernameDescription">Thay đổi tên người dùng của bạn. Điều này chỉ có thể thực hiện một lần và bạn chỉ được thay đổi cách viết hoa/viết thường các chữ trong tên người dùng của bạn.</string>
   <string name="signupUsernameHint">Hãy đảm bảo chọn tên người dùng thân thiện với mọi người. Bạn sẽ không thể thay đổi nó và bất kỳ tài khoản nào có tên người dùng không phù hợp sẽ bị đóng!</string>
-  <string name="signupEmailHint">Chúng tôi chỉ sử dụng nó cho việc khôi phục mật khẩu.</string>
+  <string name="signupEmailPromise">Chúng tôi chỉ gửi tin nhắn qua email về tài khoản của bạn và sẽ không bao giờ chia sẻ địa chỉ email của bạn với người khác.</string>
   <string name="password">Mật khẩu</string>
   <string name="changePassword">Thay đổi mật khẩu</string>
   <string name="changeEmail">Thay đổi thư điện tử</string>
@@ -683,11 +690,6 @@ trò chuyện trong ván đấu và có một URL có thể chia sẻ công khai
   <string name="keyCycleSelectedVariation">Biến được chọn theo chu kỳ</string>
   <string name="keyShowOrHideComments">hiện/ẩn bình luận</string>
   <string name="keyEnterOrExitVariation">vào/thoát biến</string>
-  <string name="keyRequestComputerAnalysis">Yêu cầu máy tính phân tích, Học từ sai lầm của bạn</string>
-  <string name="keyNextLearnFromYourMistakes">Tiếp theo (Học từ sai lầm của bạn)</string>
-  <string name="keyNextBlunder">Nước đi sai nghiêm trọng tiếp theo</string>
-  <string name="keyNextMistake">Nước đi sai lầm tiếp theo</string>
-  <string name="keyNextInaccuracy">Nước đi không chính xác tiếp theo</string>
   <string name="keyPreviousBranch">Nhánh trước</string>
   <string name="keyNextBranch">Nhánh tiếp theo</string>
   <string name="toggleVariationArrows">Đổi mũi tên của từng biến</string>

@@ -221,7 +221,6 @@
   <string name="changeUsernameNotSame">അക്ഷരങ്ങളുടെ കേസിനു മാത്രമേ മാറാൻ കഴിയുകയുള്ളൂ. ഉദാഹരണത്തിന് \"johndoe\" എന്നത് \"JohnDoe\" എന്നായി മാറും.</string>
   <string name="changeUsernameDescription">നിങ്ങളുടെ ഉപയോക്തൃനാമം മാറ്റുക. ഇത് ഒരിക്കൽ മാത്രമേ മാറ്റാൻ സാധിക്കുകയുള്ളു. അതിൽ തന്നെ യൂസർനെയിമിന്റെ അക്ഷരങ്ങളുടെ കേസ് മാത്രമേ മാറ്റാൻ സാധിക്കുകയുള്ളൂ.</string>
   <string name="signupUsernameHint">ദയവായിയൊരു സംസ്കാരമുള്ള ഉപയോക്തൃപേരു് തിരഞ്ഞെടുക്കുക. ഈ ഉപയോക്തൃപേരു് താങ്ങൾക്കു് പിന്നിടു് മാറ്റാൻ പറ്റത്തില്ല. അനുചിതമായ ഉപയോക്തൃപേരുള്ള അക്കൌണ്ടുകൾ അടച്ചുപൂട്ടിയിരിക്കും!</string>
-  <string name="signupEmailHint">ഞങ്ങൾ ഇത് വെരും രഹസ്യവാക്ക് മാറ്റാൻ ഉപയോഗിക്കും.</string>
   <string name="password">രഹസ്യവാക്ക്</string>
   <string name="changePassword">രഹസ്യവാക്ക് മാറ്റുക</string>
   <string name="changeEmail">ഇമെയില്‍ മാറ്റുക</string>
@@ -630,7 +629,7 @@
   <string name="onlyExistingConversations">നിലവിലുള്ള സംഭാഷങ്ങൾ മാത്രം</string>
   <string name="onlyFriends">കൂട്ടുകാർ മാത്രം</string>
   <string name="menu">പട്ടിക</string>
-  <string name="castling" comment="Label for a box on the right side of the board editor, where the user can select castling rights. Noun.&#10;&#10;NOTE: this string used to read &quot;Castling&quot;, with &quot;rights&quot; added in 2026 for clarity.">കേസ്‌ലിങ്</string>
+  <string name="castling">കേസ്‌ലിങ്</string>
   <string name="whiteCastlingKingside">വെള്ള O-O</string>
   <string name="blackCastlingKingside">കറുപ്പ് O-O</string>
   <plurals name="nbForumPosts">
@@ -686,11 +685,6 @@
   <string name="keyCycleSelectedVariation">തിരഞ്ഞെടുക്കപെട്ട വ്യതിയാനം തോടു് കടന്നുപോവുക</string>
   <string name="keyShowOrHideComments">അഭിപ്രായ പ്രകടനം കാണിക്കുക/മറയ്ക്കുക</string>
   <string name="keyEnterOrExitVariation">വേരിയേഷനിലേക്ക് കടക്കുക / പുറത്തുപോകുക</string>
-  <string name="keyRequestComputerAnalysis">ഗണനികവിശകലനം ആവശ്യപെടൂ, താങ്ങളുടെ തെറ്റുകൾ നിന്നു് പഠിക്കുക</string>
-  <string name="keyNextLearnFromYourMistakes">അടുത്ത (തെറ്റുകളിൽ നിന്ന് പഠിക്കുക)</string>
-  <string name="keyNextBlunder">അടുത്ത അബദ്ധം</string>
-  <string name="keyNextMistake">അടുത്ത തെറ്റ്</string>
-  <string name="keyNextInaccuracy">അടുത്ത കൃത്യമില്ലായ്മ</string>
   <string name="keyPreviousBranch">മുമ്പുള്ള വിഭാഗം</string>
   <string name="keyNextBranch">അടുത്ത വിഭാഗം</string>
   <string name="toggleVariationArrows">വ്യതിയാനം അമ്പുകൾ ടോഗിൾ ചെയ്യുക</string>

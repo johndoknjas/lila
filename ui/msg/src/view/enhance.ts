@@ -53,15 +53,15 @@ const expandTeamMessage = (html: string) =>
 export const enhance = (str: string) =>
   expandTeamMessage(expandGameIds(expandMentions(expandUrls(escapeHtml(str))))).replace(newLineRegex, '<br>');
 
-interface Expandable {
+type Expandable = {
   element: HTMLElement;
   link: Link;
-}
-interface Link {
+};
+type Link = {
   type: LinkType;
   src: string;
   opts: any;
-}
+};
 type LinkType = 'game';
 
 const domain = window.location.host;
@@ -112,7 +112,8 @@ function expandGames(games: Expandable[]): void {
 
 const expandGame = async (exp: Expandable) => {
   const $lpv = $('<div>');
-  const wrapper = exp.element.parentElement!.parentElement!;
+  const wrapper = exp.element.parentElement?.parentElement;
+  if (!wrapper) return;
   const backup = wrapper.cloneNode(true);
   wrapper.classList.add('has-embed');
   $(exp.element).replaceWith($('<div>').prepend($lpv));

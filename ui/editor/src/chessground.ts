@@ -49,7 +49,7 @@ function onMouseEvent(ctrl: EditorCtrl): (e: MouchEvent) => void {
 
     // do not generate corresponding mouse event
     // (https://developer.mozilla.org/en-US/docs/Web/API/Touch_events/Supporting_both_TouchEvent_and_MouseEvent)
-    if (sel !== 'pointer' && e.cancelable !== false && (e.type === 'touchstart' || e.type === 'touchmove'))
+    if (sel !== 'pointer' && e.cancelable && (e.type === 'touchstart' || e.type === 'touchmove'))
       e.preventDefault();
 
     if (isLeftClick(e) || e.type === 'touchstart' || e.type === 'touchmove') {

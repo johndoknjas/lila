@@ -72,11 +72,7 @@ export interface RoundSocketSend {
   ): void;
 }
 
-export type EncodedDests =
-  | string
-  | {
-      [key: string]: string;
-    };
+export type EncodedDests = string | Record<string, string>;
 
 export interface RoundData extends GameData {
   clock?: ClockData;
@@ -124,7 +120,7 @@ export interface RoundOpts {
 }
 
 export interface ChatOpts extends BaseChatOpts {
-  preset: 'start' | 'end' | undefined;
+  preset?: 'start' | 'end';
   enhance?: EnhanceOpts;
   plugin?: ChatPlugin;
   alwaysEnabled: boolean;
@@ -135,7 +131,7 @@ export interface ChatOpts extends BaseChatOpts {
 }
 
 export interface ApiMove {
-  dests: string | { [key: string]: string };
+  dests: string | Record<string, string>;
   ply: number;
   fen: string;
   san: string;

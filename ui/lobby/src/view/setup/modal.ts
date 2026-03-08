@@ -38,7 +38,7 @@ export default function setupModal(ctrl: LobbyController): VNode[] | null {
             {
               attrs: { disabled },
               class: { disabled },
-              on: { click: ctrl.setupCtrl.submit },
+              on: { click: setupCtrl.submit },
             },
             buttonText,
           ),
@@ -50,30 +50,30 @@ export default function setupModal(ctrl: LobbyController): VNode[] | null {
         dlg.show();
       },
     }),
-  ].filter(v => v !== null) as VNode[];
+  ].filter(v => v !== null);
 }
 
 const views = {
   hook: (ctrl: LobbyController): LooseVNodes => [
-    variantPicker(ctrl),
+    variantPicker(ctrl.setupCtrl),
     timePickerAndSliders(ctrl.setupCtrl.timeControl, 0),
     gameModeButtons(ctrl),
     ratingView(ctrl),
     ratingDifferenceSliders(ctrl),
-    colorButtons(ctrl),
+    colorButtons(ctrl.setupCtrl),
   ],
   friend: (ctrl: LobbyController): LooseVNodes => [
-    variantPicker(ctrl),
+    variantPicker(ctrl.setupCtrl),
     fenInput(ctrl.setupCtrl),
     timePickerAndSliders(ctrl.setupCtrl.timeControl, 0),
     gameModeButtons(ctrl),
-    colorButtons(ctrl),
+    colorButtons(ctrl.setupCtrl),
   ],
-  ai: (ctrl: LobbyController): LooseVNodes => [
-    variantPicker(ctrl),
-    fenInput(ctrl.setupCtrl),
-    timePickerAndSliders(ctrl.setupCtrl.timeControl, ctrl.setupCtrl.minimumTimeIfReal()),
-    levelButtons(ctrl),
-    colorButtons(ctrl),
+  ai: ({ setupCtrl }: LobbyController): LooseVNodes => [
+    variantPicker(setupCtrl),
+    fenInput(setupCtrl),
+    timePickerAndSliders(setupCtrl.timeControl, setupCtrl.minimumTimeIfReal()),
+    levelButtons(setupCtrl),
+    colorButtons(setupCtrl),
   ],
 };

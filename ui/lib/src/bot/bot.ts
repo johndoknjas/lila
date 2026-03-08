@@ -158,7 +158,7 @@ export class Bot implements BotInfo, MoveSource {
   private facetWeight(op: FilterName, { chess, movetime }: MoveArgs): number | undefined {
     if (!this.hasFilter(op)) return undefined;
     const f = this.filters![op];
-    const x: FilterFacetValue = Object.fromEntries(
+    const x = Object.fromEntries(
       filterFacetKeys
         .filter(k => f[k])
         .map(k => {
@@ -167,7 +167,7 @@ export class Bot implements BotInfo, MoveSource {
           else if (k === 'time') return [k, Math.log2(movetime ?? 64)];
           else return [k, undefined];
         }),
-    );
+    ) as FilterFacetValue;
 
     const vals = evaluateFilter(f, x);
     const y = combine(vals, f.by);

@@ -92,7 +92,7 @@
       &::before {
         color: $c-font-dimmer;
         content: $licon-Link;
-        font-family: 'lichess';
+        font-family: lichess;
         margin-left: -3rem;
         width: 3rem;
         position: absolute;
@@ -151,7 +151,7 @@
   }
 }
 
-@mixin rendered-markdown--code {
+@mixin rendered-markdown-code {
   $c-code-bg: $c-bg-zebra;
   $c-code-font: $c-font-clear;
   code {
@@ -176,7 +176,7 @@
   }
 }
 
-@mixin rendered-markdown--quote {
+@mixin rendered-markdown-quote {
   blockquote {
     color: $c-font-dim;
     border-inline-start: 0.3em solid $c-font-dimmer;
@@ -184,7 +184,7 @@
   }
 }
 
-@mixin rendered-markdown--img {
+@mixin rendered-markdown-img {
   img {
     @extend %box-neat;
     max-width: 100%;
@@ -203,7 +203,7 @@
   }
 }
 
-@mixin rendered-markdown--embed {
+@mixin rendered-markdown-embed {
   .embed {
     @extend %video;
     margin: $block-gap auto;

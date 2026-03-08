@@ -26,6 +26,8 @@
   <string name="castlingDescription">Захистіть свого короля й виведіть у бій туру.</string>
   <string name="capturingDefender">Захоплення захисника</string>
   <string name="capturingDefenderDescription">Захоплення фігури, що захищає іншу фігуру, дозволяє захопити незахищену фігуру наступним ходом.</string>
+  <string name="collinearMove" comment="Description for this theme (translateable separately):&#10;Two opposing pieces face each other, and one slides along the line of attack without capturing the enemy piece.&#10;&#10;Collinear is a term that comes from the field of geometry: https://en.wiktionary.org/wiki/collinear">Паралельний хід</string>
+  <string name="collinearMoveDescription" comment="Description for the puzzle theme 'Collinear move' (translateable separately).">Дві протилежні фігури знаходяться на одній лінії та одна з них пересувається по лінії без взяття фігури.</string>
   <string name="cornerMate">Кутовий мат</string>
   <string name="cornerMateDescription">Тура й ферзь заганяють короля в кут, а кінь ставить мат.</string>
   <string name="crushing">Руйнування</string>
@@ -34,7 +36,7 @@
   <string name="discoveredCheckDescription">Переміщення однієї фігури відкриває іншу, яка ставить шах королю. Часто призводить до вирішальної переваги.</string>
   <string name="doubleBishopMate">Мат двома слонами</string>
   <string name="doubleBishopMateDescription">Два слони на сусідніх діагоналях ставлять мат королю, який оточений власними фігурами.</string>
-  <string name="dovetailMate">Мат \"ластівчин хвіст\"</string>
+  <string name="dovetailMate">Мат Козіо</string>
   <string name="dovetailMateDescription">Ферзь ставить мат королю поруч, єдині два поля для відступу якого зайняті його власними фігурами.</string>
   <string name="equality">Рівність</string>
   <string name="equalityDescription">Повернення з програшної позиції, забезпечення нічиєї або отримання збалансованої позиції. (eval ≤ 200cp)</string>
@@ -53,6 +55,8 @@
   <string name="endgame">Ендшпіль</string>
   <string name="endgameDescription">Тактика на останній фазі гри.</string>
   <string name="enPassantDescription">Тактика із застосуванням правила \"взяття на проході\", коли пішак може взяти пішака суперника, що зробив початковий хід на два поля, внаслідок якого перетинаюче поле під боєм пішака.</string>
+  <string name="epauletteMate">Еполетний мат</string>
+  <string name="epauletteMateDescription">Два суміжні поля для короля якому дали шах займають інші фігури.</string>
   <string name="exposedKing">Незахищений король</string>
   <string name="exposedKingDescription">Король з малою кількістю захисників, що часто призводить до мату.</string>
   <string name="fork">Вилка</string>
@@ -71,11 +75,13 @@
   <string name="pillsburysMateDescription">Тура ставить мат королю, поки слон закриває поля для втечі.</string>
   <string name="morphysMate">Мат Мерфі</string>
   <string name="morphysMateDescription">Слон ставить шах королю, а тура закриває поля для втечі.</string>
+  <string name="swallowstailMate">Мат \"ластівчин хвіст\"</string>
+  <string name="swallowstailMateDescription">Матовий патерн, який візуально нагадує ластівчин хвіст, подібно до літери \"У\".</string>
   <string name="triangleMate">Трикутний мат</string>
   <string name="triangleMateDescription">Ферзь і тура на відстані одного поля від ворожого короля перебувають на одній горизонталі чи вертикалі та формують трикутник.</string>
   <string name="vukovicMate">Мат Вуковіча</string>
   <string name="vukovicMateDescription">Тура й кінь об\'єднуються, аби поставити мат королю. Тура, яку захищає третя фігура, ставить мат, а кінь блокує всі поля, через які король може втекти.</string>
-  <string name="knightEndgame">Коньовий ендшпіль</string>
+  <string name="knightEndgame">Кіньовий ендшпіль</string>
   <string name="knightEndgameDescription">Ендшпіль лише з конями та пішаками.</string>
   <string name="long">Багатоходова задача</string>
   <string name="longDescription">Перемога за три ходи.</string>
@@ -87,8 +93,8 @@
   <string name="mateDescription">Виграйте гру красиво.</string>
   <string name="mateIn1">Мат в 1 хід</string>
   <string name="mateIn1Description">Поставте мат в один хід.</string>
-  <string name="mateIn2">Мат в 2 ходи</string>
-  <string name="mateIn2Description">Поставте мат в два ходи.</string>
+  <string name="mateIn2">Мат у 2 ходи</string>
+  <string name="mateIn2Description">Поставте мат у два ходи.</string>
   <string name="mateIn3">Мат в 3 ходи</string>
   <string name="mateIn3Description">Поставте мат в три ходи.</string>
   <string name="mateIn4">Мат в 4 ходи</string>

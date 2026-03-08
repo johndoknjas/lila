@@ -1,5 +1,6 @@
 import { h, type VNode, type VNodes } from 'snabbdom';
-import { bind, cmnToggleWrapProp } from 'lib/view';
+import { bind } from 'lib/view';
+import { cmnToggleWrapProp } from 'lib/view/cmn-toggle';
 import type CoordinateTrainerCtrl from './ctrl';
 import type { TimeControl, Mode } from './interfaces';
 import { colors, type ColorChoice } from 'lib/setup/color';
@@ -191,7 +192,7 @@ const scoreCharts = (ctrl: CoordinateTrainerCtrl): VNode =>
       ].map(([color, fmt, scoreList]: [Color, I18nFormat, number[]]) =>
         scoreList.length
           ? h('div.color-chart', [
-              h('p', fmt.asArray(h('strong', `${average(scoreList).toFixed(2)}`))),
+              h('p', fmt.asArray(h('strong', average(scoreList).toFixed(2)))),
               h('div.sparkline-box', [
                 h('svg.sparkline', {
                   attrs: { height: '80px', 'stroke-width': '3', id: `${color}-sparkline` },

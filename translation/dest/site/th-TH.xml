@@ -125,6 +125,10 @@
   <string name="bestMoveArrow">ศรตาเดินที่ดีที่สุด</string>
   <string name="showVariationArrows">แสดงศรการเดินอื่นๆ</string>
   <string name="evaluationGauge">แถบประเมิน</string>
+  <string name="visualMotifs">แสดงสัญลักษณ์</string>
+  <string name="undefendedPieces">หมากไร้ตัวป้องกัน</string>
+  <string name="pinnedPieces">หมากที่โดนกด</string>
+  <string name="checkableKing">คิงที่โดนรุกได้</string>
   <string name="multipleLines">จำนวนเส้นทางการเดิน</string>
   <string name="cpus">จำนวนซีพียูที่ใช้</string>
   <string name="memory">หน่วยความจำที่ใช้</string>
@@ -218,7 +222,7 @@
   <string name="changeUsernameNotSame">เฉพาะตัวอักษรพิมพ์ใหญ่พิมพ์เล็กที่เปลี่ยนได้ เช่น \"johndoe\" เป็น \"JohnDoe\"</string>
   <string name="changeUsernameDescription">เปลี่ยนชื่อผู้ใช้ของคุณ สามารถทำได้เพียงครั้งเดียวเท่านั้น และอนุญาตให้เปลี่ยนได้เฉพาะตัวอักษรพิมพ์ใหญ่พิมพ์เล็ก</string>
   <string name="signupUsernameHint">กรุณาใช้ชื่อที่สุภาพและเป็นมิตรต่อทุกวัย คุณไม่สามารถเปลี่ยนมันได้หลังจากนี้ ชื่อบัญชีที่ไม่มีความเหมาะสมจะถูกปิด</string>
-  <string name="signupEmailHint">เราจะใช้อีเมลนี้เพื่อการรีเซทรหัสผ่านเท่านั้น</string>
+  <string name="signupEmailPromise">เราจะส่งอีเมลเฉพาะเรื่องที่เกี่ยวข้องกับบัญชีของคุณเท่านั้น และจะไม่เปิดเผยอีเมลของคุณให้ผู้อื่นทราบโดยเด็ดขาด</string>
   <string name="password">รหัสผ่าน</string>
   <string name="changePassword">เปลี่ยนรหัสผ่าน</string>
   <string name="changeEmail">เปลี่ยนอีเมล</string>
@@ -397,6 +401,7 @@
   <string name="screenshotCurrentPosition">จับภาพหน้าจอตำแหน่งปัจจุบัน</string>
   <string name="gameAsGIF">เกมเป็น GIF</string>
   <string name="playerNames">ชื่อผู้เล่น</string>
+  <string name="moveAnnotations">สัญกรณ์การเดิน</string>
   <string name="pasteTheFenStringHere">วางสตริง FEN ที่นี่</string>
   <string name="pasteThePgnStringHere">วางสตริง PGN ที่นี่</string>
   <string name="orUploadPgnFile">หรืออัปโหลดไฟล์ PGN</string>
@@ -621,7 +626,7 @@
   <string name="onlyExistingConversations">การสนทนาที่มีอยู่เท่านั้น</string>
   <string name="onlyFriends">เฉพาะเพื่อน</string>
   <string name="menu">เมนู</string>
-  <string name="castling" comment="Label for a box on the right side of the board editor, where the user can select castling rights. Noun.&#10;&#10;NOTE: this string used to read &quot;Castling&quot;, with &quot;rights&quot; added in 2026 for clarity.">การเข้าป้อม</string>
+  <string name="castling">การเข้าป้อม</string>
   <string name="whiteCastlingKingside">ขาว O-O</string>
   <string name="blackCastlingKingside">ดำ O-O</string>
   <plurals name="nbForumPosts">
@@ -677,11 +682,6 @@
   <string name="keyCycleSelectedVariation">กู้คืน ตาเดินที่ถูกเลือก</string>
   <string name="keyShowOrHideComments">แสดง/ซ่อนความคิดเห็น</string>
   <string name="keyEnterOrExitVariation">เข้าสู่/ออกจากตัวแปรกติกา</string>
-  <string name="keyRequestComputerAnalysis">ข้อการวิเคราะห์ด้วยคอมพิวเตอร์</string>
-  <string name="keyNextLearnFromYourMistakes">ต่อไป (เรียนรู้จากความผิดพลาดของคุณ)</string>
-  <string name="keyNextBlunder">ตาเดินที่ผิดมหันต์ต่อไป</string>
-  <string name="keyNextMistake">ตาเดินที่ผิดพลาดต่อไป</string>
-  <string name="keyNextInaccuracy">ตาเดินที่ไม่แม่นยำต่อไป</string>
   <string name="keyPreviousBranch">แขนงก่อนหน้า</string>
   <string name="keyNextBranch">แขนงต่อไป</string>
   <string name="toggleVariationArrows">ควบคุมศรตาเดินแขนงอื่น</string>
@@ -978,5 +978,5 @@
   <string name="search">ค้นหา</string>
   <string name="clearSearch">ล้างการค้นหา</string>
   <string name="tags">แท็ก</string>
-  <string name="enPassant" comment="Appears in the board editor (https://lichess.org/editor).&#10;&#10;It is for a setting to determine if en passant will be available for that current position.&#10;&#10;If it is selected, then it will be added to the FEN for that position - meaning that if you play the game from that exact position, it will be possible to capture en passant.&#10;&#10;NOTE: this string used to read &quot;En passant&quot;, with &quot;rights&quot; added in 2026 for clarity.">การกินผ่าน</string>
+  <string name="enPassant">การกินผ่าน</string>
 </resources>

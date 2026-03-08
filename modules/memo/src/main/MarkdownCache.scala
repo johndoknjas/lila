@@ -31,7 +31,7 @@ final class MarkdownCache(
   type RenderKey = MarkdownRender.Key
 
   private val cache = cacheApi[(RenderKey, Markdown, MarkdownOptions), Html](8_192, "memo.markdown"):
-    _.maximumSize(8_192)
+    _.maximumSize(16_384)
       .expireAfterWrite(if mode.isProd then 20.minutes else 1.second)
       .buildAsyncFuture: (key, markdown, opts) =>
         for _ <- pgnCache.preload(key, markdown, opts.maxPgns)

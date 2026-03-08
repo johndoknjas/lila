@@ -1,5 +1,46 @@
 {
+  "$schema": "./node_modules/oxlint/configuration_schema.json",
+  "plugins": ["promise", "typescript", "unicorn"],
+  "env": {
+    "builtin": true
+  },
+  "ignorePatterns": ["**/dist/", "**/public"],
   "rules": {
+    "no-var": "warn",
+    "no-constant-condition": [
+      "warn",
+      {
+        "checkLoops": false
+      }
+    ],
+    "no-duplicate-imports": "error",
+    "no-useless-computed-key": "error",
+    "no-useless-concat": "error",
+    "no-useless-constructor": "error",
+    "no-useless-spread": "error",
+    "no-unused-vars": [
+      "warn",
+      {
+        "varsIgnorePattern": "^_",
+        "argsIgnorePattern": "^_",
+        "caughtErrorsIgnorePattern": "^_"
+      }
+    ],
+    "prefer-promise-reject-errors": "error",
+    "promise/no-callback-in-promise": "error",
+    "promise/no-multiple-resolved": "error",
+    "typescript/consistent-indexed-object-style": "error",
+    "typescript/no-empty-interface": "error",
+    "typescript/no-empty-object-type": "error",
+    "typescript/no-confusing-non-null-assertion": "error",
+    "typescript/no-extra-non-null-assertion": "error",
+    "typescript/no-unnecessary-template-expression": "error",
+    "typescript/no-unnecessary-type-arguments": "error",
+    "typescript/no-unnecessary-type-assertion": "error",
+    "typescript/no-unnecessary-type-constraint": "error",
+    "unicorn/prefer-array-flat": "error",
+    "unicorn/prefer-array-flat-map": "error",
+    "unicorn/prefer-array-some": "error",
     "no-restricted-globals": [
       "error",
       "addEventListener",
@@ -15,7 +56,6 @@
       "defaultstatus",
       "defaultStatus",
       "devicePixelRatio",
-      "document",
       "external",
       "find",
       "focus",
@@ -28,14 +68,12 @@
       "innerWidth",
       "isSecureContext",
       "length",
-      "location",
       "locationbar",
       "matchMedia",
       "menubar",
       "moveBy",
       "moveTo",
       "name",
-      "navigator",
       "onabort",
       "onafterprint",
       "onanimationend",
@@ -145,10 +183,8 @@
       "pageXOffset",
       "pageYOffset",
       "parent",
-      "performance",
       "personalbar",
       "postMessage",
-      "print",
       "releaseEvents",
       "removeEventListener",
       "resizeBy",
@@ -164,10 +200,6 @@
       "scrollTo",
       "scrollX",
       "scrollY",
-      // "self",
-      "setInterval",
-      "setTimeout",
-      "speechSynthesis",
       "status",
       "statusbar",
       "stop",
@@ -177,8 +209,30 @@
       "visualViewport",
       "webkitRequestFileSystem",
       "webkitResolveLocalFileSystemURL",
-      "webkitStorageInfo",
-      "window"
-    ]
-  }
+      "webkitStorageInfo"
+    ],
+
+    "no-useless-escape": "off",
+    "no-control-regex": "off",
+    "no-unused-expressions": "off",
+    "typescript/no-base-to-string": "off",
+    "typescript/no-duplicate-type-constituents": "off",
+    "typescript/no-floating-promises": "off",
+    "typescript/no-misused-spread": "off",
+    "typescript/no-redundant-type-constituents": "off",
+    "typescript/no-this-alias": "off",
+    "typescript/triple-slash-reference": "off",
+    "typescript/require-array-sort-compare": "off",
+    "typescript/restrict-template-expressions": "off",
+    "typescript/unbound-method": "off"
+  },
+  "overrides": [
+    {
+      "files": ["bin/**", "cron/**"],
+      "rules": {
+        "no-unused-vars": "off",
+        "unicorn/prefer-array-some": "off"
+      }
+    }
+  ]
 }

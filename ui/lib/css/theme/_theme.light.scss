@@ -1,10 +1,10 @@
 @import 'theme.default';
 
-@function _clear($color, $weight: 17%) {
+@function clear($color, $weight: 17%) {
   @return mix(#000, $color, $weight);
 }
 
-@function _dim($color, $weight: 17%) {
+@function dim($color, $weight: 17%) {
   @return mix(#fff, $color, $weight);
 }
 
@@ -53,8 +53,8 @@ html.light {
   --c-font-page: #{change-color($c-font, $lightness: 37%)};
   --c-font-shadow: #fff;
 
-  --c-primary-dim: #{_dim($c-primary)};
-  --c-link-hover: #{_clear(saturate($c-primary, 100%), 35%)};
+  --c-primary-dim: #{dim($c-primary)};
+  --c-link-hover: #{clear(saturate($c-primary, 100%), 35%)};
   --c-chat-host-bg: rgba(125, 170, 73, 0.4);
   --c-chat-mention-bg: rgba(161, 194, 124, 0.4);
   --c-fancy: hsl(294, 61%, 62%);

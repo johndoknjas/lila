@@ -22,12 +22,12 @@ final class RelayTourForm(langList: lila.core.i18n.LangList, groupForm: RelayGro
     )(unapply)
 
   private given Formatter[FideTC] = formatter.stringFormatter(_.toString, FideTC.valueOf)
-  private val fideTcMapping: Mapping[FideTC] = typeIn(FideTC.values.toSet)
+  private val fideTCMapping: Mapping[FideTC] = typeIn(FideTC.values.toSet)
 
   private val infoMapping = mapping(
     "format" -> optional(cleanText(maxLength = 80)),
     "tc" -> optional(cleanText(maxLength = 80)),
-    "fideTc" -> optional(fideTcMapping),
+    "fideTC" -> optional(fideTCMapping),
     "location" -> optional(cleanText(maxLength = 80)),
     "timeZone" -> optional(lila.common.Form.timeZone.field),
     "players" -> optional(cleanText(maxLength = 120)),
@@ -97,7 +97,7 @@ final class RelayTourForm(langList: lila.core.i18n.LangList, groupForm: RelayGro
     Data(
       name = tour.name,
       info = tour.info.copy(
-        fideTc = tour.info.fideTcOrGuess.some,
+        fideTC = tour.info.fideTCOrGuess.some,
         timeZone = tour.info.timeZoneOrDefault.some
       ),
       markup = tour.markup,
@@ -176,6 +176,7 @@ object RelayTourForm:
         syncedAt = none,
         showScores = showScores,
         showRatingDiffs = showRatingDiffs,
+        showTeamScores = showTeamScores,
         tiebreaks = tiebreaks,
         teamTable = teamTable,
         players = players,
@@ -183,7 +184,7 @@ object RelayTourForm:
         spotlight = spotlight.filterNot(_.isEmpty).ifTrue(Granter(_.StudyAdmin)),
         pinnedStream = pinnedStream.ifTrue(Granter(_.StudyAdmin)),
         note = note,
-        orphanWarn = orphanWarn
+        orphanWarn = orphanWarn || !Granter(_.StudyAdmin)
       ).giveOfficialToBroadcasterIf(Granter(_.StudyAdmin))
 
   object Data:

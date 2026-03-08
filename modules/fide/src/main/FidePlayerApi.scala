@@ -13,6 +13,7 @@ final class FidePlayerApi(repo: FideRepo, cacheApi: CacheApi, picfitApi: PicfitA
   import repo.player.handler
 
   export repo.player.{ fetch, setPhotoCredit }
+  export repo.rating.get as getRatings
 
   def players(ids: ByColor[Option[FideId]]): Fu[ByColor[Option[FidePlayer]]] =
     ids.traverse:
@@ -27,12 +28,6 @@ final class FidePlayerApi(repo: FideRepo, cacheApi: CacheApi, picfitApi: PicfitA
           .collect:
             case (k, Some(v)) => k -> v
           .toMap
-
-  def federationNamesOf(ids: List[FideId]): Fu[Map[Federation.Id, Federation.Name]] =
-    idToPlayerCache
-      .getAll(ids)
-      .map: players =>
-        lila.fide.Federation.namesByIds(players.values.flatMap(_.flatMap(_.fed)))
 
   def withFollow(id: FideId)(using me: Option[Me]): Fu[Option[FidePlayer.WithFollow]] =
     idToPlayerCache
@@ -60,6 +55,9 @@ final class FidePlayerApi(repo: FideRepo, cacheApi: CacheApi, picfitApi: PicfitA
         _.flatten.flatMap: p =>
           p.photo.map(p.id -> _)
       .map(_.toMap)
+
+  private[fide] def delete(id: FideId): Funit =
+    repo.playerColl.delete.one($id(id)).void
 
   object guessPlayer:
 

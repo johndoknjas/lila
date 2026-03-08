@@ -2,8 +2,9 @@
 
 import { povChances } from '../winningChances';
 import * as licon from '@/licon';
-import { stepwiseScroll, type VNode, type LooseVNodes, bind, hl, cmnToggle } from '@/view';
-import { defined, notNull, requestIdleCallback } from '@/index';
+import { stepwiseScroll, type VNode, type LooseVNodes, bind, hl } from '@/view';
+import { cmnToggle } from '@/view/cmn-toggle';
+import { blurIfPrimaryClick, defined, notNull, requestIdleCallback } from '@/index';
 import { type CevalHandler, type NodeEvals, CevalState } from '../types';
 import type { Position } from 'chessops/chess';
 import { lichessRules } from 'chessops/compat';
@@ -72,9 +73,8 @@ function localInfo(ctrl: CevalHandler, ev?: ClientEval | false): EvalInfo {
   const knps = ev.nodes / (ev?.millis ?? Number.POSITIVE_INFINITY);
 
   if (knps > 0) {
-    info.npsText = `${
-      knps > 1000 ? (knps / 1000).toFixed(knps > 10000 ? 0 : 1) + ' Mn/s' : Math.round(knps) + ' kn/s'
-    }`;
+    info.npsText =
+      knps > 1000 ? (knps / 1000).toFixed(knps > 10000 ? 0 : 1) + ' Mn/s' : Math.round(knps) + ' kn/s';
     info.knps = knps;
   }
   return info;
@@ -86,7 +86,10 @@ const threatButton = (ctrl: CevalHandler): VNode | null =>
     : hl('button.show-threat', {
         class: { active: ctrl.threatMode(), hidden: !!ctrl.getNode().check() },
         attrs: { 'data-icon': licon.Target, title: i18n.site.showThreat + ' (x)' },
-        hook: bind('click', () => ctrl.toggleThreatMode()),
+        hook: bind('click', e => {
+          ctrl.toggleThreatMode();
+          blurIfPrimaryClick(e);
+        }),
       });
 
 function engineName(ctrl: CevalCtrl): VNode[] {
@@ -238,6 +241,7 @@ export function renderCeval(ctrl: CevalHandler): VNode[] {
         ctrl.ceval.showEnginePrefs.toggle(); // must use ctrl.ceval rather than ceval here
         if (ctrl.ceval.showEnginePrefs())
           setTimeout(() => document.querySelector<HTMLElement>('#select-engine')?.focus()); // nvui
+        else blurIfPrimaryClick(e);
       },
       () => ctrl.ceval.opts.redraw(), // must use ctrl.ceval rather than ceval here
       false,
@@ -353,6 +357,9 @@ export function renderPvs(ctrl: CevalHandler): VNode | undefined {
             if ((e.target as HTMLElement).closest('.pv-wrap-toggle')) return;
             if (isTouchDevice()) pvIndex = getElPvIndex(e);
             if (uciList.length > (pvIndex ?? 0) && !ctrl.threatMode()) {
+              try {
+                el.setPointerCapture(e.pointerId);
+              } catch {}
               ctrl.playUciList(uciList.slice(0, (pvIndex ?? 0) + 1));
               resetPvIndexAndBoard();
               e.preventDefault();
@@ -372,18 +379,20 @@ export function renderPvs(ctrl: CevalHandler): VNode | undefined {
           });
           el.addEventListener(
             'wheel',
-            stepwiseScroll((e: WheelEvent, scroll: boolean) => {
-              if (scroll) e.preventDefault();
-              if (pvIndex !== null) {
-                if (e.deltaY < 0 && pvIndex > 0 && scroll) pvIndex -= 1;
-                else if (e.deltaY > 0 && pvIndex < pvMoves.length - 1 && scroll) pvIndex += 1;
+            stepwiseScroll(
+              e => {
+                if (pvIndex === null) return; // should never be true, just for type inference
+                if (e.deltaY < 0 && pvIndex > 0) pvIndex -= 1;
+                else if (e.deltaY > 0 && pvIndex < pvMoves.length - 1) pvIndex += 1;
                 const pvBoard = pvMoves[pvIndex];
                 if (pvBoard) {
                   const [fen, uci] = pvBoard.split('|');
                   ctrl.ceval.setPvBoard({ fen, uci });
                 }
-              }
-            }),
+              },
+              () => pvIndex === null,
+              true,
+            ),
           );
           el.addEventListener('mouseout', () => setHovering(ceval, null));
           el.addEventListener('mouseleave', resetPvIndexAndBoard);

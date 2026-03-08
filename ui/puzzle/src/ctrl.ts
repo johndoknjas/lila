@@ -38,6 +38,7 @@ import { type WithGround } from 'lib/game/ground';
 import type { TreeNode, TreePath } from 'lib/tree/types';
 import { completeNode } from 'lib/tree/node';
 import { Result } from '@badrap/result';
+import { toggleZenMode } from 'lib/view/zen';
 
 export default class PuzzleCtrl implements CevalHandler {
   data: PuzzleData;
@@ -145,11 +146,7 @@ export default class PuzzleCtrl implements CevalHandler {
     // Make sure chessground is fully shown when the page goes back to being visible.
     document.addEventListener('visibilitychange', () => requestIdleCallback(() => this.jump(this.path), 500));
 
-    pubsub.on('zen', () => {
-      const zen = $('body').toggleClass('zen').hasClass('zen');
-      window.dispatchEvent(new Event('resize'));
-      if (!$('body').hasClass('zen-auto')) xhr.setZen(zen);
-    });
+    pubsub.on('zen', toggleZenMode);
     $('body').addClass('playing'); // for zen
     $('#zentog').on('click', () => pubsub.emit('zen'));
   }

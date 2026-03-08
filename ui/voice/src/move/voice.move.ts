@@ -60,7 +60,7 @@ export function initModule({
 
   const listenHandlers = [handleConfirm, handleCommand, handleAmbiguity, handleMove];
 
-  const commands: { [_: string]: () => ListenResult[] } = {
+  const commands: Record<string, () => ListenResult[]> = {
     no: as(['ok', 'clear'], () => (voice.showHelp() ? voice.showHelp(false) : clearMoveProgress())),
     help: as(['ok'], () => voice.showHelp(true)),
     vocabulary: as(['ok'], () => voice.showHelp('list')),
@@ -453,7 +453,7 @@ export function initModule({
           if ((nsrc & 7) === (other & 7)) rank = uci[1];
           else file = uci[0];
         }
-        for (const piece of [`${srole}${file}${rank}`, `${srole}`]) {
+        for (const piece of [`${srole}${file}${rank}`, srole]) {
           if (dp) addToks(`${piece}x${udest}`, uci);
           addToks(`${piece}${udest}`, uci);
         }

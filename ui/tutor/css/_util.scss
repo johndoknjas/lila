@@ -1,5 +1,6 @@
 .tutor {
   &__concept {
+    text-transform: capitalize;
     @extend %flex-center-nowrap;
     i {
       position: relative;
@@ -26,10 +27,18 @@
   }
   .mascot-says {
     @extend %box-radius-bottom;
+    bad {
+      color: $c-grade-bad;
+      font-weight: bold;
+    }
+    good {
+      color: $c-grade-good;
+      font-weight: bold;
+    }
   }
 }
 
 .tutor-icon {
   aspect-ratio: 1 / 1;
-  fill: currentColor;
+  fill: currentcolor;
 }

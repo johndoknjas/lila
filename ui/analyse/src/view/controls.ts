@@ -1,5 +1,5 @@
 import { renderEval, view as cevalView } from 'lib/ceval';
-import { repeater, myUserId } from 'lib';
+import { repeater, myUserId, blurIfPrimaryClick } from 'lib';
 import * as licon from 'lib/licon';
 import { type VNode, type LooseVNode, onInsert, hl, domDialog } from 'lib/view';
 import { displayColumns, isTouchDevice } from 'lib/device';
@@ -80,8 +80,8 @@ export function renderControls(ctrl: AnalyseCtrl) {
   );
 }
 
-function renderPracticeTab(ctrl: AnalyseCtrl): LooseVNode {
-  return hl('button.fbt', {
+const renderPracticeTab = (ctrl: AnalyseCtrl): LooseVNode =>
+  hl('button.fbt', {
     attrs: {
       title: i18n.site.practiceWithComputer,
       'data-act': 'engine-mode',
@@ -93,7 +93,6 @@ function renderPracticeTab(ctrl: AnalyseCtrl): LooseVNode {
       latent: !!ctrl.practice && !!ctrl.activeControlBarTool(),
     },
   });
-}
 
 function renderMobileCevalTab(ctrl: AnalyseCtrl): LooseVNode {
   const engineMode = ctrl.activeControlMode() || 'ceval',
@@ -155,6 +154,7 @@ function clickControl(ctrl: AnalyseCtrl, e: PointerEvent) {
     else if (mode === 'retro') ctrl.toggleRetro();
     else ctrl.showCeval(!ctrl.showCeval());
   }
+  blurIfPrimaryClick(e);
   ctrl.redraw();
 }
 
@@ -175,11 +175,9 @@ function scrubControl(ctrl: AnalyseCtrl, dx: number | 'pointerup') {
 }
 
 const jumpButton = (icon: string, effect: string, enabled: boolean): VNode =>
-  hl('button.fbt.move', { class: { disabled: !enabled }, attrs: { 'data-act': effect, 'data-icon': icon } });
+  hl('button.fbt.move', { attrs: { disabled: !enabled, 'data-act': effect, 'data-icon': icon } });
 
-function isMobileUi() {
-  return displayColumns() === 1 && isTouchDevice();
-}
+const isMobileUi = (): boolean => displayColumns() === 1 && isTouchDevice();
 
 function scrubHelp(ctrl: AnalyseCtrl) {
   domDialog({
