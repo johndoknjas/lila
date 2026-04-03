@@ -1,10 +1,13 @@
+import type { DrawModifiers, DrawShape } from '@lichess-org/chessground/draw';
+import type { NormalMove } from 'chessops/types';
+import { opposite, parseUci, makeSquare } from 'chessops/util';
+
 import { winningChances } from 'lib/ceval';
 import { annotationShapes } from 'lib/game/glyphs';
-import type { DrawModifiers, DrawShape } from '@lichess-org/chessground/draw';
-import { opposite, parseUci, makeSquare } from 'chessops/util';
-import type { NormalMove } from 'chessops/types';
-import type PuzzleCtrl from './ctrl';
 import type { Glyph, TreeNode } from 'lib/tree/types';
+
+// import { makeGooglyShapes } from '../../bits/src/bits.googlyHorsey';
+import type PuzzleCtrl from './ctrl';
 
 function makeAutoShapesFromUci(
   color: Color,
@@ -71,6 +74,7 @@ export default function (ctrl: PuzzleCtrl): DrawShape[] {
     ...annotationShapes(n),
     ...(feedback ? annotationShapes(feedback) : []),
     ...(hint ? [hint] : []),
+    ...(ctrl.googlyEyes ? ctrl.googlyEyes() : []),
   ];
 }
 

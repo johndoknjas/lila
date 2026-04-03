@@ -132,8 +132,15 @@
   <string name="pinnedPieces">Bogʻlangan sipohlar</string>
   <string name="checkableKing">Kisht qilib boʻladigan shoh</string>
   <string name="multipleLines">Bir nechta variant</string>
+  <string name="multipleLinesDescription">Tahlil variantlar sonini va taxtadagi yurish strelkalarni sonini sozlash</string>
+  <string name="searchTime">Qidiruv vaqti</string>
+  <string name="searchTimeDescription">Yangi pozitsiyalarni tahlil qilish vaqtini belgilash</string>
+  <string name="threads">Oqimlar (Threads)</string>
+  <string name="threadsDescription">Buni protsessoringiz oqimlari sonidan kamroq qilib sozlang; belgilangan chiziqlar xavfsiz tanlovni koʻrsatadi</string>
+  <string name="threadsDescriptionMobile">Koʻproq oqimlar tahlilni kuchaytiradi, ammo batareyani tezroq sarflaydi</string>
   <string name="cpus">Protsessorlar</string>
   <string name="memory">Xotira</string>
+  <string name="memoryDescription">Yuqori qiymat unumdorlikni oshirishi mumkin</string>
   <string name="infiniteAnalysis">Cheksiz tahlil</string>
   <string name="removesTheDepthLimit">Chuqurlik cheagarasini olib tashlaydi lekin kompyuteringiz maksimal quvvatda ishlatadi</string>
   <string name="blunder">Qoʻpol xato</string>
@@ -242,7 +249,7 @@
   <string name="changePassword">Parolni oʻzgartirish</string>
   <string name="changeEmail">E‑pochta manzilini oʻzgartirish</string>
   <string name="email">E‑pochta</string>
-  <string name="passwordReset">Parolni boshqattan oʻrnatish</string>
+  <string name="passwordReset">Parolni tiklash</string>
   <string name="forgotPassword">Parolni unutdingizmi?</string>
   <string name="error.weakPassword">Ushbu parol juda oddiy va uni taxmin qilish oson.</string>
   <string name="error.namePassword">Foydalanuvchi nomini parol sifatida ishlatmang.</string>
@@ -251,7 +258,7 @@
   <string name="neverTypeYourPassword">Lichess parolingizni boshqa saytlarda hech qachon kiritmang!</string>
   <string name="proceedToX">%sʼga oʻtish</string>
   <string name="passwordSuggestion">Boshqa birov aytgan parolni oʻrnatmang. Ular oʻsha parolni akkauntingizni oʻgʻirlash uchun ishlatishlari mumkin.</string>
-  <string name="emailSuggestion">Boshqa birov aytgan e‑pochtani oʻrnatmang. Ular oʻsha e‑pochtani akkauntingizni oʻgʻirlash uchun ishlatishlari mumkin.</string>
+  <string name="emailSuggestion">Boshqa birov aytgan e‑pochta manzilini oʻrnatmang. Ular oʻsha e‑pochta manzilini akkauntingizni oʻgʻirlash uchun ishlatishlari mumkin.</string>
   <string name="emailConfirmHelp">E‑pochtani tasdiqlash boʻyicha yordam</string>
   <string name="emailConfirmNotReceived">Roʻyxatdan oʻtganingizdan soʻng tasdiqlash xati kelmadimi?</string>
   <string name="whatSignupUsername">Roʻyxatdan oʻtishda qaysi foydalanuvchi nomidan foydalangansiz?</string>
@@ -476,7 +483,7 @@
     <item quantity="one">%s obuna</item>
     <item quantity="other">%s obuna</item>
   </plurals>
-  <string name="more">Batafsil</string>
+  <string name="more">Koʻproq</string>
   <string name="memberSince">Roʻyxatdan oʻtgan kuni</string>
   <string name="lastSeenActive">%s onlayn edi</string>
   <string name="player">Oʻyinchi</string>
@@ -554,7 +561,7 @@
   <string name="autoSwitch">Avtomatik oʻtish</string>
   <string name="puzzles">Masalalar</string>
   <string name="onlineBots">Onlayn botlar</string>
-  <string name="name">Ism</string>
+  <string name="name">Nomi</string>
   <string name="description">Izoh</string>
   <string name="descPrivate">Yopiq tavsif</string>
   <string name="descPrivateHelp">Faqat jamoa aʻzolari koʻra oladigan matn. Agar uni kiritsangiz, jamoa aʼzolari uchun ommaviy tavsif oʻrniga koʻrsatiladi.</string>
@@ -595,6 +602,9 @@
   <string name="invalidUsernameOrPassword">Foydalanuvchi nomi yoki parol notoʻgʻri</string>
   <string name="incorrectPassword">Parol notoʻgʻri</string>
   <string name="invalidAuthenticationCode">Autentifikatsiya kodi notoʻgʻri</string>
+  <string name="clearField">Maydonni tozalash</string>
+  <string name="orSeparator">Yoki</string>
+  <string name="logInByEmail">E-pochta yordamida kirish</string>
   <string name="emailMeALink">E‑pochtamga havola joʻnat</string>
   <string name="currentPassword">Joriy parol</string>
   <string name="newPassword">Yangi parol</string>
@@ -607,7 +617,7 @@
   <string name="privacyPolicy">Maxfiylik siyosati</string>
   <string name="letOtherPlayersFollowYou">Boshqa oʻyinchilarga sizga obuna boʻlishga ruxsat berish</string>
   <string name="letOtherPlayersChallengeYou">Boshqa oʻyinchilarga sizni oʻyinga chorlashga ruxsat berish</string>
-  <string name="letOtherPlayersInviteYouToStudy">Boshqa oʻyinchilarga sizni saboqqa taklif qilishiga ruxsat berish</string>
+  <string name="letOtherPlayersInviteYouToStudy">Boshqa oʻyinchilar sizni saboqqa taklif qilishga ruxsat berish</string>
   <string name="sound">Tovush</string>
   <string name="none">Yoʻq</string>
   <string name="fast">Tez</string>
@@ -681,12 +691,12 @@
   <string name="webmasters">Veb‑dasturchilarga</string>
   <string name="about">Dastur haqida</string>
   <string name="aboutX">%s haqida</string>
-  <string name="xIsAFreeYLibreOpenSourceChessServer">%1$s bu (%2$s) bepul, erkin, reklamasiz, ochiq manbali shaxmat serveri.</string>
-  <string name="really">haqiqatan ham</string>
+  <string name="xIsAFreeYLibreOpenSourceChessServer">%1$s — bu %2$s bepul, reklamasiz, ochiq kodli shaxmat serveri.</string>
+  <string name="really">mutlaqo</string>
   <string name="contribute">Hissa qo‘shish</string>
   <string name="termsOfService">Foydalanish shartlari</string>
   <string name="titleVerification">Unvonni tasdiqlash</string>
-  <string name="sourceCode">Manba kodi</string>
+  <string name="sourceCode">Dastur kodi</string>
   <string name="simultaneousExhibitions">Biryoʻla seanslar</string>
   <string name="host">Seans oʻtkazuvchi</string>
   <string name="hostColorX">Seans oʻtkazuvchi rangi: %s</string>
@@ -713,7 +723,7 @@
   <string name="lichessTournaments">Lichess turnirlar</string>
   <string name="tournamentFAQ">Arena turnirlari haqida TSS</string>
   <string name="timeBeforeTournamentStarts">Turnir boshlangunicha</string>
-  <string name="averageCentipawnLoss">Oʻrtacha sentipiyoda yoʻqotilishi</string>
+  <string name="averageCentipawnLoss">Oʻrtacha santipiyoda yoʻqotilishi</string>
   <string name="accuracy">Aniqlik</string>
   <string name="keyboardShortcuts">Klaviatura yorliqlari</string>
   <string name="keyMoveBackwardOrForward">ortga/oldinga yurish</string>
@@ -756,7 +766,7 @@
   <string name="ifYouDoNotGetTheEmail">Agar 5 daqiqa ichida e‑pochta olmasangiz:</string>
   <string name="checkAllEmailFolders">Barcha keraksiz, spam va boshqa e‑pochta jildlarni tekshiring</string>
   <string name="verifyYourAddress">%s e‑pochta manzili sizniki ekanligini tasdiqlang</string>
-  <string name="weHaveSentYouAnEmailTo">Biz %s manziliga xat yubordik. Parolni boshqattan oʻrnatish uchun xattagi havolani bosing.</string>
+  <string name="weHaveSentYouAnEmailTo">Biz %s manziliga xat yubordik. Parolni tiklash uchun xatdagi havolani bosing.</string>
   <string name="byRegisteringYouAgreeToBeBoundByOur">Roʻyxatdan oʻtish orqali siz %sga rozilik bildirasiz.</string>
   <string name="readAboutOur">%smiz bilan tanishib chiqing.</string>
   <string name="networkLagBetweenYouAndLichess">Siz va Lichess oʻrtasidagi tarmoq kechikishi (lag)</string>
@@ -765,14 +775,14 @@
   <string name="downloadRaw">Asl holatda yuklab olish</string>
   <string name="downloadImported">Import qilinganini yuklab olish</string>
   <string name="downloadAllGames">Barcha oʻyinlarni yuklab olish</string>
-  <string name="crosstable">Oʻzaro natijalar</string>
+  <string name="crosstable">Hisob</string>
   <string name="youCanAlsoScrollOverTheBoardToMoveInTheGame">Oʻyindagi yurishlarni koʻrib chiqish uchun taxta ustida sichqonchani aylantiring.</string>
   <string name="scrollOverComputerVariationsToPreviewThem">Kompyuter variatsiyalarini koʻrib chiqish uchun ustida sichqonchani aylantiring.</string>
   <string name="analysisShapesHowTo">Taxtada strelka yoki aylanala chizish uchun sichqonchani oʻng tugmasini (yoki shift+click) bosing. Boshqa ranglar hosil qilish uchun sichqonchani oʻng tugmasini quyidagi bilan bosing:</string>
   <string name="primaryColorArrowsHowTo">Ctrl yoki shift = qizil; command, alt, yoki meta = koʻk; har bittasini birga = sariq.</string>
   <string name="letOtherPlayersMessageYou">Boshqa oʻyinchilar sizga xabar joʻnatishga ruxsat bering</string>
   <string name="receiveForumNotifications">Forumda sizni eslatib oʻtishganida bildirishnoma olish</string>
-  <string name="shareYourInsightsData">Shaxmat analitika maʼlumotlaringiz bilan ulashing</string>
+  <string name="shareYourInsightsData">Shaxmat analitika maʼlumotlaringiz bilan ulashish</string>
   <string name="withNobody">Hech kim bilan</string>
   <string name="withFriends">Doʻstlar bilan</string>
   <string name="withEverybody">Hamma bilan</string>
@@ -839,7 +849,7 @@
   </plurals>
   <string name="practiceWithComputer">Kompyuter bilan mashq qilish</string>
   <string name="anotherWasX">Boshqasi esa %s edi</string>
-  <string name="bestWasX">Eng yaxshisi %s edi</string>
+  <string name="bestWasX">%s eng yaxshi yurish edi</string>
   <string name="youBrowsedAway">Uzoqlashib kettingiz</string>
   <string name="resumePractice">Mashqni davom ettirish</string>
   <string name="drawByFiftyMoves">Ellikta yurish qoidasiga koʻra durang qayd etildi.</string>
@@ -856,12 +866,12 @@
   <string name="skipThisMove">Bu yurishni oʻtkazib yuborish</string>
   <string name="next">Keyingisi</string>
   <string name="xWasPlayed">%s oʻynaldi</string>
-  <string name="findBetterMoveForWhite">Oqlar uchun yaxshiroq yurishni toping</string>
-  <string name="findBetterMoveForBlack">Qoralar uchun eng yaxshiroq yurishni toping</string>
+  <string name="findBetterMoveForWhite">Oqlar uchun yaxshi yurishni toping</string>
+  <string name="findBetterMoveForBlack">Qoralar uchun eng yaxshi yurishni toping</string>
   <string name="resumeLearning">Oʻrganishni davom ettirish</string>
   <string name="youCanDoBetter">Bundan ham yaxshiroq yurish bor</string>
-  <string name="tryAnotherMoveForWhite">Oqlar bilan boshqa yurish qilib koʻring</string>
-  <string name="tryAnotherMoveForBlack">Qoralar bilan boshqa yurish qilib koʻring</string>
+  <string name="tryAnotherMoveForWhite">Oqlar uchun boshqa yurish toping</string>
+  <string name="tryAnotherMoveForBlack">Qoralar uchun boshqa yurish toping</string>
   <string name="solution">Yechim</string>
   <string name="waitingForAnalysis">Tahlil kutilmoqda</string>
   <string name="noMistakesFoundForWhite">Oqlar uchun xatolar topilmadi</string>
@@ -1021,6 +1031,7 @@ Loyiha faoliyati, uni rivojlantirish va barcha xarajatlar faqat foydalanuvchilar
   <string name="offline" comment="status of a user">oflayn</string>
   <string name="search">Qidirish</string>
   <string name="clearSearch">Qidiruvni tozalash</string>
+  <string name="thereAreNoResultsForX">\"%s\" boʻyicha natija yoʻq</string>
   <string name="tags">Teglar</string>
   <string name="enPassant">Kesib oʻtish</string>
 </resources>

@@ -1,7 +1,11 @@
 import { h, type VNode } from 'snabbdom';
-import * as licon from '../licon';
+
+import { numberFormat } from '@/i18n';
+import { pubsub } from '@/pubsub';
 import { bind, confirm } from '@/view';
-import { userLink } from '../view/userLink';
+import { userLink } from '@/view/userLink';
+
+import * as licon from '../licon';
 import type {
   ModerationCtrl,
   ModerationOpts,
@@ -9,9 +13,7 @@ import type {
   ModerationReason,
   ChatCtrl,
 } from './interfaces';
-import { numberFormat } from '../i18n';
 import { userModInfo, flag, timeout } from './xhr';
-import { pubsub } from '../pubsub';
 
 export function moderationCtrl(opts: ModerationOpts): ModerationCtrl {
   let data: ModerationData | undefined;

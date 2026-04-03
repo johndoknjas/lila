@@ -602,6 +602,9 @@
   <string name="invalidUsernameOrPassword">Ugyldigt brugernavn eller adgangskode</string>
   <string name="incorrectPassword">Forkert adgangskode</string>
   <string name="invalidAuthenticationCode">Ugyldig godkendelseskode</string>
+  <string name="clearField">Ryd felt</string>
+  <string name="orSeparator">Eller</string>
+  <string name="logInByEmail">Log ind via e-mail</string>
   <string name="emailMeALink">E-mail mig et link</string>
   <string name="currentPassword">Nuværende adgangskode</string>
   <string name="newPassword">Ny adgangskode</string>
@@ -1029,6 +1032,7 @@ Alle driftsomkostninger, udvikling og indhold finansieres udelukkende af brugerd
   <string name="offline" comment="status of a user">offline</string>
   <string name="search">Søg</string>
   <string name="clearSearch">Ryd søgning</string>
+  <string name="thereAreNoResultsForX">Ingen resultater for \"%s\"</string>
   <string name="tags">Etiketter</string>
   <string name="enPassant">En passant</string>
 </resources>

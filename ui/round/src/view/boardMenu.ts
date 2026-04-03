@@ -1,9 +1,10 @@
-import { hl, type LooseVNode, boardMenu as menuDropdown, boolPrefXhrToggle } from 'lib/view';
-import { cmnToggleWrap } from 'lib/view/cmn-toggle';
-import type RoundController from '../ctrl';
 import { toggle } from 'lib';
 import { displayColumns, isTouchDevice } from 'lib/device';
 import { storage } from 'lib/storage';
+import { hl, type LooseVNode, boardMenu as menuDropdown, boolPrefXhrToggle, bind } from 'lib/view';
+import { cmnToggleWrap } from 'lib/view/cmn-toggle';
+
+import type RoundController from '../ctrl';
 
 export default function (ctrl: RoundController): LooseVNode {
   return menuDropdown(ctrl.redraw, ctrl.menu, menu => {
@@ -58,6 +59,16 @@ export default function (ctrl: RoundController): LooseVNode {
           'a',
           { attrs: { target: '_blank', href: '/account/preferences/game-behavior ' } },
           i18n.preferences.gameBehavior,
+        ),
+        hl(
+          'a',
+          {
+            hook: bind('click', () => {
+              ctrl.menu.toggle();
+              ctrl.googlyEyesStart();
+            }),
+          },
+          ['Advanced cursor tracking', hl('kbd', 'shift'), hl('kbd', 'g')],
         ),
       ]),
     ];

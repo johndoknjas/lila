@@ -132,8 +132,15 @@
   <string name="pinnedPieces">G\'fessleti Figure</string>
   <string name="checkableKing">Agrifbare König</string>
   <string name="multipleLines">Mehreri Variantä</string>
+  <string name="multipleLinesDescription">Beschtimm d\'Anzahl Bewertigslinie und verschieb d\'Pfil uf em Brätt</string>
+  <string name="searchTime">Suech Zit</string>
+  <string name="searchTimeDescription">De Zitpunkt für d\'Bewertig vu neue Positione bestimme</string>
+  <string name="threads">Threads</string>
+  <string name="threadsDescription">De Wert underhalb vu de Thread-Azahl i de CPU ischtelle; die Fette sind e gueti und sicheri Wahl</string>
+  <string name="threadsDescriptionMobile">Meh Threads verbruched meh Akku für e besseri Analyse</string>
   <string name="cpus">Prozässore</string>
   <string name="memory">Arbetsschpeicher</string>
+  <string name="memoryDescription">Höcheri Wert chönd d\'Leischtig verbessere</string>
   <string name="infiniteAnalysis">Unändlichi Analyse</string>
   <string name="removesTheDepthLimit">Entfernt d\'Tüfebegränzig und haltet din Computer warm</string>
   <string name="blunder">En Patzer</string>
@@ -597,6 +604,9 @@ zum bewise dass du en Mänsch bisch.</string>
   <string name="invalidUsernameOrPassword">Ungültige Benutzername oder Passwort</string>
   <string name="incorrectPassword">Falschs Passwort</string>
   <string name="invalidAuthenticationCode">Ungültige Authentifizierigscode</string>
+  <string name="clearField">Fäld rume</string>
+  <string name="orSeparator">Oder</string>
+  <string name="logInByEmail">Mit E-Mail ilogge</string>
   <string name="emailMeALink">Schick mer per E-Mail en Link</string>
   <string name="currentPassword">Aktuells Passwort</string>
   <string name="newPassword">Neus Passwort</string>
@@ -1032,6 +1042,7 @@ Alli Betriebs-Choschte, d\'Entwicklig und d\'Inhält werded usschliesslich dur B
   <string name="offline" comment="status of a user">offline</string>
   <string name="search">Suechi</string>
   <string name="clearSearch">Suechi lösche</string>
+  <string name="thereAreNoResultsForX">Kei Resultat für \"%s\"</string>
   <string name="tags">Tags</string>
   <string name="enPassant">En passant</string>
 </resources>

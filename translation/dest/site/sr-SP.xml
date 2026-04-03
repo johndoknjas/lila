@@ -1,5 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+  <string name="gameSetup">Подешавања партије</string>
+  <string name="challengeAFriend" comment="be mindful how 'friend' translates in gendered languages. look for a more neutral term if there's an issue, or base your translation on a different phrase like 'invite to a game'. keep it short and convey the button's meaning without offense.">Изазови пријатеља</string>
+  <string name="playAgainstComputer">Играј против рачунара</string>
+  <string name="gameMode">Режим партије</string>
   <string name="toInviteSomeoneToPlayGiveThisUrl">Да позовеш некога да игра, проследи овaј линк</string>
   <string name="gameOver">Партија Завршена</string>
   <string name="waitingForOpponent">Чека се противник</string>
@@ -269,8 +273,8 @@
   </plurals>
   <string name="ok">У реду</string>
   <string name="cancel">Откажи</string>
-  <string name="whiteTimeOut">Време истекло белом</string>
-  <string name="blackTimeOut">Време истекло црном</string>
+  <string name="whiteTimeOut">Белом истекло време</string>
+  <string name="blackTimeOut">Црном истекло време</string>
   <string name="drawOfferSent">Понуда за реми послата</string>
   <string name="drawOfferAccepted">Понуда за реми прихваћена</string>
   <string name="whiteOffersDraw">Бели нуди реми</string>
@@ -344,7 +348,7 @@
     <item quantity="few">Дај %s секунде</item>
     <item quantity="other">Дај %s секунди</item>
   </plurals>
-  <string name="thisAccountViolatedTos">Овај налог није поштовао Lichess услове коришћења</string>
+  <string name="thisAccountViolatedTos">Овај налог је прекршио Lichess Услове коришћења Услуге</string>
   <string name="openingExplorerAndTablebase">Претраживач отварања и база позиција у завршници</string>
   <string name="takeback">Враћање потеза</string>
   <string name="proposeATakeback">Предложи враћање потеза</string>
@@ -911,20 +915,20 @@
   <string name="correspondenceDesc">Дописне партије: један или неколико дана по потезу</string>
   <string name="puzzleDesc">Тренер шаховских тактика</string>
   <string name="important">Важно</string>
-  <string name="yourQuestionMayHaveBeenAnswered">Ваше питање можда већ има одговор %1$s</string>
-  <string name="inTheFAQ">у често постављеним питањима (F.A.Q.)</string>
-  <string name="toReportSomeoneForCheatingOrBadBehavior">Да бисте пријавили корисника због варања или лошег понашања, %1$s</string>
-  <string name="useTheReportForm">користите образац за пријаву</string>
-  <string name="toRequestSupport">Да бисте затражили подршку, %1$s</string>
-  <string name="tryTheContactPage">пробајте страницу за контакт</string>
+  <string name="yourQuestionMayHaveBeenAnswered">Твоје питање можда већ има одговор %1$s</string>
+  <string name="inTheFAQ">у најчешће постављеним питањима</string>
+  <string name="toReportSomeoneForCheatingOrBadBehavior">Да би пријавио/ла корисника за варање или лоше понашање, %1$s</string>
+  <string name="useTheReportForm">користи образац за пријаву</string>
+  <string name="toRequestSupport">Да затражиш подршку, %1$s</string>
+  <string name="tryTheContactPage">пробај страницу за контакт</string>
   <string name="makeSureToRead">Побрини се да прочиташ %1$s</string>
   <string name="theForumEtiquette">форумски бонтон</string>
-  <string name="thisTopicIsArchived">Ова тема је архивирана и не може се више одговорити на њу.</string>
-  <string name="joinTheTeamXToPost">Придружите се %1$s, да бисте могли писати поруке у овоме форуму</string>
+  <string name="thisTopicIsArchived">Ова тема је архивирана и не може се више одговарати на њу.</string>
+  <string name="joinTheTeamXToPost">Придружи се %1$s, да би могао/ла објављивати у овом форуму</string>
   <string name="teamNamedX">%1$s тим</string>
-  <string name="youCannotPostYetPlaySomeGames">Још увек не можете писати поруке на овај форум. Играјте још коју партију!</string>
+  <string name="youCannotPostYetPlaySomeGames">Још не можеш објављивати у форумима. Одиграј неколико партија!</string>
   <string name="subscribe">Претплати се</string>
-  <string name="unsubscribe">Одјавите претплату</string>
+  <string name="unsubscribe">Откажи претплату</string>
   <string name="mentionedYouInX">те споменуо/ла у \"%1$s\".</string>
   <string name="xMentionedYouInY">%1$s те споменуо/ла у \"%2$s\".</string>
   <string name="invitedYouToX">те позвао/ла у \"%1$s\".</string>

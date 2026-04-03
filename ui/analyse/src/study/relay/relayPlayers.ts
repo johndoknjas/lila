@@ -1,6 +1,22 @@
-import { type VNode, dataIcon, hl, onInsert, spinnerVdom as spinner, type LooseVNodes } from 'lib/view';
-import { json as xhrJson } from 'lib/xhr';
+import { type Attrs, type Hooks, init as initSnabbdom, attributesModule, type VNodeData } from 'snabbdom';
+import type { Tablesort } from 'tablesort';
+
+import { defined } from 'lib';
+import { isTouchDevice } from 'lib/device';
+import perfIcons from 'lib/game/perfIcons';
 import * as licon from 'lib/licon';
+import { pubsub } from 'lib/pubsub';
+import { sortTable, extendTablesortNumber } from 'lib/tablesort';
+import { type VNode, dataIcon, hl, onInsert, spinnerVdom as spinner, type LooseVNodes } from 'lib/view';
+import { userLink, userTitle } from 'lib/view/userLink';
+import { json as xhrJson } from 'lib/xhr';
+
+import { playerFedFlag } from '@/view/util';
+
+import type { ChapterId, FideId, PointsStr, StudyPlayer, StudyPlayerFromServer } from '../interfaces';
+import { convertPlayerFromServer } from '../studyChapters';
+import { playerColoredResult } from './customScoreStatus';
+import { teamLinkData } from './deepLink';
 import type {
   FideTC,
   Photo,
@@ -10,19 +26,6 @@ import type {
   RoundId,
   StatByFideTC,
 } from './interfaces';
-import { playerColoredResult } from './customScoreStatus';
-import { playerFedFlag } from '../playerBars';
-import { userLink, userTitle } from 'lib/view/userLink';
-import type { ChapterId, FideId, PointsStr, StudyPlayer, StudyPlayerFromServer } from '../interfaces';
-import { sortTable, extendTablesortNumber } from 'lib/tablesort';
-import { defined } from 'lib';
-import { type Attrs, type Hooks, init as initSnabbdom, attributesModule, type VNodeData } from 'snabbdom';
-import { convertPlayerFromServer } from '../studyChapters';
-import { isTouchDevice } from 'lib/device';
-import { pubsub } from 'lib/pubsub';
-import { teamLinkData } from './relayTeamLeaderboard';
-import perfIcons from 'lib/game/perfIcons';
-import type { Tablesort } from 'tablesort';
 
 export type RelayPlayerId = FideId | string;
 
@@ -52,6 +55,7 @@ interface RelayPlayerGame {
   points?: PointsStr;
   customPoints?: number;
   ratingDiff?: number;
+  ongoing?: boolean;
 }
 
 interface RelayPlayerWithGames extends RelayPlayer {
@@ -77,7 +81,7 @@ export default class RelayPlayers {
   loading = false;
   players?: RelayPlayer[];
   show?: PlayerToShow;
-  private table?: Tablesort;
+  private readonly table?: Tablesort;
 
   constructor(
     readonly tour: RelayTour,
@@ -233,13 +237,15 @@ const playerView = (ctrl: RelayPlayers, show: PlayerToShow): VNode => {
             p.performances &&
               hl('div.fide-player__card', [
                 hl('em', i18n.site.performance),
-                Object.entries(p.performances).map(([tc, value]: [FideTC, number]) =>
-                  hl(
-                    'div.performance',
-                    fideTCAttrs(tc),
-                    `${value}${p.games.filter(g => g.fideTC === tc).length < 4 ? '?' : ''}`,
+                Object.entries(p.performances)
+                  .sort(statByFideTCSort)
+                  .map(([tc, value]: [FideTC, number]) =>
+                    hl(
+                      'div.performance',
+                      fideTCAttrs(tc),
+                      `${value}${p.games.filter(g => g.fideTC === tc).length < 4 ? '?' : ''}`,
+                    ),
                   ),
-                ),
               ]),
             p.ratingDiffs &&
               hl('div.fide-player__card', [hl('em', i18n.broadcast.ratingDiff), ratingDiff(p)]),
@@ -430,12 +436,12 @@ const renderPlayerGames = (ctrl: RelayPlayers, p: RelayPlayerWithGames, withTips
   const hideResultsSinceIndex =
     (hideResultsSinceRoundId && p.games.findIndex(g => g.round === hideResultsSinceRoundId)) || 999;
 
-  const coloredPoint = ({ points, customPoints, color, roundObj }: RelayPlayerGame, index: number) => {
-    if (!points) return hl('span', '*');
+  const coloredPoint = ({ points, customPoints, color, ongoing }: RelayPlayerGame, index: number) => {
+    if (!points) return ongoing && hl('strong', '*');
     if (hideResultsSinceIndex <= index) return hl('span', '?');
 
     const povResultStr = points === '1/2' ? '½-½' : (points === '1') === (color === 'white') ? '1-0' : '0-1';
-    const coloredResult = playerColoredResult(povResultStr, color, roundObj);
+    const coloredResult = playerColoredResult(povResultStr, color);
     if (!coloredResult) return;
 
     return hl(
@@ -453,17 +459,16 @@ const renderPlayerGames = (ctrl: RelayPlayers, p: RelayPlayerWithGames, withTips
         hl(
           'td',
           hl(
-            'a.game-link.text',
-            { attrs: { ...dataIcon(licon.StudyBoard), href: `/broadcast/-/-/${game.round}/${game.id}` } },
+            'a.game-link.is.color-icon.text.' + game.color,
+            { attrs: { href: `/broadcast/-/-/${game.round}/${game.id}` } },
             `${i + 1}`,
           ),
         ),
         playerTd(game.opponent, ctrl, withTips),
         hl('td', game.opponent.rating?.toString()),
-        hl('td.is.color-icon.' + game.color),
-        hl('td.tpp__games__status', coloredPoint(game, i)),
+        hl('td.game-point', coloredPoint(game, i)),
         hl(
-          'td',
+          'td.rating-diff',
           defined(game.ratingDiff) &&
             hideResultsSinceIndex > i &&
             ratingDiff(game, p.ratingsMap && Object.keys(p.ratingsMap).length > 1),
@@ -514,10 +519,15 @@ const playerTd = (player: RelayPlayer, ctrl: RelayPlayers, withTips: boolean): V
   );
 };
 
+const fideTCOrder: FideTC[] = ['standard', 'rapid', 'blitz'];
+
+const statByFideTCSort = (a: [FideTC, number], b: [FideTC, number]) =>
+  fideTCOrder.indexOf(a[0]) - fideTCOrder.indexOf(b[0]);
+
 const ratingDiff = (p: RelayPlayer | RelayPlayerGame, showIcons: boolean = false) => {
   if (isRelayPlayerGame(p)) return hl('div.diff', showIcons && fideTCAttrs(p.fideTC), diffNode(p.ratingDiff));
   if (!p.ratingDiffs) return p.rating;
-  const rds = Object.entries(p.ratingDiffs);
+  const rds = Object.entries(p.ratingDiffs).sort(statByFideTCSort);
   const isMultiTc = rds.length > 1;
   const diffNodes = rds.map(([tc, diff]: [FideTC, number]) => {
     const node = [p.ratingsMap?.[tc], diffNode(diff)];

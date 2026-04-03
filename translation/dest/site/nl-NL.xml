@@ -134,7 +134,7 @@
   <string name="multipleLines">Meerdere varianten</string>
   <string name="multipleLinesDescription">Stel het aantal evaluatievariaties en zetpijlen in op het bord</string>
   <string name="searchTime">Zoektijd</string>
-  <string name="searchTimeDescription">Stel tijd in om nieuwe posities te evalueren</string>
+  <string name="searchTimeDescription">Stel tijd in om nieuwe stellingen te evalueren</string>
   <string name="threads">Threads</string>
   <string name="threadsDescription">Stel dit in onder het aantal threads van uw CVE, de pijltjes markeren een goede veilige keuze</string>
   <string name="threadsDescriptionMobile">Meer threads zullen meer accu gebruiken voor een betere analyse</string>
@@ -602,6 +602,9 @@
   <string name="invalidUsernameOrPassword">Ongeldige gebruikersnaam of wachtwoord</string>
   <string name="incorrectPassword">Onjuist wachtwoord</string>
   <string name="invalidAuthenticationCode">Ongeldige authenticatiecode</string>
+  <string name="clearField">Veld leegmaken</string>
+  <string name="orSeparator">of</string>
+  <string name="logInByEmail">Log in via e-mail</string>
   <string name="emailMeALink">Email me een link</string>
   <string name="currentPassword">Huidig wachtwoord</string>
   <string name="newPassword">Nieuw wachtwoord</string>
@@ -1029,6 +1032,7 @@ Alle exploitatiekosten, ontwikkeling en inhoud worden enkel gefinancierd door do
   <string name="offline" comment="status of a user">offline</string>
   <string name="search">Zoeken</string>
   <string name="clearSearch">Zoekopdracht wissen</string>
+  <string name="thereAreNoResultsForX">Geen resultaten voor \"%s\"</string>
   <string name="tags">Labels</string>
   <string name="enPassant">En passant</string>
 </resources>

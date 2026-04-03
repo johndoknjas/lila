@@ -14,12 +14,15 @@ import lila.web.AnnounceApi
 import lila.core.user.KidMode
 import lila.security.IsPwned
 import lila.core.security.ClearPassword
+import lila.core.net.ValidReferrer
 
 final class Account(
     env: Env,
     auth: Auth,
     apiC: => Api
 ) extends LilaController(env):
+
+  private given (using Context): Option[ValidReferrer] = env.web.referrerRedirect.fromReq
 
   def profile = Auth { _ ?=> me ?=>
     Ok.page:
@@ -94,7 +97,7 @@ final class Account(
 
   val apiMe = Scoped() { ctx ?=> me ?=>
     def limited = rateLimited:
-      "Please don't poll this endpoint. Stream https://lichess.org/api#tag/board/get/apistreamevent instead."
+      "Please don't poll this endpoint. Stream https://lichess.org/api#tag/board/GET/api/stream/event instead."
     val wikiGranted = getBool("wiki") && isGranted(_.LichessTeam) && ctx.scopes.has(_.Web.Mod)
     if getBool("wiki") && !wikiGranted then Unauthorized(jsonError("Wiki access not granted"))
     else
@@ -180,7 +183,7 @@ final class Account(
       JsonOk(Json.obj("email" -> email.value))
   }
 
-  def renderCheckYourEmail(using Context) =
+  def renderCheckYourEmail(using Context, Option[ValidReferrer]) =
     views.auth.checkYourEmail(lila.security.EmailConfirm.cookie.get(ctx.req).map(_.email))
 
   def emailApply = AuthBody { ctx ?=> me ?=>
@@ -209,8 +212,8 @@ final class Account(
           remember = true,
           result =
             if prevEmail.exists(_.isNoReply)
-            then Some(_ => Redirect(routes.User.show(user.username)).flashSuccess)
-            else Some(_ => Redirect(routes.Account.email).flashSuccess)
+            then Redirect(routes.User.show(user.username)).flashSuccess.some
+            else Redirect(routes.Account.email).flashSuccess.some
         )
       yield res
 
@@ -230,8 +233,7 @@ final class Account(
         )
 
   def twoFactor = Auth { _ ?=> me ?=>
-    if me.totpSecret.isDefined
-    then
+    if me.totpSecret.isDefined then
       env.security.forms.disableTwoFactor.flatMap: f =>
         Ok.page(views.account.twoFactor.disable(f))
     else

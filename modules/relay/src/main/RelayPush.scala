@@ -8,6 +8,7 @@ import com.github.blemale.scaffeine.LoadingCache
 import lila.tree.{ ImportResult, ParseImport }
 import lila.study.{ ChapterPreviewApi, MultiPgn, StudyPgnImport }
 import lila.core.net.UserAgent
+import lila.core.fide.Federation
 import lila.relay.RelayPush.*
 import lila.memo.CacheApi
 
@@ -18,7 +19,7 @@ final class RelayPush(
     fidePlayers: RelayFidePlayerApi,
     playerEnrich: RelayPlayerEnrich,
     irc: lila.core.irc.IrcApi
-)(using Executor)(using scheduler: Scheduler):
+)(using Federation.Guess, Executor)(using scheduler: Scheduler):
 
   private val workQueue = AsyncActorSequencers[RelayRoundId](
     maxSize = Max(32),
@@ -69,7 +70,7 @@ final class RelayPush(
         rt <- api.byIdWithTour(prev.round.id).orFail(s"Relay $prev no longer available")
         _ <- cantHaveUpstream(rt.round).so(fail => fufail[Unit](fail.error))
         withPlayers = playerEnrich.enrichAndReportAmbiguous(rt)(rawGames)
-        withFide <- fidePlayers.enrichGames(rt.tour)(withPlayers)
+        withFide <- fidePlayers.enrichGames(rt)(withPlayers)
         withReplacements = rt.tour.players.fold(withFide)(_.parse.update(withFide)._1)
         games = rt.tour.teams.fold(withReplacements)(_.update(withReplacements))
         event <- sync

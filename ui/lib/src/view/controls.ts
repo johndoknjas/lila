@@ -1,10 +1,11 @@
 // no side effects allowed due to re-export by index.ts
 
 import { h, type Hooks, type VNode, type Attrs } from 'snabbdom';
-import { toggle as baseToggle, type Toggle } from '@/index';
-import * as xhr from '@/xhr';
-import * as licon from '@/licon';
+
 import { isMac } from '@/device';
+import { toggle as baseToggle, type Toggle } from '@/index';
+import * as licon from '@/licon';
+import * as xhr from '@/xhr';
 
 export function enter<E extends HTMLElement>(effect: (target: E) => void) {
   return (e: Event): void => {
@@ -44,7 +45,7 @@ export function stepwiseScroll(
   shouldSkip: (e: WheelEvent) => boolean,
   ifSkipShouldStillPreventDefault?: boolean,
 ): (e: WheelEvent) => void {
-  let accumulatedDelta = 0;
+  let accumulatedDeltaPixelMode = 0;
   return (e: WheelEvent) => {
     if (e.ctrlKey) return; // if touchpad zooming, e.ctrlKey is true
     if (shouldSkip(e)) {
@@ -52,9 +53,11 @@ export function stepwiseScroll(
       return;
     }
     e.preventDefault();
-    accumulatedDelta += e.deltaY;
-    if (e.deltaMode === 0 && isMac() && Math.abs(accumulatedDelta) < 10) return;
-    accumulatedDelta = 0;
+    if (e.deltaMode === 0) {
+      accumulatedDeltaPixelMode += e.deltaY;
+      if (isMac() && Math.abs(accumulatedDeltaPixelMode) < 10) return;
+    }
+    accumulatedDeltaPixelMode = 0;
     scrollAction(e);
   };
 }
@@ -106,13 +109,7 @@ export const spinnerHtml: string = $html`
       <g mask="url(#mask)" fill="none">
         ${pathAttrs.map(
           (a, i) =>
-            '<path id="' +
-            String.fromCharCode(97 + i) +
-            '" stroke-width="' +
-            a['stroke-width'] +
-            '" d="' +
-            a.d +
-            '"/>',
+            `<path id="${String.fromCharCode(97 + i)}" stroke-width="${a['stroke-width']}" d="${a.d}"/>`,
         )}
       </g>
     </svg>

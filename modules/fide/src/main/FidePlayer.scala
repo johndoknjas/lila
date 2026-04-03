@@ -32,6 +32,8 @@ case class FidePlayer(
     case FideTC.rapid => rapid
     case FideTC.blitz => blitz
 
+  def ratingOfOrStandard(tc: FideTC): Option[Elo] = ratingOf(tc).orElse(standard)
+
   def kFactorOf(tc: FideTC): KFactor = tc
     .match
       case FideTC.standard => standardK
@@ -39,7 +41,7 @@ case class FidePlayer(
       case FideTC.blitz => blitzK
     .|(KFactor.default)
 
-  def slug: String = FidePlayer.slugify(name)
+  lazy val slug: String = FidePlayer.slugify(name)
 
   def age: Option[Int] =
     val nowYear = nowInstant.date.getYear

@@ -5,7 +5,7 @@ import lila.core.perm.Permission
 import lila.core.playban.RageSit
 import lila.evaluation.Display
 import lila.ui.*
-import lila.user.WithPerfsAndEmails
+import lila.user.{ ClosedFlags, WithPerfsAndEmails }
 
 import ScalatagsTemplate.{ *, given }
 import lila.report.Report
@@ -43,7 +43,7 @@ final class ModUserUi(helpers: Helpers, modUi: ModUi):
   def actions(
       u: User,
       emails: lila.core.user.Emails,
-      deleted: Boolean,
+      closedFlags: Option[ClosedFlags],
       pmPresets: ModPresets
   )(using Context, Me): Frag =
     mzSection("actions")(
@@ -208,14 +208,17 @@ final class ModUserUi(helpers: Helpers, modUi: ModUi):
               )(
                 submitButton(cls := "btn-rack__btn")("Close")
               )
-            else if deleted then "Deleted"
+            else if closedFlags.exists(_.deleted) then "Deleted"
             else
               frag(
-                postForm(
-                  action := routes.Mod.reopenAccount(u.username),
-                  title := "Re-activates this account.",
-                  cls := "xhr"
-                )(submitButton(cls := "btn-rack__btn active")("Closed")),
+                if closedFlags.exists(_.forever) then "Forever closed"
+                else
+                  postForm(
+                    action := routes.Mod.reopenAccount(u.username),
+                    title := "Re-activates this account.",
+                    cls := "xhr"
+                  )(submitButton(cls := "btn-rack__btn active")("Closed"))
+                ,
                 Granter.opt(_.GdprErase).option(gdprEraseForm(u))
               )
           )

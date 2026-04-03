@@ -7,9 +7,10 @@ import play.api.mvc.{ Request, RequestHeader }
 
 import lila.common.Form.*
 import lila.common.{ Form as LilaForm, LameName }
-import lila.core.security.ClearPassword
+import lila.core.security.{ HcaptchaForm, ClearPassword }
 import lila.user.TotpSecret.{ base32, verify }
 import lila.user.{ TotpSecret, TotpToken }
+import lila.oauth.OAuthSignedClient.SimpleSignup
 
 final class SecurityForm(
     userRepo: lila.user.UserRepo,
@@ -52,7 +53,7 @@ final class SecurityForm(
       .bindFromRequest()
       .fold(_ => funit, emailValidator.preloadDns)
 
-  object signup extends lila.core.security.SignupForm:
+  object signup extends lila.core.security.SignupFormFields:
 
     val emailField: Mapping[EmailAddress] = fullyValidEmail(using none)
 
@@ -92,16 +93,36 @@ final class SecurityForm(
       "policy" -> agreementBool
     )(AgreementData.apply)(unapply)
 
-    def website(using RequestHeader) = hcaptcha.form:
-      Form:
-        mapping(
-          "username" -> username,
-          "password" -> newPasswordField,
-          "email" -> emailField,
-          "agreement" -> agreement,
-          "fp" -> optional(nonEmptyText)
-        )(SignupData.apply)(_ => None)
-          .verifying(PasswordCheck.errorSame, x => x.password != x.username.value)
+    def website(simpleSignup: Option[SimpleSignup])(using RequestHeader) =
+      val base = hcaptcha.form(websitePreCaptcha)
+      simpleSignup match
+        case None => base.map(SignupForm(_, simple = false))
+        case Some(prefill) =>
+          base.map: f =>
+            SignupForm(
+              f.copy(
+                skip = true,
+                form = f.form.fill:
+                  SignupData(
+                    username = prefill.username,
+                    password = "",
+                    email = prefill.email,
+                    agreement = AgreementData(true, true, true, true),
+                    fp = none
+                  )
+              ),
+              simple = true
+            )
+
+    private def websitePreCaptcha = Form:
+      mapping(
+        "username" -> username,
+        "password" -> newPasswordField,
+        "email" -> emailField,
+        "agreement" -> agreement,
+        "fp" -> optional(nonEmptyText)
+      )(SignupData.apply)(unapply)
+        .verifying(PasswordCheck.errorSame, x => x.password != x.username.value)
 
     val mobile = Form:
       mapping(
@@ -168,29 +189,28 @@ final class SecurityForm(
         mapping(
           "secret" -> nonEmptyText,
           "passwd" -> passwordMapping(candidate),
-          "token" -> nonEmptyText
+          "token" -> nonEmptyText.into[TotpToken]
         )(TwoFactor.apply)(unapply).verifying(
           "invalidAuthenticationCode",
           _.tokenValid
         )
-      ).fill(
+      ).fill:
         TwoFactor(
           secret = TotpSecret.random.base32,
           passwd = "",
-          token = ""
+          token = TotpToken("")
         )
-      )
 
-  def disableTwoFactor(using me: Me) =
+  def disableTwoFactor(using Me) =
     authenticator.loginCandidate.map: candidate =>
       Form:
         tuple(
           "passwd" -> passwordMapping(candidate),
-          "token" -> text.verifying(
-            "invalidAuthenticationCode",
-            t => me.totpSecret.so(_.verify(TotpToken(t)))
-          )
+          "token" -> totpCheckField
         )
+
+  def totpCheckField(using me: Me) =
+    text.into[TotpToken].verifying("invalidAuthenticationCode", t => me.totpSecret.forall(_.verify(t)))
 
   def fixEmail(old: EmailAddress) =
     Form(
@@ -211,8 +231,9 @@ final class SecurityForm(
         mapping(
           "username" -> myUsernameField,
           "passwd" -> passwordMapping(candidate),
+          "token" -> totpCheckField,
           "forever" -> boolean
-        )((_, _, forever) => forever)(_ => None)
+        )((_, _, _, forever) => forever)(_ => None)
 
   def toggleKid(using Me) = passwordProtected
 
@@ -237,6 +258,8 @@ final class SecurityForm(
     text.verifying("incorrectPassword", p => candidate.check(ClearPassword(p)))
 
 object SecurityForm:
+
+  case class SignupForm(form: HcaptchaForm[SignupData], simple: Boolean)
 
   case class AgreementData(
       assistance: Boolean,
@@ -275,5 +298,5 @@ object SecurityForm:
 
   case class ChangeEmail(passwd: String, email: EmailAddress)
 
-  case class TwoFactor(secret: String, passwd: String, token: String):
-    def tokenValid = TotpSecret.decode(secret).verify(TotpToken(token))
+  case class TwoFactor(secret: String, passwd: String, token: TotpToken):
+    def tokenValid = TotpSecret.decode(secret).verify(token)

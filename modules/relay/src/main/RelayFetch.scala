@@ -8,6 +8,7 @@ import scalalib.model.Seconds
 
 import lila.common.LilaScheduler
 import lila.core.lilaism.LilaInvalid
+import lila.core.fide.Federation
 import lila.game.{ GameRepo, PgnDump }
 import lila.memo.CacheApi
 import lila.relay.RelayRound.Sync
@@ -29,7 +30,7 @@ final private class RelayFetch(
     playerEnrich: RelayPlayerEnrich,
     notifyAdmin: RelayNotifierAdmin,
     onlyIds: Option[List[RelayTourId]] = None
-)(using Executor, Scheduler)(using mode: play.api.Mode):
+)(using Federation.Guess, Executor, Scheduler)(using mode: play.api.Mode):
 
   import RelayFetch.*
 
@@ -90,7 +91,7 @@ final private class RelayFetch(
         _ <- (sliced.sizeCompare(limited) != 0 && rt.tour.official)
           .so(notifyAdmin.tooManyGames(rt, sliced.size, RelayFetch.maxChaptersToShow))
         withPlayers = playerEnrich.enrichAndReportAmbiguous(rt)(limited)
-        withFide <- fidePlayers.enrichGames(rt.tour)(withPlayers)
+        withFide <- fidePlayers.enrichGames(rt)(withPlayers)
         withReplacements = rt.tour.players.fold(withFide)(_.parse.update(withFide)._1)
         withTeams = rt.tour.teams.fold(withReplacements)(_.update(withReplacements))
         reordered = rt.round.sync.reorder.fold(withTeams)(_.reorder(withTeams))

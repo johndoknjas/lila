@@ -231,7 +231,7 @@ final class Study(
   private def chapterAnalysis(sc: WithChapter) =
     sc.chapter.serverEval
       .exists(_.done)
-      .so(env.analyse.analyser.byId(Analysis.Id(sc.study.id, sc.chapter.id)))
+      .so(env.analyse.repo.byId(Analysis.Id(sc.study.id, sc.chapter.id)))
 
   def show(id: StudyId) = OpenOrScoped(_.Study.Read, _.Web.Mobile):
     orRelayRedirect(id):
@@ -288,8 +288,22 @@ final class Study(
   }
 
   private def createStudy(data: StudyForm.importGame.Data)(using ctx: Context, me: Me) =
-    Found(env.study.api.importGame(lila.study.StudyMaker.ImportGame(data), me, ctx.pref.showRatings)): sc =>
-      Redirect(routes.Study.chapter(sc.study.id, sc.chapter.id))
+    val cost = if !data.isNewStudy then 0 else if coachOrTitled then 1 else 2
+    limit.studyCreate(me.userId -> ctx.ip, rateLimited, cost):
+      Found(env.study.api.importGame(lila.study.StudyMaker.ImportGame(data), me, ctx.pref.showRatings)): sc =>
+        Redirect(routes.Study.chapter(sc.study.id, sc.chapter.id))
+
+  def apiCreate = ScopedBody(_.Study.Write) { _ ?=> me ?=>
+    bindForm(StudyForm.form)(
+      jsonFormError,
+      data =>
+        limit.studyCreate(me.userId -> ctx.ip, rateLimited, if coachOrTitled then 1 else 2):
+          for sc <- env.study.api.create(data)
+          yield JsonOk(Json.obj("id" -> sc.study.id))
+    )
+  }
+
+  private def coachOrTitled(using me: Me) = isGranted(_.Coach) || me.hasTitle
 
   def delete(id: StudyId) = Auth { _ ?=> me ?=>
     Found(env.study.api.byIdAndOwnerOrAdmin(id, me)): study =>
@@ -339,6 +353,7 @@ final class Study(
       data =>
         doImportPgn(id, data, Sri("api")): (chapters, errors) =>
           import lila.study.ChapterPreview.json.given
+          import lila.fide.Federation.find
           val previews = chapters.map(env.study.preview.fromChapter(_))
           JsonOk(Json.obj("chapters" -> previews, "error" -> errors))
     )
@@ -374,8 +389,7 @@ final class Study(
   }
 
   def cloneApply(id: StudyId) = Auth { ctx ?=> me ?=>
-    val cost = if isGranted(_.Coach) || me.hasTitle then 1 else 3
-    limit.studyClone(me.userId -> ctx.ip, rateLimited, cost):
+    limit.studyClone(me.userId -> ctx.ip, rateLimited, if coachOrTitled then 1 else 3):
       Found(env.study.api.byId(id)) { prev =>
         CanView(prev, prev.settings.cloneable.some) {
           env.study.api
@@ -509,6 +523,21 @@ final class Study(
       )
     }
 
+  def apiChapterPgnMovesUpdate(studyId: StudyId, chapterId: StudyChapterId) =
+    AuthOrScopedBody(_.Study.Write) { _ ?=> me ?=>
+      bindForm(StudyForm.replaceChapterPgnMoves)(
+        jsonFormError,
+        pgnStr =>
+          env.study.api
+            .replaceChapterPgnMoves(studyId, chapterId, pgnStr)
+            .map:
+              if _ then NoContent
+              else JsonBadRequest(s"Invalid or forbidden chapter $studyId/$chapterId")
+            .recover:
+              case lila.study.StudyValidationException(error) => JsonBadRequest(error)
+      )
+    }
+
   def topicAutocomplete = Anon:
     get("term").filter(_.nonEmpty) match
       case None => BadRequest("No search term provided")
@@ -538,8 +567,16 @@ final class Study(
 
   def staffPicks = Open:
     pageHit
-    FoundPage(env.cms.renderKey("studies-staff-picks")):
-      views.study.staffPicks
+    FoundPage(env.cms.renderKey("studies-staff-picks")): page =>
+      val featured = isGrantedOpt(_.StudyAdmin).option(env.study.pager.featured.setting.form)
+      views.study.staffPicks(page, featured)
+
+  def staffPicksPost = SecureBody(_.StudyAdmin) { _ ?=> _ ?=>
+    bindForm(env.study.pager.featured.setting.form)(
+      _ => Redirect(routes.Study.staffPicks),
+      v => env.study.pager.featured.setting.setString(v.toString).inject(Redirect(routes.Study.staffPicks))
+    )
+  }
 
   def privateUnauthorizedJson = Unauthorized(jsonError("This study is now private"))
   def privateUnauthorizedFu(study: StudyModel)(using Context) = negotiate(

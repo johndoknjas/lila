@@ -1,36 +1,32 @@
+import { Chessground as makeChessground } from '@lichess-org/chessground';
+import type { Api } from '@lichess-org/chessground/api';
+import { makeSquare, opposite } from 'chessops';
 import { h, type VNode } from 'snabbdom';
+
+import { throttle } from 'lib/async';
+import * as nv from 'lib/nvui/chess';
+import { commands, boardCommands, addBreaks } from 'lib/nvui/command';
+import { scanDirectionsHandler } from 'lib/nvui/directionScan';
+import { renderSetting } from 'lib/nvui/setting';
+import type { TreeNode } from 'lib/tree/types';
+import { bind, onInsert, requiresI18n } from 'lib/view';
+
+import { nextCorrectMove } from '@/moveTree';
+
+import { next as controlNext, prev } from '../control';
+import type PuzzleCtrl from '../ctrl';
+import type { PuzzleNvuiContext } from '../puzzle.nvui';
+import { makeConfig } from '../view/chessground';
 import { puzzleBox, renderDifficultyForm, userBox } from '../view/side';
 import theme from '../view/theme';
-import * as nv from 'lib/nvui/chess';
-import { makeConfig } from '../view/chessground';
-import { renderSetting } from 'lib/nvui/setting';
-import type { PuzzleNvuiContext } from '../puzzle.nvui';
-import { commands, boardCommands, addBreaks } from 'lib/nvui/command';
-import { next as controlNext, prev } from '../control';
-import { bind, onInsert, requiresI18n } from 'lib/view';
-import { throttle } from 'lib/async';
-import type PuzzleCtrl from '../ctrl';
-import { Chessground as makeChessground } from '@lichess-org/chessground';
-import { makeSquare, opposite } from 'chessops';
-import { scanDirectionsHandler } from 'lib/nvui/directionScan';
-import type { Api } from '@lichess-org/chessground/api';
-import { nextCorrectMove } from '@/moveTree';
-import type { TreeNode } from 'lib/tree/types';
 
 const throttled = (sound: string) => throttle(100, () => site.sound.play(sound));
 const selectSound = throttled('select');
 const borderSound = throttled('outOfBound');
 const errorSound = throttled('error');
 
-export function renderNvui({
-  ctrl,
-  notify,
-  moveStyle,
-  pieceStyle,
-  prefixStyle,
-  positionStyle,
-  boardStyle,
-}: PuzzleNvuiContext): VNode {
+export function renderNvui(ctx: PuzzleNvuiContext): VNode {
+  const { ctrl, notify, moveStyle, pieceStyle, prefixStyle, positionStyle, boardStyle } = ctx;
   notify.redraw = ctrl.redraw;
   const ground =
     ctrl.ground() ||
@@ -102,20 +98,8 @@ export function renderNvui({
         'div.board',
         {
           hook: {
-            insert: el =>
-              boardEventsHook(
-                {
-                  ctrl,
-                  notify,
-                  moveStyle,
-                  pieceStyle,
-                  prefixStyle,
-                  positionStyle,
-                  boardStyle,
-                },
-                ground,
-                el.elm as HTMLElement,
-              ),
+            insert: el => boardEventsHook(ctx, ground, el.elm as HTMLElement),
+            update: (_, vnode) => boardEventsHook(ctx, ground, vnode.elm as HTMLElement),
           },
         },
 
@@ -168,16 +152,14 @@ export function renderNvui({
 function boardEventsHook(ctx: PuzzleNvuiContext, ground: Api, el: HTMLElement): void {
   const { ctrl, moveStyle, pieceStyle, prefixStyle, notify } = ctx;
   const $board = $(el);
-  const $buttons = $board.find('button');
+  // Remove old handlers before rebinding (important on re-render)
+  $board.off('.nvui');
   const steps = ctrl.tree.getNodeList(ctrl.path);
   const fenSteps = () => steps.map(step => step.fen);
 
-  $buttons.on('blur', nv.leaveSquareHandler($buttons));
-  $buttons.on(
-    'click',
-    nv.selectionHandler(() => opposite(ctrl.pov)),
-  );
-  $buttons.on('keydown', (e: KeyboardEvent) => {
+  $board.on('blur', 'button', e => nv.leaveSquareHandler($board.find('button'))(e));
+  $board.on('click', 'button', e => nv.selectionHandler(() => opposite(ctrl.pov))(e));
+  $board.on('keydown', 'button', (e: KeyboardEvent) => {
     if (e.shiftKey && e.key.match(/^[ad]$/i)) nextOrPrev(ctrl)(e);
     else if (e.key.match(/^x$/i))
       scanDirectionsHandler(

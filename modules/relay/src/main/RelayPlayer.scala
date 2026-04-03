@@ -10,7 +10,7 @@ import chess.tiebreak.{ Tiebreak, TiebreakPoint }
 import lila.study.StudyPlayer
 import lila.study.StudyPlayer.json.given
 import lila.memo.CacheApi
-import lila.core.fide.{ PhotosJson, Player as FidePlayer }
+import lila.core.fide.{ PhotosJson, Federation, Player as FidePlayer }
 import lila.common.Json.given
 import lila.relay.RelayGroup.ScoreGroup
 
@@ -37,44 +37,22 @@ case class RelayPlayer(
   def toTieBreakPlayer: Option[Tiebreak.Player] = player.id.map: id =>
     Tiebreak.Player(id = id.toString, rating = player.rating.map(_.into(Elo)))
 
-given Ordering[List[TiebreakPoint]] = new:
-  def compare(a: List[TiebreakPoint], b: List[TiebreakPoint]): Int =
-    @scala.annotation.tailrec
-    def loop(a: List[TiebreakPoint], b: List[TiebreakPoint]): Int = (a, b) match
-      case (Nil, Nil) => 0
-      case (Nil, _) => -1 // a is empty, b is not
-      case (_, Nil) => 1 // b is empty, a is not
-      case (ah :: at, bh :: bt) =>
-        val cmp = bh.value.compare(ah.value)
-        if cmp != 0 then cmp else loop(at, bt)
-    loop(a, b)
+object RelayPlayer:
 
-given Ordering[Option[List[TiebreakPoint]]] = new Ordering[Option[List[TiebreakPoint]]]:
-  def compare(a: Option[List[TiebreakPoint]], b: Option[List[TiebreakPoint]]): Int =
-    (a, b) match
-      case (Some(ta), Some(tb)) => Ordering[List[TiebreakPoint]].compare(ta, tb)
-      case (Some(_), None) => 1 // a is defined, b is not
-      case (None, Some(_)) => -1 // b is defined, a is not
-      case (None, None) => 0
-
-given Ordering[RelayPlayer] = new Ordering[RelayPlayer]:
   /* Sort players by:
       1. Score (Descending)
-      2. Tiebreak points (compare each tiebreak in order, higher is better)
+      2. Tiebreak points - compare each tiebreak in order,
+          higher is better, except for Direct Encounter where lower (rank) is better
       3. Player rating (Descending)
       4. Player name (Alphabetical, ascending)
    */
-  def compare(a: RelayPlayer, b: RelayPlayer): Int =
-    val scoreComparison = b.score.compare(a.score)
-    lazy val tiebreakComparison = Ordering[Option[List[TiebreakPoint]]]
-      .compare(a.tiebreaks.map(_._2F.toList), b.tiebreaks.map(_._2F.toList))
-    lazy val ratingComparison = b.rating.map(_.value).compare(a.rating.map(_.value))
-    if scoreComparison != 0 then scoreComparison
-    else if tiebreakComparison != 0 then tiebreakComparison
-    else if ratingComparison != 0 then ratingComparison
-    else a.player.name.map(_.value).compare(b.player.name.map(_.value))
-
-object RelayPlayer:
+  given Ordering[RelayPlayer] =
+    import scala.math.Ordering.Implicits.seqOrdering
+    given Ordering[(Tiebreak, TiebreakPoint)] = Ordering.by: (tb, tbv) =>
+      if tb == chess.tiebreak.DirectEncounter then -tbv.value else tbv.value
+    given Ordering[PlayerName] = Ordering.by[PlayerName, String](_.value).reverse
+    Ordering.by: p =>
+      (p.score, p.tiebreaks, p.player.rating.map(_.value), p.player.name)
 
   opaque type Rank = Int
   object Rank extends OpaqueInt[Rank]
@@ -93,7 +71,8 @@ object RelayPlayer:
       rated: chess.Rated,
       fideTC: FideTC,
       customScoring: Option[ByColor[RelayRound.CustomScoring]] = None,
-      unplayed: Boolean
+      unplayed: Boolean,
+      ongoing: Boolean
   ):
     def playerPoints = points.map(_(color))
     def customPlayerPoints: Option[RelayRound.CustomPoints] = customScoring.flatMap: cs =>
@@ -154,11 +133,14 @@ object RelayPlayer:
     def full(
         tour: RelayTour
     )(p: RelayPlayer, fidePlayer: Option[FidePlayer], user: Option[User], follow: Option[Boolean]): JsObject =
-      lazy val tcPlayerMap: Map[FideTC, Elo.Player] = p.ratingsMap.map: (tc, tcRating) =>
-        tc -> Elo.Player(tcRating.into(Elo), fidePlayer.fold(chess.rating.KFactor.default)(_.kFactorOf(tc)))
+      val eloPlayerByTCOpt = fidePlayer
+        .ifTrue(tour.showRatingDiffs)
+        .map: fp =>
+          p.ratingsMap.map: (tc, tcRating) =>
+            tc -> Elo.Player(tcRating.into(Elo), fp.kFactorOf(tc))
       val gamesJson = p.games.map: g =>
-        val rd = tour.showRatingDiffs.so:
-          (tcPlayerMap.get(g.fideTC), g.eloGame).mapN: (ep, eg) =>
+        val rd: Option[IntRatingDiff] = eloPlayerByTCOpt.flatMap: epByTC =>
+          (epByTC.get(g.fideTC), g.eloGame).mapN: (ep, eg) =>
             Elo.computeRatingDiff(g.fideTC)(ep, List(eg))
         Json
           .obj(
@@ -168,6 +150,7 @@ object RelayPlayer:
             "color" -> g.color,
             "fideTC" -> g.fideTC
           )
+          .add("ongoing" -> g.ongoing)
           .add("points" -> g.playerPoints)
           .add("customPoints" -> g.customPlayerPoints)
           .add("ratingDiff" -> rd)
@@ -189,7 +172,7 @@ private final class RelayPlayerApi(
     cacheApi: CacheApi,
     fidePlayerGet: lila.core.fide.GetPlayer,
     photosJson: PhotosJson.Get
-)(using Executor)(using scheduler: Scheduler):
+)(using Federation.Guess, Executor)(using scheduler: Scheduler):
   import RelayPlayer.*
 
   private val cache = cacheApi[ScoreGroup, RelayPlayers](128, "relay.players.data"):
@@ -288,7 +271,7 @@ private final class RelayPlayerApi(
                   .fromTags(tags)
                   .flatMap:
                     _.traverse: p =>
-                      p.id.map(_ -> StudyPlayer.WithFed(p, p.fideId.flatMap(fedsById.get)))
+                      p.id.map(_ -> p.copy(fed = p.fed orElse p.fideId.flatMap(fedsById.get)))
                   .fold(playersAcc): gamePlayers =>
                     gamePlayers.zipColor.foldLeft(playersAcc):
                       case (playersAcc, (color, (playerId, player))) =>
@@ -300,9 +283,12 @@ private final class RelayPlayerApi(
                           color,
                           tags.points,
                           round.rated,
-                          toursById.get(round.tourId).flatMap(_.info.fideTC).getOrElse(FideTC.standard),
+                          round.fideTCOverride
+                            .orElse(toursById.get(round.tourId).map(_.info.fideTCOrGuess))
+                            .getOrElse(FideTC.standard),
                           round.customScoring,
-                          unplayed = tags.value.contains(RelayGame.unplayedTag)
+                          unplayed = tags.value.has(RelayGame.unplayedTag),
+                          ongoing = tags.points.isEmpty && tags.exists(_.Result)
                         )
                         playersAcc.updated(
                           playerId,
@@ -342,7 +328,7 @@ private final class RelayPlayerApi(
                       player.ratingsMap
                         .get(gameTC)
                         .map(_.into(Elo))
-                        .orElse(fidePlayer.ratingOf(gameTC))
+                        .orElse(fidePlayer.ratingOfOrStandard(gameTC))
                         .fold(diffs): rating =>
                           val p = Elo.Player(rating, fidePlayer.kFactorOf(gameTC))
                           val newDiff = Elo.computeRatingDiff(gameTC)(p, tcGames.flatMap(_.eloGame))
@@ -370,7 +356,7 @@ private final class RelayPlayerApi(
           tiebreaks = found.map(t => tiebreaks.zip(t.tiebreakPoints).to(Seq))
         )
       .toList
-      .sortBy(_._2)
+      .sortByReverse(_._2)
       .mapWithIndex:
         case ((id, rp), index) =>
           id -> rp.copy(rank = Rank.from((index + 1).some))

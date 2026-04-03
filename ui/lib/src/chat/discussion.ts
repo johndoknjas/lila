@@ -1,16 +1,17 @@
+import { h, thunk, type VNode, type VNodeData } from 'snabbdom';
+
+import { pubsub } from '@/pubsub';
+import { tempStorage } from '@/storage';
+import { enter, alert } from '@/view';
+import { userLink } from '@/view/userLink';
+
 import * as licon from '../licon';
 import * as enhance from '../richText';
-import { userLink } from '../view/userLink';
-import * as spam from './spam';
+import type { ChatCtrl } from './chatCtrl';
 import type { Line } from './interfaces';
-import { h, thunk, type VNode, type VNodeData } from 'snabbdom';
 import { lineAction as modLineAction, flagReport } from './moderation';
 import { presetView } from './preset';
-import type { ChatCtrl } from './chatCtrl';
-import { tempStorage } from '../storage';
-import { pubsub } from '../pubsub';
-import { alert } from '../view/dialogs';
-import { enter } from '@/view';
+import * as spam from './spam';
 
 const whisperRegex = /^\/[wW](?:hisper)?\s/;
 const scrollState = { pinToBottom: true, lastScrollTop: 0 };
@@ -57,7 +58,7 @@ export default function (ctrl: ChatCtrl): Array<VNode | undefined> {
             const el = vnode.elm as HTMLElement;
             if (!scrollState.pinToBottom) return;
 
-            if (document.visibilityState === 'hidden') el.scrollTop = el.scrollHeight;
+            if (document.hidden) el.scrollTop = el.scrollHeight;
             else if (el.scrollTop + el.clientHeight < el.scrollHeight)
               el.scrollTo({ top: el.scrollHeight, behavior: 'smooth' });
 
