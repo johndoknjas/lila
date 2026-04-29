@@ -74,27 +74,31 @@ for x in xs:
     fromEvalsAndPov(pov, analysis.infos.map(_.eval))
 
   def gameAccuracy(startColor: Color, analysis: Analysis): Option[ByColor[AccuracyPercent]] =
-    gameAccuracy(startColor, analysis.infos.map(_.eval).flatMap(_.forceAsCp))
+    gameAccuracyFromOptionalCps(startColor, analysis.infos.map(_.eval.forceAsCp))
 
   // a mean of volatility-weighted mean and harmonic mean
   def gameAccuracy(startColor: Color, cps: List[Cp]): Option[ByColor[AccuracyPercent]] =
-    val allWinPercents = (Cp.initial :: cps).map(WinPercent.fromCentiPawns)
-    val windowSize = (cps.size / 10).atLeast(2).atMost(8)
-    val allWinPercentValues = WinPercent.raw(allWinPercents)
-    val windows =
-      List
-        .fill(windowSize.atMost(allWinPercentValues.size) - 2)(allWinPercentValues.take(windowSize))
-        ::: allWinPercentValues.sliding(windowSize).toList
-    val weights = windows.map { xs => Maths.standardDeviation(xs).orZero.atLeast(0.5).atMost(12) }
+    gameAccuracyFromOptionalCps(startColor, cps.map(Some(_)))
+
+  private def gameAccuracyFromOptionalCps(
+      startColor: Color,
+      cps: List[Option[Cp]]
+  ): Option[ByColor[AccuracyPercent]] =
+    val allWinPercents = Some(WinPercent.fromCentiPawns(Cp.initial)) :: cps.map(_.map(WinPercent.fromCentiPawns))
+    val windowSize = (cps.count(_.isDefined) / 10).atLeast(2).atMost(8)
+    val allWinPercentValues = allWinPercents.map(_.map(_.value))
+    def weightAt(i: Int) =
+      val start = (i - windowSize / 2).atLeast(0)
+      val xs = allWinPercentValues.slice(start, start + windowSize).flatten
+      Maths.standardDeviation(xs).orZero.atLeast(0.5).atMost(12)
     val weightedAccuracies: Iterable[((Double, Double), Color)] = allWinPercents
       .sliding(2)
-      .zip(weights)
       .zipWithIndex
-      .collect { case ((List(prev, next), weight), i) =>
+      .collect { case (List(Some(prev), Some(next)), i) =>
         val color = Color.fromWhite((i % 2 == 0) == startColor.white)
         val accuracy =
           AccuracyPercent.fromWinPercents(color.fold(prev, next), color.fold(next, prev)).value
-        ((accuracy, weight), color)
+        ((accuracy, weightAt(i)), color)
       }
       .to(Iterable)
 
