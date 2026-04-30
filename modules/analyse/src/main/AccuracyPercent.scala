@@ -74,27 +74,34 @@ for x in xs:
     fromEvalsAndPov(pov, analysis.infos.map(_.eval))
 
   def gameAccuracy(startColor: Color, analysis: Analysis): Option[ByColor[AccuracyPercent]] =
-    gameAccuracy(startColor, analysis.infos.map(_.eval).flatMap(_.forceAsCp))
+    gameAccuracy(startColor, analysis.infos.map(_.eval.forceAsCp))
 
   // a mean of volatility-weighted mean and harmonic mean
-  def gameAccuracy(startColor: Color, cps: List[Cp]): Option[ByColor[AccuracyPercent]] =
-    val allWinPercents = (Cp.initial :: cps).map(WinPercent.fromCentiPawns)
+  // todo - review algorithm a bit more and make sure it makes sense. Already tested and looks good.
+  def gameAccuracy(startColor: Color, cps: List[Option[Cp]]): Option[ByColor[AccuracyPercent]] =
+    val allWinPercents = (Some(Cp.initial) :: cps).map(_.map(WinPercent.fromCentiPawns))
     val windowSize = (cps.size / 10).atLeast(2).atMost(8)
-    val allWinPercentValues = WinPercent.raw(allWinPercents)
+    val allWinPercentValues = allWinPercents.map(_.map(_.value))
+    
     val windows =
       List
         .fill(windowSize.atMost(allWinPercentValues.size) - 2)(allWinPercentValues.take(windowSize))
         ::: allWinPercentValues.sliding(windowSize).toList
-    val weights = windows.map { xs => Maths.standardDeviation(xs).orZero.atLeast(0.5).atMost(12) }
-    val weightedAccuracies: Iterable[((Double, Double), Color)] = allWinPercents
+    val weights = windows.map { xs =>
+      if xs.forall(_.isDefined) then Some(Maths.standardDeviation(xs.flatten).orZero.atLeast(0.5).atMost(12))
+      else None
+    }
+    val weightedAccuracies: Iterable[(Option[(Double, Double)], Color)] = allWinPercents
       .sliding(2)
       .zip(weights)
       .zipWithIndex
       .collect { case ((List(prev, next), weight), i) =>
         val color = Color.fromWhite((i % 2 == 0) == startColor.white)
-        val accuracy =
-          AccuracyPercent.fromWinPercents(color.fold(prev, next), color.fold(next, prev)).value
-        ((accuracy, weight), color)
+        if prev.isDefined && next.isDefined && weight.isDefined then
+          val accuracy = AccuracyPercent.fromWinPercents(color.fold(prev.get, next.get), color.fold(next.get, prev.get)).value
+          (Some((accuracy, weight.get)), color)
+        else
+          (None, color)
       }
       .to(Iterable)
 
@@ -105,10 +112,10 @@ for x in xs:
     def colorAccuracy(color: Color) = for
       weighted <- Maths.weightedMean:
         weightedAccuracies.collect:
-          case (weightedAccuracy, c) if c == color => weightedAccuracy
+          case (Some(weightedAccuracy), c) if c == color => weightedAccuracy
       harmonic <- Maths.harmonicMean:
         weightedAccuracies.collect:
-          case ((accuracy, _), c) if c == color => accuracy
+          case (Some((accuracy, _)), c) if c == color => accuracy
     yield AccuracyPercent((weighted + harmonic) / 2)
 
     ByColor(colorAccuracy)
