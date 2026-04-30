@@ -153,10 +153,27 @@ final class ListUi(helpers: Helpers, bits: StudyBits):
       )
 
   def menu(active: String, order: StudyOrder, topics: List[StudyTopic] = Nil)(using ctx: Context) =
-    val nonMineOrder = if order == StudyOrder.mine then StudyOrder.hot else order
+    def isPersonalGroup(group: String): Boolean =
+      List("mine", "mineMember", "minePublic", "minePrivate").exists(group.startsWith)
+    def isTopicGroup(group: String): Boolean = group.startsWith("topic")
+    def updatedOrder(newGroup: String): StudyOrder =
+      if isTopicGroup(newGroup) then
+        if isTopicGroup(active)
+        then order
+        else StudyOrder.mine
+      else if isPersonalGroup(newGroup) then
+        if order == StudyOrder.mine || (order == StudyOrder.hot && !isPersonalGroup(active))
+        then StudyOrder.updated
+        else order
+      else if order == StudyOrder.mine || (order == StudyOrder.updated && isPersonalGroup(active)) then
+        StudyOrder.hot
+      else order
+    // todo review updatedOrder func, then use it
+
+    val nonTopicOrder = if order == StudyOrder.mine then StudyOrder.hot else order
     lila.ui.bits.pageMenuSubnav(
-      a(cls := active.active("all"), href := routes.Study.all(nonMineOrder))(trs.allStudies()),
-      ctx.isAuth.option(bits.authLinks(active, nonMineOrder)),
+      a(cls := active.active("all"), href := routes.Study.all(nonTopicOrder))(trs.allStudies()),
+      ctx.isAuth.option(bits.authLinks(active, nonTopicOrder)),
       a(cls := List("active" -> active.startsWith("topic")), href := routes.Study.topics):
         trs.topics()
       ,
