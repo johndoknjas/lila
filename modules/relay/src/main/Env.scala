@@ -41,7 +41,9 @@ final class Env(
     baker: lila.core.security.LilaCookie,
     markdownCache: lila.memo.MarkdownCache,
     viewerCount: lila.memo.ViewerCountApi
-)(using Executor, akka.stream.Materializer, play.api.Mode)(using scheduler: Scheduler):
+)(using lila.core.fide.Federation.Guess, Executor, akka.stream.Materializer, play.api.Mode)(using
+    scheduler: Scheduler
+):
 
   lazy val roundForm = wire[RelayRoundForm]
   lazy val groupForm = wire[RelayGroupForm]
@@ -167,10 +169,6 @@ final class Env(
   Bus.sub[lila.study.Kick]:
     case lila.study.Kick(studyId, userId, who) =>
       roundRepo.tourIdByStudyId(studyId).flatMapz(api.kickBroadcast(userId, _, who))
-
-  Bus.sub[lila.study.BecomeStudyAdmin]:
-    case lila.study.BecomeStudyAdmin(studyId, me) =>
-      api.becomeStudyAdmin(studyId, me)
 
   Bus.sub[lila.study.IsOfficialRelay]:
     case lila.study.IsOfficialRelay(studyId, promise) =>

@@ -6,7 +6,6 @@ import play.api.data.format.Formatter
 import io.mola.galimatias.URL
 import java.time.ZoneId
 import chess.tiebreak.Tiebreak
-import chess.FideTC
 
 import lila.common.Form.{ cleanText, cleanNonEmptyText, formatter, into, typeIn, url }
 import lila.core.perm.Granter
@@ -15,14 +14,12 @@ import lila.core.study.Visibility
 final class RelayTourForm(langList: lila.core.i18n.LangList, groupForm: RelayGroupForm):
 
   import RelayTourForm.*
+  import lila.study.StudyForm.given
 
   private val spotlightMapping =
     mapping("enabled" -> boolean, "lang" -> langList.popularLanguagesForm.mapping, "title" -> optional(text))(
       RelayTour.Spotlight.apply
     )(unapply)
-
-  private given Formatter[FideTC] = formatter.stringFormatter(_.toString, FideTC.valueOf)
-  private val fideTCMapping: Mapping[FideTC] = typeIn(FideTC.values.toSet)
 
   private val infoMapping = mapping(
     "format" -> optional(cleanText(maxLength = 80)),
@@ -32,7 +29,8 @@ final class RelayTourForm(langList: lila.core.i18n.LangList, groupForm: RelayGro
     "timeZone" -> optional(lila.common.Form.timeZone.field),
     "players" -> optional(cleanText(maxLength = 120)),
     "website" -> optional(url.field),
-    "standings" -> optional(url.field)
+    "standings" -> optional(url.field),
+    "regulations" -> optional(url.field)
   )(RelayTour.Info.apply)(unapply)
 
   private val pinnedStreamMapping = mapping(
@@ -42,8 +40,6 @@ final class RelayTourForm(langList: lila.core.i18n.LangList, groupForm: RelayGro
     "text" -> optional(cleanText(maxLength = 100))
   )(RelayPinnedStream.apply)(unapply)
 
-  private given Formatter[Visibility] =
-    formatter.stringOptionFormatter[Visibility](_.key, Visibility.byKey.get)
   private given Formatter[RelayTour.Tier] =
     formatter.intOptionFormatter[RelayTour.Tier](_.v, RelayTour.Tier.byV.get)
 
@@ -73,7 +69,7 @@ final class RelayTourForm(langList: lila.core.i18n.LangList, groupForm: RelayGro
       ),
       "showTeamScores" -> boolean,
       "spotlight" -> optional(spotlightMapping),
-      "grouping" -> optional(groupForm.mapping),
+      "grouping" -> groupForm.mapping,
       "pinnedStream" -> optional(pinnedStreamMapping),
       "note" -> optional(nonEmptyText(maxLength = 20_000)),
       "orphanWarn" -> boolean
@@ -111,13 +107,17 @@ final class RelayTourForm(langList: lila.core.i18n.LangList, groupForm: RelayGro
       teams = tour.teams,
       showTeamScores = tour.showTeamScores,
       spotlight = tour.spotlight,
-      grouping = group.map(groupForm.data),
+      grouping = groupForm.data(group),
       pinnedStream = tour.pinnedStream,
       note = tour.note,
       orphanWarn = tour.orphanWarn
     )
 
 object RelayTourForm:
+
+  import chess.FideTC
+  given Formatter[FideTC] = formatter.stringFormatter(_.toString, FideTC.valueOf)
+  val fideTCMapping: Mapping[FideTC] = typeIn(FideTC.values.toSet)
 
   case class Data(
       name: RelayTour.Name,
@@ -133,7 +133,7 @@ object RelayTourForm:
       teams: Option[RelayTeamsTextarea] = none,
       showTeamScores: Boolean = false,
       spotlight: Option[RelayTour.Spotlight] = none,
-      grouping: Option[RelayGroupData] = none,
+      grouping: RelayGroupData = RelayGroupData.empty,
       pinnedStream: Option[RelayPinnedStream] = none,
       note: Option[String] = none,
       orphanWarn: Boolean = true
@@ -191,5 +191,5 @@ object RelayTourForm:
 
     val empty = Data(
       RelayTour.Name(""),
-      RelayTour.Info(none, none, none, none, ZoneId.systemDefault.some, none, none, none)
+      RelayTour.Info(none, none, none, none, ZoneId.systemDefault.some, none, none, none, none)
     )

@@ -16,6 +16,7 @@
   <string name="recentlyUpdated">Legutóbb frissítve</string>
   <string name="mostPopular">Legnépszerűbb</string>
   <string name="alphabetical">Betűrendben</string>
+  <string name="relevant">Releváns</string>
   <string name="addNewChapter">Új fejezet hozzáadása</string>
   <plurals name="nbChapters">
     <item quantity="one">%s Fejezet</item>
@@ -41,7 +42,6 @@
   <string name="youAreNowASpectator">Néző lettél</string>
   <string name="pgnTags">PGN címkék</string>
   <string name="like">Tetszik</string>
-  <string name="unlike">Mégse tetszik</string>
   <string name="newTag">Új címke</string>
   <string name="commentThisPosition">Megjegyzés ehhez az álláshoz</string>
   <string name="commentThisMove">Megjegyzés ehhez a lépéshez</string>

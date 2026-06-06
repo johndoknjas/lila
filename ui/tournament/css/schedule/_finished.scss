@@ -5,6 +5,7 @@
         display: none;
       }
     }
+
     .players {
       @media (max-width: at-most($xx-small)) {
         display: none;
@@ -22,7 +23,7 @@
         white-space: nowrap;
       }
 
-      i {
+      icon {
         color: $c-brag;
       }
     }
@@ -62,7 +63,7 @@
   .icon {
     width: 0;
 
-    i {
+    icon {
       font-size: 3em;
       color: $c-brag;
       opacity: 0.8;

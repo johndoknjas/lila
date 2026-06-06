@@ -1,12 +1,14 @@
-import type { AnalyseData, Game } from './interfaces';
-import { makeFen } from 'chessops/fen';
-import { makeSanAndPlay, parseSan } from 'chessops/san';
 import { makeUci } from 'chessops';
-import { makeVariant, parsePgn, startingPosition, type ChildNode, type PgnNodeData } from 'chessops/pgn';
 import { IllegalSetup, type Position } from 'chessops/chess';
+import { makeFen } from 'chessops/fen';
+import { makeVariant, parsePgn, startingPosition, type ChildNode, type PgnNodeData } from 'chessops/pgn';
+import { makeSanAndPlay, parseSan } from 'chessops/san';
+
 import type { Player } from 'lib/game';
-import type { TreeNode } from 'lib/tree/types';
 import { completeNode } from 'lib/tree/node';
+import type { TreeNode } from 'lib/tree/types';
+
+import type { AnalyseData, Game } from './interfaces';
 
 const readNode = (
   variant: VariantKey,
@@ -84,7 +86,7 @@ const rulesToVariantKey: Record<string, VariantKey> = {
   racingkings: 'racingKings',
 };
 
-export const renderPgnError = (error: string = '') =>
+export const renderPgnError = (error = '') =>
   `PGN error: ${
     {
       [IllegalSetup.Empty]: 'empty board',

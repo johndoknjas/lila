@@ -1,13 +1,15 @@
-import type { VNode } from 'lib/view';
+import type { MoveMetadata as CgMoveMetadata } from '@lichess-org/chessground/types';
+
+import type { ChatOpts as BaseChatOpts, ChatCtrl, ChatPlugin } from 'lib/chat/interfaces';
 import type { GameData, Status, RoundStep } from 'lib/game';
 import type { ClockData } from 'lib/game/clock/clockCtrl';
-import type { CorresClockData } from './corresClock/corresClockCtrl';
-import type { ChatOpts as BaseChatOpts, ChatCtrl, ChatPlugin } from 'lib/chat/interfaces';
 import * as Prefs from 'lib/prefs';
 import type { EnhanceOpts } from 'lib/richText';
-import type { RoundSocket } from './socket';
-import type { MoveMetadata as CgMoveMetadata } from '@lichess-org/chessground/types';
 import type { NodeCrazy } from 'lib/tree/types';
+import type { VNode } from 'lib/view';
+
+import type { CorresClockData } from './corresClock/corresClockCtrl';
+import type { RoundSocket } from './socket';
 
 export { type RoundSocket } from './socket';
 export { type CorresClockData } from './corresClock/corresClockCtrl';
@@ -90,6 +92,7 @@ export interface RoundData extends GameData {
   };
   expiration?: Expiration;
   local?: RoundProxy;
+  noab?: boolean;
 }
 
 export interface Expiration {
@@ -168,6 +171,7 @@ export interface ApiMove {
 export interface ApiEnd {
   winner?: Color;
   status: Status;
+  abortedBy?: Color;
   ratingDiff?: {
     white: number;
     black: number;

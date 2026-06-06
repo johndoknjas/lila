@@ -1,7 +1,7 @@
 # Copying Lila
 
 Any file in this project that does not state otherwise and is not listed as an
-exception below is part of lila and copyright (c) 2012-2025 the lila authors.
+exception below is part of lila and copyright (c) 2012-2026 the lila authors.
 
 For a list of the authors see the commit log or
 https://github.com/lichess-org/lila/graphs/contributors.
@@ -74,9 +74,11 @@ public/sounds/sfx | [Enigmahack](https://github.com/Enigmahack) | AGPLv3+
 public/sounds/lisp | [EdinburghCollective](http://lichess.org/@/EdinburghCollective) | [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/)
 SVG in ui/learn/src/apple.ts | [Sensa](https://www.svgrepo.com/svg/434273/star) | [CC0 1.0](https://creativecommons.org/publicdomain/zero/1.0/deed.en)
 public/flair/img/symbols.neovim-mark.webp | Jason Long | [CC BY 3.0](https://creativecommons.org/licenses/by/3.0/) (Modified by converting to webp and resizing)
-public/images/practice/* [game-icons.net](https://game-icons.net/about.html) [CC BY 3.0](http://creativecommons.org/licenses/by/3.0/)
-public/images/puzzle-themes/* [game-icons.net](https://game-icons.net/about.html) [CC BY 3.0](http://creativecommons.org/licenses/by/3.0/)
+
+public/images/practice/_ [game-icons.net](https://game-icons.net/about.html) [CC BY 3.0](http://creativecommons.org/licenses/by/3.0/)
+public/images/puzzle-themes/_ [game-icons.net](https://game-icons.net/about.html) [CC BY 3.0](http://creativecommons.org/licenses/by/3.0/)
 translation/source/puzzleTheme.xml | the lila authors and contributors | [CC0 1.0](https://creativecommons.org/publicdomain/zero/1.0/)
+
 ## Exceptions (non-free)
 
 <!-- prettier-ignore -->
@@ -91,6 +93,7 @@ public/piece/reillycraig | [Reilly Craig](https://instagram.com/fader_) |
 public/piece/riohacha | |
 public/images/staunton/piece/Staunton | [Eden Murs](https://userstyles.org/styles/134558/lichess-pieces-3d-staunton) (?) |
 public/piece/shahi-ivory-brown | Tamer Karatekin | Free for personal and commercial use, but non-derivative non-modify license (Şahî Chess & Shatranj Font License v1.0 – https://github.com/TamerKaratekin/shahi-chess-shatranj-font/blob/main/LICENSE.txt)
+public/piece/totoy | [Kosal Sen](https://github.com/lichess-org/lila) | [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/)
 
 - The other sounds in public/sound
 - The other artwork in public/images
@@ -110,6 +113,5 @@ Lichess as deployed on https://lichess.org/ also uses these external services:
 - [check.torproject.org](https://check.torproject.org/torbulkexitlist) for a list or Tor exit nodes
 - [detectlanguage.com](https://detectlanguage.com/)
 - [Google Cloud Messaging](https://developers.google.com/cloud-messaging/) for mobile notifications
-- [hCaptcha](https://hcaptcha.com)
 - [PeerJS](https://peerjs.com/) for voice chat
 - [crowdin](https://crowdin.com/project/lichess) for localization

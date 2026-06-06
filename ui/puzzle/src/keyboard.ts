@@ -1,7 +1,8 @@
+import { pubsub } from 'lib/pubsub';
+import { snabDialog } from 'lib/view';
+
 import * as control from './control';
 import type PuzzleCtrl from './ctrl';
-import { snabDialog } from 'lib/view';
-import { pubsub } from 'lib/pubsub';
 
 export default (ctrl: PuzzleCtrl) =>
   site.mousetrap
@@ -35,7 +36,8 @@ export default (ctrl: PuzzleCtrl) =>
     .bind('?', () => ctrl.keyboardHelp(!ctrl.keyboardHelp()))
     .bind('f', ctrl.flip)
     .bind('n', ctrl.nextPuzzle)
-    .bind('h', ctrl.menu.toggle);
+    .bind('h', ctrl.menu.toggle)
+    .bind('G', ctrl.googlyEyesStart);
 
 export const view = (ctrl: PuzzleCtrl) =>
   snabDialog({

@@ -4,6 +4,7 @@ import fs from 'node:fs';
 import { basename, dirname, join, relative, resolve } from 'node:path';
 import ps from 'node:process';
 import clr from 'tinycolor2';
+
 import { clamp, isEquivalent } from './algo.ts';
 import { c, env, errorMark, trimLines } from './env.ts';
 import { hashedBasename, symlinkTargetHashes } from './hash.ts';
@@ -241,7 +242,7 @@ async function buildColorWrap() {
   for (const file of await glob(join(env.themeDir, '_*.scss'))) {
     if (!file.includes('theme.')) continue;
     for (const line of (await fs.promises.readFile(file, 'utf8')).split('\n')) {
-      if (line.indexOf('--') === -1) continue;
+      if (!line.includes('--')) continue;
       const commentIndex = line.indexOf('//');
       if (commentIndex !== -1 && commentIndex < line.indexOf(':')) continue;
       if (!/--[cm]/.test(line)) continue;

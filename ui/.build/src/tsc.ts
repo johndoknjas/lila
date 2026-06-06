@@ -1,12 +1,13 @@
+import fg from 'fast-glob';
 import fs from 'node:fs';
 import os from 'node:os';
 import { join, resolve, dirname, basename, relative } from 'node:path';
-import ts from 'typescript';
-import fg from 'fast-glob';
 import { Worker } from 'node:worker_threads';
+import ts from 'typescript';
+
+import { clamp } from './algo.ts';
 import { env, c, errorMark } from './env.ts';
 import { folderSize } from './parse.ts';
-import { clamp } from './algo.ts';
 import type { WorkerData, Message, ErrorMessage } from './tscWorker.ts';
 
 const workers: Worker[] = [];
@@ -68,9 +69,10 @@ function assignWork(buckets: SplitConfig[][], key: 'noCheck' | 'noEmit'): Promis
       case 'busy':
         return env.done('tsc', undefined);
       case 'ok':
-        if (status.some(s => s !== 'ok')) return;
-        if (key === 'noEmit') env.done('tsc', 0);
-        okResolve();
+        if (!status.some(s => s !== 'ok')) {
+          if (key === 'noEmit') env.done('tsc', 0);
+          okResolve();
+        }
     }
   };
 

@@ -1,6 +1,7 @@
 import Lpv from '@lichess-org/pgn-viewer';
-import type PgnViewer from '@lichess-org/pgn-viewer/pgnViewer';
 import type { Opts as LpvOpts } from '@lichess-org/pgn-viewer/interfaces';
+import type PgnViewer from '@lichess-org/pgn-viewer/pgnViewer';
+
 import { text as xhrText } from 'lib/xhr';
 
 export default async function (opts?: { el: HTMLElement; url: string; lpvOpts: LpvOpts }): Promise<void> {
@@ -12,11 +13,14 @@ async function autostart() {
   $('.lpv--autostart').each(function (this: HTMLElement) {
     const pgn = this.dataset['pgn']!.replace(/<br>/g, '\n');
     const gamebook = pgn.includes('[ChapterMode "gamebook"]');
+    const rawPly = this.dataset['ply'];
+    const initialPly =
+      rawPly === 'last' ? 'last' : rawPly !== undefined ? parseInt(rawPly, 10) || 0 : undefined;
     const config: Partial<LpvOpts> = {
       pgn,
       orientation: this.dataset['orientation'] as Color | undefined,
       lichess: location.origin,
-      initialPly: (this.dataset['ply'] as number | 'last') ?? (gamebook ? 0 : 'last'),
+      initialPly: initialPly ?? (gamebook ? 0 : 'last'),
       ...(gamebook
         ? {
             showPlayers: false,

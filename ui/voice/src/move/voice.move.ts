@@ -1,13 +1,12 @@
-import { jsonSimple } from 'lib/xhr';
-import { storedIntProp, storedBooleanPropWithEffect, storedIntPropWithEffect } from 'lib/storage';
-import * as licon from 'lib/licon';
-import { readFen, destsToUcis, square, type Board } from 'lib/game';
 import { charToRole } from 'chessops';
-import { type PromotionCtrl, promote } from 'lib/game/promotion';
+
+import { readFen, destsToUcis, square, type Board } from 'lib/game';
 import type { MoveRootCtrl, MoveUpdate } from 'lib/game/moveRootCtrl';
-import type { VoiceMove, VoiceCtrl, Entry, Match } from '../voice';
-import { coloredArrows, numberedArrows, brushes } from './arrows';
-import { settingNodes } from './view';
+import { type PromotionCtrl, promote } from 'lib/game/promotion';
+import * as licon from 'lib/licon';
+import { storedIntProp, storedBooleanPropWithEffect, storedIntPropWithEffect } from 'lib/storage';
+import { jsonSimple } from 'lib/xhr';
+
 import type { MsgType } from '../interfaces';
 import {
   spread,
@@ -24,6 +23,9 @@ import {
   type Transform,
   type SparseMap,
 } from '../util';
+import type { VoiceMove, VoiceCtrl, Entry, Match } from '../voice';
+import { coloredArrows, numberedArrows, brushes } from './arrows';
+import { settingNodes } from './view';
 
 export function initModule({
   root,
@@ -427,7 +429,7 @@ export function initModule({
       }
       if (srole === 'P') {
         addToks(udest, uci); // includes en passant
-        if (uci[0] === uci[2]) {
+        if (uci.startsWith(uci[2])) {
           addToks(`P${udest}`);
         } else if (dp) {
           addToks(`${usrc}x${udest}`);
@@ -533,7 +535,7 @@ export function initModule({
   }
 
   function question(): QuestionOpts | false {
-    const mkOpts = (prompt: string, yesIcon: string) => ({
+    const mkOpts = (prompt: string, yesIcon: LiconType) => ({
       prompt,
       yes: { action: () => command?.action?.(true), key: 'yes', icon: yesIcon },
       no: { action: () => command?.action?.(false), key: 'no' },

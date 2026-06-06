@@ -1,25 +1,27 @@
-import { type VNode, type VNodeChildren, h } from 'snabbdom';
-import { renderPieceKeys, renderPiecesOn, type MoveStyle } from './chess';
 import type { Pieces } from '@lichess-org/chessground/types';
+import { type VNode, type VNodeChildren, h } from 'snabbdom';
+
 import { memoize } from '@/common';
+
+import { renderPieceKeys, renderPiecesOn, type MoveStyle } from './chess';
 
 interface Command {
   help: VNode | string;
-  apply(c: string, pieces: Pieces, style: MoveStyle): string | undefined;
+  apply(c: string, pieces: Pieces, style: MoveStyle, pov?: Color): string | undefined;
 }
 type Commands = Record<string, Command>;
 
 export const commands: () => Commands = memoize(() => ({
   piece: {
     help: i18n.nvui.announcePieceLocations,
-    apply(c: string, pieces: Pieces, style: MoveStyle) {
-      return tryC(c, /^\/?p ([apnbrqk])$/i, p => renderPieceKeys(pieces, p, style));
+    apply(c: string, pieces: Pieces, style: MoveStyle, pov?: Color) {
+      return tryC(c, /^\/?p ([apnbrqk])$/i, p => renderPieceKeys(pieces, p, style, pov));
     },
   },
   scan: {
     help: i18n.nvui.announcePiecesOnRankOrFile,
-    apply(c: string, pieces: Pieces, style: MoveStyle) {
-      return tryC(c, /^\/?s ([a-h1-8])$/i, p => renderPiecesOn(pieces, p, style));
+    apply(c: string, pieces: Pieces, style: MoveStyle, pov?: Color) {
+      return tryC(c, /^\/?s ([a-h1-8])$/i, p => renderPiecesOn(pieces, p, style, pov));
     },
   },
   board: {

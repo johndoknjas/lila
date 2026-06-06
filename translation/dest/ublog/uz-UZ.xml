@@ -5,7 +5,7 @@
   <string name="byTopic">Mavzu boʻyicha</string>
   <string name="byLichess">Lichess tomonidan</string>
   <string name="myFriends">Doʻstlarim</string>
-  <string name="myLikes" comment="A page which lists blog posts that you have pressed ❤️ Like on: https://lichess.org/blog/liked">Menga yoqqanlar</string>
+  <string name="myLikes">Menga yoqqanlar</string>
   <string name="myBlog">Mening blogim</string>
   <string name="likedBlogs">Menga yoqqan blog postlar</string>
   <plurals name="blogPosts">
@@ -24,7 +24,7 @@
   <string name="postBody">Post asosiy qismi</string>
   <string name="drafts">Qarolamalar</string>
   <string name="published">Chop etildi</string>
-  <string name="createBlogDiscussion">Kommentariylarga ruxsat berish</string>
+  <string name="createBlogDiscussion">Kommentlarga ruxsat berish</string>
   <string name="createBlogDiscussionHelp">Postingizni muhokama qilish uchun forumda yangi mavzu yaratiladi</string>
   <string name="publishOnYourBlog">Blogda chop etish</string>
   <string name="publishHelp">Agar belgilansa, post blogingizda eʼlon qilinadi. Aks holda, u maxfiy qoladi va qoralamalaringiz orasida saqlanadi</string>

@@ -60,6 +60,8 @@
   <string name="blackLeftTheGame">Czarne opuściły grę</string>
   <string name="whiteDidntMove">Białe nie ruszyły się</string>
   <string name="blackDidntMove">Czarne nie ruszyły się</string>
+  <string name="whiteAborted">Białe porzuciły partię</string>
+  <string name="blackAborted">Czarne porzuciły partię</string>
   <string name="requestAComputerAnalysis">Poproś o analizę komputerową</string>
   <string name="computerAnalysis">Analiza komputerowa</string>
   <string name="computerAnalysisAvailable">Dostępna analiza komputerowa</string>
@@ -97,6 +99,8 @@
   <string name="database">Baza danych</string>
   <string name="whiteDrawBlack">Białe / Remis / Czarne</string>
   <string name="averageRatingX">Średni ranking: %s</string>
+  <string name="minRatingX">Minimalny ranking %s</string>
+  <string name="maxRatingX">Minimalny ranking %s</string>
   <string name="recentGames">Ostatnie partie</string>
   <string name="topGames">Najlepsze partie</string>
   <string name="masterDbExplanation">Turniejowe partie graczy FIDE %1$s+ rozegranych w latach %2$s–%3$s</string>
@@ -130,7 +134,6 @@
   <string name="enable">Włącz</string>
   <string name="bestMoveArrow">Strzałka najlepszego ruchu</string>
   <string name="showVariationArrows">Pokaż strzałki wariantów</string>
-  <string name="evaluationGauge">Wskaźnik oceny pozycji</string>
   <string name="visualMotifs">Motywy taktyczne</string>
   <string name="undefendedPieces">Wiszące bierki</string>
   <string name="pinnedPieces">Związane bierki</string>
@@ -298,9 +301,7 @@
   <string name="emailCanTakeSomeTime">Dostarczenie email\'a może zająć trochę czasu.</string>
   <string name="refreshInboxAfterFiveMinutes">Poczekaj 5 minut i odśwież swoją skrzynkę pocztową.</string>
   <string name="checkSpamFolder">Sprawdź również folder spamu, gdzie mógł trafić nasz e-mail. Jeśli tak, oznacz go jako nie spam.</string>
-  <string name="emailForSignupHelp">Jeśli wszystko inne zawiedzie, wyślij nam ten e-mail:</string>
-  <string name="copyTextToEmail">Skopiuj i wklej powyższy tekst i wyślij go do %s</string>
-  <string name="waitForSignupHelp">Wkrótce wrócimy do Ciebie, aby pomóc Ci w dokończeniu rejestracji.</string>
+  <string name="sendEmailForAccountVerification">Jeśli nie możesz znaleźć wiadomości e-mail z potwierdzeniem, wyślij wiadomość do %s, a potwierdzimy Twoje konto.</string>
   <string name="accountConfirmed">Użytkownik %s został pomyślnie potwierdzony.</string>
   <string name="accountCanLogin">Teraz możesz się zalogować jako %s.</string>
   <string name="accountConfirmationEmailNotNeeded">Nie potrzebujesz e-maila z potwierdzeniem.</string>
@@ -596,6 +597,7 @@
   <string name="popularOpenings">Popularne otwarcia</string>
   <string name="endgamePositions">Pozycje końcowe</string>
   <string name="chess960StartPosition">Pozycja startowa w Szachach 960: %s</string>
+  <string name="randomChess960Position">Losowa pozycja Chess960</string>
   <string name="startPosition">Ustawienie początkowe</string>
   <string name="clearBoard">Wyczyść szachownicę</string>
   <string name="loadPosition">Wczytaj ustawienie</string>
@@ -674,6 +676,9 @@
   <string name="invalidUsernameOrPassword">Niepoprawne nazwa użytkownika lub hasło</string>
   <string name="incorrectPassword">Nieprawidłowe hasło</string>
   <string name="invalidAuthenticationCode">Nieprawidłowy kod uwierzytelniający</string>
+  <string name="clearField">Wyczyść pole</string>
+  <string name="orSeparator">lub</string>
+  <string name="logInByEmail">Zaloguj się przez e-mail</string>
   <string name="emailMeALink">Wyślij mi link</string>
   <string name="currentPassword">Aktualne hasło</string>
   <string name="newPassword">Nowe hasło</string>
@@ -886,6 +891,8 @@
   <string name="xHostsY">%1$s utworzył %2$s</string>
   <string name="xJoinsY">%1$s dołączył do %2$s</string>
   <string name="xLikesY">%1$s polubił %2$s</string>
+  <string name="like">Lubię</string>
+  <string name="liked">Polubione</string>
   <string name="quickPairing">Szybkie parowanie</string>
   <string name="lobby">Poczekalnia</string>
   <string name="anonymous">Anonimowy</string>
@@ -1004,7 +1011,6 @@
   <string name="agreementAssistance">Zgadzam się nie korzystać z pomocy podczas gry (programów szachowych, książek, baz danych, czy innych osób).</string>
   <string name="agreementNice">Zgadzam się odnosić zawsze z szacunkiem do innych graczy.</string>
   <string name="agreementMultipleAccounts" comment="%s will be replaced with the translation of 'termsOfService'">Zgadzam się, że nie będę tworzyć wielu kont (z wyjątkiem powodów podanych w %s).</string>
-  <string name="agreementPolicy">Zgadzam się przestrzegać wszystkich zasad Lichess.</string>
   <string name="searchOrStartNewDiscussion">Szukaj lub rozpocznij nową rozmowę</string>
   <string name="edit">Edytuj</string>
   <string name="ultraBullet" comment="Probably best left untranslated. Leave it as 'UltraBullet' unless your language has a better word for it.">UltraBullet</string>
@@ -1028,6 +1034,7 @@
   <string name="tryTheContactPage">użyj strony kontaktowej</string>
   <string name="makeSureToRead">Koniecznie przeczytaj %1$s</string>
   <string name="theForumEtiquette">etykieta forum</string>
+  <string name="pleaseBeNiceInTheForum">Bądź miły na forum.</string>
   <string name="thisTopicIsArchived">Ten temat został zarchiwizowany i nie można już na niego odpowiedzieć.</string>
   <string name="joinTheTeamXToPost">Dołącz do %1$s, aby publikować na tym forum</string>
   <string name="teamNamedX">Klub %1$s</string>
@@ -1117,6 +1124,7 @@ Wszystkie koszty operacyjne, rozwój i treści są finansowane wyłącznie z dar
   <string name="offline" comment="status of a user">offline</string>
   <string name="search">Szukaj</string>
   <string name="clearSearch">Wyczyść wyszukiwanie</string>
+  <string name="thereAreNoResultsForX">Brak wyników dla \"%s\"</string>
   <string name="tags">Tagi</string>
   <string name="enPassant">Bicie w przelocie</string>
 </resources>

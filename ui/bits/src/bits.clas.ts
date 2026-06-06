@@ -1,9 +1,9 @@
-import { sortTable, extendTablesortNumber } from 'lib/tablesort';
-import * as xhr from 'lib/xhr';
 import { Textcomplete } from '@textcomplete/core';
 import { TextareaEditor } from '@textcomplete/textarea';
 
+import { sortTable, extendTablesortNumber } from 'lib/tablesort';
 import type { UserCompleteResult } from 'lib/view/userComplete';
+import * as xhr from 'lib/xhr';
 
 site.load.then(() => {
   $('table.sortable').each(function (this: HTMLTableElement) {
@@ -44,9 +44,9 @@ site.load.then(() => {
           '" data-href="/@/' +
           o.name +
           '">' +
-          '<i class="line' +
+          '<icon class="line' +
           (o.patron ? ' patron' : '') +
-          '"></i>' +
+          '"></icon>' +
           (o.title ? '<span class="utitle">' + o.title + '</span>&nbsp;' : '') +
           o.name +
           '</span>',

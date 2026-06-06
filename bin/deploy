@@ -293,6 +293,7 @@ def deploy_script(profile, session, run, url):
             f"echo '\n# git -C {deploy_dir} checkout {commit}'",
             f"git -C {deploy_dir} checkout {commit}",
             f"git -C {deploy_dir} lfs pull",
+            f"make -C {deploy_dir}/public/lifat/nnue -j4",
             f"echo '\n# rsync -a {artifact_unzipped}/d/public {deploy_dir}/'",
             f"rsync -a {artifact_unzipped}/d/public {deploy_dir}/",
         ]
@@ -325,8 +326,8 @@ def deploy(profile, repo, commit, github_api_token, dry_run):
 
     try:
         wanted_hash = hash_files(commit.tree, profile["files"])
-    except KeyError:
-        raise DeployError("Commit is missing a required file.")
+    except KeyError as e:
+        raise DeployError(f"Commit is missing a required file: {e}")
 
     wanted_commits = set(find_commits(commit, profile["files"], wanted_hash))
     print(f"Found {len(wanted_commits)} matching commits.")

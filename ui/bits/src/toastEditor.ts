@@ -1,13 +1,14 @@
-import type { EditorView as EditorViewType } from 'prosemirror-view';
+import { Editor } from '@toast-ui/editor';
 import type { Node as NodeType, Schema as SchemaType } from 'prosemirror-model';
 import type { EditorState as EditorStateType } from 'prosemirror-state';
-import { json as xhrJson } from 'lib/xhr';
-import { Editor } from '@toast-ui/editor';
-import { currentTheme } from 'lib/device';
-import { wireMarkdownImgResizers, wrapImg, naturalSize } from 'lib/view/markdownImgResizer';
-import { enter } from 'lib/view';
+import type { EditorView as EditorViewType } from 'prosemirror-view';
 
-export function makeToastEditor(el: HTMLTextAreaElement, text: string = '', height: string = '60vh'): Editor {
+import { currentTheme } from 'lib/device';
+import { alert, enter } from 'lib/view';
+import { wireMarkdownImgResizers, wrapImg, naturalSize } from 'lib/view/markdownImgResizer';
+import { ValidationError, json as xhrJson } from 'lib/xhr';
+
+export function makeToastEditor(el: HTMLTextAreaElement, text = '', height = '60vh'): Editor {
   const rewire = () =>
     wireMarkdownImgResizers({
       root: document.querySelector<HTMLElement>('.toastui-editor-ww-container .ProseMirror')!,
@@ -162,7 +163,7 @@ function toastImageUploadHook(el: HTMLElement) {
       setUrlCallback(imageUrl, name);
     } catch (e) {
       setUrlCallback('');
-      throw e;
+      alert(e instanceof ValidationError ? e.message : `Image upload failed: ${e}`);
     }
   };
 }

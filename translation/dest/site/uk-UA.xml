@@ -10,7 +10,7 @@
   <string name="waitingForOpponent">Очікування на суперника</string>
   <string name="orLetYourOpponentScanQrCode">Або дайте вашому супернику просканувати цей QR-код</string>
   <string name="reusableChallengeUrl">Постійне посилання на виклик</string>
-  <string name="permanentLinkForAnyoneToChallengeYou">Постійне посилання, за яким хто-небудь може кинути вам виклик із цими налаштуваннями.</string>
+  <string name="permanentLinkForAnyoneToChallengeYou">Постійне посилання, за яким будь-хто може кинути вам виклик із цими налаштуваннями.</string>
   <string name="waiting">Очікування</string>
   <string name="yourTurn">Ваш хід</string>
   <string name="aiNameLevelAiLevel">%1$s, рівень %2$s</string>
@@ -60,6 +60,8 @@
   <string name="blackLeftTheGame">Чорні залишили гру</string>
   <string name="whiteDidntMove">Білі не зробили хід</string>
   <string name="blackDidntMove">Чорні не зробили хід</string>
+  <string name="whiteAborted">Білі скасували гру</string>
+  <string name="blackAborted">Чорні скасували гру</string>
   <string name="requestAComputerAnalysis">Зробити запит на комп’ютерний аналіз</string>
   <string name="computerAnalysis">Комп’ютерний аналіз</string>
   <string name="computerAnalysisAvailable">Комп\'ютерний аналіз доступний</string>
@@ -82,7 +84,7 @@
   <string name="expandVariations">Розгорнути варіанти</string>
   <string name="forceVariation">Зробити варіантом</string>
   <string name="copyVariationPgn">Скопіювати PGN варіанту</string>
-  <string name="copyMainLinePgn">Копіювати pgn головної лінії</string>
+  <string name="copyMainLinePgn">Копіювати PGN головної лінії</string>
   <string name="move">Хід</string>
   <string name="variantLoss">Шанс програшу</string>
   <string name="variantWin">Хід, що виграє</string>
@@ -97,6 +99,8 @@
   <string name="database">База даних</string>
   <string name="whiteDrawBlack">Білі / Нічия / Чорні</string>
   <string name="averageRatingX">Середній рейтинг: %s</string>
+  <string name="minRatingX">Мінімальний рейтинг %s</string>
+  <string name="maxRatingX">Максимальний рейтинг %s</string>
   <string name="recentGames">Останні ігри</string>
   <string name="topGames">Найкращі ігри</string>
   <string name="masterDbExplanation">ігор за дошкою гравців FIDE з рейтингом %1$s+ з %2$s по %3$s</string>
@@ -130,7 +134,6 @@
   <string name="enable">Увімкнути</string>
   <string name="bestMoveArrow">Стрілка «Найкращий хід»</string>
   <string name="showVariationArrows">Показати стрілки для варіантів</string>
-  <string name="evaluationGauge">Шкала оцінки</string>
   <string name="visualMotifs">Візуальні підказки</string>
   <string name="undefendedPieces">Незахищені фігури</string>
   <string name="pinnedPieces">Зв\'язані фігури</string>
@@ -298,9 +301,7 @@
   <string name="emailCanTakeSomeTime">Отримання повідомлення може зайняти деякий час.</string>
   <string name="refreshInboxAfterFiveMinutes">Зачекайте 5 хвилин і оновіть поштову скриньку.</string>
   <string name="checkSpamFolder">Також перевірте папку \"Спам\", лист міг потрапити туди. Якщо так, то позначте його як не спам.</string>
-  <string name="emailForSignupHelp">Якщо все інше не спрацювало, то надішліть нам цей електронний лист:</string>
-  <string name="copyTextToEmail">Скопіюйте та вставте текст зверху й відправте на %s</string>
-  <string name="waitForSignupHelp">Незабаром ми повернемося до вас, щоб допомогти вам завершити реєстрацію.</string>
+  <string name="sendEmailForAccountVerification">Якщо ви не можете знайти лист підтвердження, відправте лист на %s, і ми підтвердимо ваш обліковий запис.</string>
   <string name="accountConfirmed">Користувач %s успішно підтверджений.</string>
   <string name="accountCanLogin">Тепер ви можете ввійти як %s.</string>
   <string name="accountConfirmationEmailNotNeeded">Вам не потрібне підтвердження за електронною поштою.</string>
@@ -596,6 +597,7 @@
   <string name="popularOpenings">Популярні дебюти</string>
   <string name="endgamePositions">Позиції ендшпілю</string>
   <string name="chess960StartPosition">Початкова позиція Chess960: %s</string>
+  <string name="randomChess960Position">Випадкова позиція в шахи-960</string>
   <string name="startPosition">Початкова позиція</string>
   <string name="clearBoard">Очистити дошку</string>
   <string name="loadPosition">Завантажити позицію</string>
@@ -674,6 +676,9 @@
   <string name="invalidUsernameOrPassword">Недійсне ім\'я користувача або пароль</string>
   <string name="incorrectPassword">Невірний пароль</string>
   <string name="invalidAuthenticationCode">Недійсний код автентифікації</string>
+  <string name="clearField">Очистити поле</string>
+  <string name="orSeparator">або</string>
+  <string name="logInByEmail">Увійти через електронну пошту</string>
   <string name="emailMeALink">Надішліть мені посилання</string>
   <string name="currentPassword">Поточний пароль</string>
   <string name="newPassword">Новий пароль</string>
@@ -817,7 +822,7 @@
   <string name="playSelectedMove">зіграти обраний хід</string>
   <string name="newTournament">Новий турнір</string>
   <string name="tournamentHomeTitle">Шаховий турнір із різними контролем часу та варіантами</string>
-  <string name="tournamentHomeDescription">Грайте у швидкі шахи на турнірі! Приєднуйтеся до запланованих офіційних турнірів або створіть власний. Куля, бліц, класичні шахи, шахи Фішера, \"Цар гори\", \"Три шахи\" та інші варіанти забезпечать нескінченне задоволення.</string>
+  <string name="tournamentHomeDescription">Грайте на швидких турнірах із шахів! Приєднуйтеся до запланованих офіційних турнірів або створіть власний. Куля, бліц, класичні шахи, шахи-960, цар гори, три шахи та інші варіанти нададуть нескінченне задоволення.</string>
   <string name="tournamentNotFound">Турнір не знайдено</string>
   <string name="tournamentDoesNotExist">Цей турнір не існує.</string>
   <string name="tournamentMayHaveBeenCanceled">Турнір міг бути скасований, якщо всі гравці залишили його до початку.</string>
@@ -886,6 +891,8 @@
   <string name="xHostsY">%1$s створив %2$s</string>
   <string name="xJoinsY">%1$s приєднався до %2$s</string>
   <string name="xLikesY">%1$s сподобалось %2$s</string>
+  <string name="like">Уподобати</string>
+  <string name="liked">Уподобано</string>
   <string name="quickPairing">Швидкий старт</string>
   <string name="lobby">Лобі</string>
   <string name="anonymous">Анонім</string>
@@ -1004,7 +1011,6 @@
   <string name="agreementAssistance">Я погоджуюся, що не буду отримувати допомогу під час моїх ігор (від шахового комп\'ютера, книги, бази даних або іншої особи).</string>
   <string name="agreementNice">Я погоджуюся, що я завжди буду ставитись чемно до інших гравців.</string>
   <string name="agreementMultipleAccounts" comment="%s will be replaced with the translation of 'termsOfService'">Я погоджуюсь с тим, що не буду створювати декілька облікових записів (крім причин, описаних у %s).</string>
-  <string name="agreementPolicy">Я погоджуюся, що я буду слідувати усім правилам Lichess.</string>
   <string name="searchOrStartNewDiscussion">Шукати або розпочати бесіду</string>
   <string name="edit">Змінити</string>
   <string name="ultraBullet" comment="Probably best left untranslated. Leave it as 'UltraBullet' unless your language has a better word for it.">Ультракуля</string>
@@ -1028,6 +1034,7 @@
   <string name="tryTheContactPage">спробуйте сторінку контактів</string>
   <string name="makeSureToRead">Варто прочитати %1$s</string>
   <string name="theForumEtiquette">етикет форуму</string>
+  <string name="pleaseBeNiceInTheForum">Будь ласка, будьте ввічливими на форумі.</string>
   <string name="thisTopicIsArchived">Ця тема була заархівована і додати відповідь більше не можна.</string>
   <string name="joinTheTeamXToPost">Приєднайтесь до %1$s, щоб писати у цьому форумі</string>
   <string name="teamNamedX">%1$s команда</string>
@@ -1116,6 +1123,7 @@
   <string name="offline" comment="status of a user">не в мережі</string>
   <string name="search">Пошук</string>
   <string name="clearSearch">Очистити пошук</string>
+  <string name="thereAreNoResultsForX">Нічого не знайдено для «%s»</string>
   <string name="tags">Теги</string>
   <string name="enPassant">Взяття на проході</string>
 </resources>

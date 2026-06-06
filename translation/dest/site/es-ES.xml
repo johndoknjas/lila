@@ -58,6 +58,8 @@
   <string name="blackLeftTheGame">Las negras han dejado la partida</string>
   <string name="whiteDidntMove">Las blancas no han movido</string>
   <string name="blackDidntMove">Las negras no han movido</string>
+  <string name="whiteAborted">Las blancas han dejado la partida</string>
+  <string name="blackAborted">Las negras han dejado la partida</string>
   <string name="requestAComputerAnalysis">Solicitar un análisis del ordenador</string>
   <string name="computerAnalysis">Análisis del ordenador</string>
   <string name="computerAnalysisAvailable">Análisis del ordenador disponible</string>
@@ -95,6 +97,8 @@
   <string name="database">Base de datos</string>
   <string name="whiteDrawBlack">Blancas / Tablas / Negras</string>
   <string name="averageRatingX">Puntuación media: %s</string>
+  <string name="minRatingX">Valoración mínima de %s</string>
+  <string name="maxRatingX">Valoración máxima de %s</string>
   <string name="recentGames">Partidas recientes</string>
   <string name="topGames">Mejores partidas</string>
   <string name="masterDbExplanation">Dos millones de partidas de jugadores con ELO FIDE de %1$s+, desde %2$s a %3$s</string>
@@ -126,7 +130,6 @@
   <string name="enable">Activar</string>
   <string name="bestMoveArrow">Indicar la mejor jugada</string>
   <string name="showVariationArrows">Mostrar flechas de variantes</string>
-  <string name="evaluationGauge">Indicador de evaluación</string>
   <string name="visualMotifs">Complementos visuales</string>
   <string name="undefendedPieces">Piezas no defendidas</string>
   <string name="pinnedPieces">Piezas clavadas</string>
@@ -268,9 +271,7 @@
   <string name="emailCanTakeSomeTime">Puede que tome algo de tiempo en llegar.</string>
   <string name="refreshInboxAfterFiveMinutes">Espera 5 minutos y actualiza tu bandeja de entrada.</string>
   <string name="checkSpamFolder">También comprueba tu carpeta de spam, por si ha ido ahí. En ese caso, márcalo como no spam.</string>
-  <string name="emailForSignupHelp">Si nada de lo anterior funciona, envíanos este texto por correo:</string>
-  <string name="copyTextToEmail">Copia y pega el texto anterior y envíalo a %s</string>
-  <string name="waitForSignupHelp">Nos pondremos en contacto contigo dentro de poco para ayudarte a completar el registro.</string>
+  <string name="sendEmailForAccountVerification">Si no puedes encontrar tu correo electrónico de confirmación, escribe a %s y confirmaremos tu cuenta.</string>
   <string name="accountConfirmed">Se ha completado la verificación del usuario %s sin problemas.</string>
   <string name="accountCanLogin">Ya puedes iniciar sesión como %s.</string>
   <string name="accountConfirmationEmailNotNeeded">No necesitas un correo de confirmación.</string>
@@ -526,6 +527,7 @@
   <string name="popularOpenings">Aperturas populares</string>
   <string name="endgamePositions">Posiciones de finales</string>
   <string name="chess960StartPosition">Posición inicial de Ajedrez 960: %s</string>
+  <string name="randomChess960Position">Posición aleatoria de Ajedrez960</string>
   <string name="startPosition">Posición inicial</string>
   <string name="clearBoard">Limpiar el tablero</string>
   <string name="loadPosition">Cargar posicion</string>
@@ -602,6 +604,9 @@
   <string name="invalidUsernameOrPassword">Nombre de usuario o contraseña erróneo</string>
   <string name="incorrectPassword">Contraseña incorrecta</string>
   <string name="invalidAuthenticationCode">Código de autenticación inválido</string>
+  <string name="clearField">Borrar campo</string>
+  <string name="orSeparator">o</string>
+  <string name="logInByEmail">Iniciar sesión con el correo electrónico</string>
   <string name="emailMeALink">Envíame un enlace por correo electrónico</string>
   <string name="currentPassword">Contraseña actual</string>
   <string name="newPassword">Nueva contraseña</string>
@@ -804,6 +809,8 @@
   <string name="xHostsY">%1$s crea %2$s</string>
   <string name="xJoinsY">%1$s se une a %2$s</string>
   <string name="xLikesY">a %1$s le gusta %2$s</string>
+  <string name="like">Me gusta</string>
+  <string name="liked">Me gustó</string>
   <string name="quickPairing">Emparejamiento rápido</string>
   <string name="lobby">Sala de espera</string>
   <string name="anonymous">Anónimo</string>
@@ -916,7 +923,6 @@
   <string name="agreementAssistance">Me comprometo a no recibir ayuda externa durante mis partidas (de un ordenador, un libro, una base de datos u otra persona).</string>
   <string name="agreementNice">Me comprometo a respetar siempre a otros jugadores.</string>
   <string name="agreementMultipleAccounts" comment="%s will be replaced with the translation of 'termsOfService'">Me comprometo a no crear varias cuentas (excepto por las razones indicadas en las %s).</string>
-  <string name="agreementPolicy">Me comprometo a seguir las normas de Lichess.</string>
   <string name="searchOrStartNewDiscussion">Buscar o empezar una nueva conversación</string>
   <string name="edit">Editar</string>
   <string name="ultraBullet" comment="Probably best left untranslated. Leave it as 'UltraBullet' unless your language has a better word for it.">UltraBullet</string>
@@ -940,6 +946,7 @@
   <string name="tryTheContactPage">prueba la página de contacto</string>
   <string name="makeSureToRead">Asegúrate de leer %1$s</string>
   <string name="theForumEtiquette">las reglas del foro</string>
+  <string name="pleaseBeNiceInTheForum">Por favor, sé amable en el foro.</string>
   <string name="thisTopicIsArchived">Este tema ha sido archivado y ya no admite respuestas.</string>
   <string name="joinTheTeamXToPost">Únete a %1$s para publicar en este foro</string>
   <string name="teamNamedX">equipo %1$s</string>
@@ -1029,6 +1036,7 @@ Todos los gastos de funcionamiento, desarrollo y contenidos se financian exclusi
   <string name="offline" comment="status of a user">desconectado</string>
   <string name="search">Buscar</string>
   <string name="clearSearch">Borrar búsqueda</string>
+  <string name="thereAreNoResultsForX">Sin resultados para \"%s\"</string>
   <string name="tags">Etiquetas</string>
   <string name="enPassant">Al paso</string>
 </resources>

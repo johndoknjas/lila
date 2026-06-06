@@ -54,12 +54,15 @@ final class Puzzle(env: Env, apiC: => Api) extends LilaController(env):
   def apiDaily = Anon:
     Found(env.puzzle.daily.get): daily =>
       WithPuzzlePerf:
-        JsonOk(env.puzzle.jsonView(daily.puzzle, none, none))
+        apiSinglePuzzle(daily.puzzle)
 
   def apiShow(id: PuzzleId) = Anon:
     Found(env.puzzle.api.puzzle.find(id)): puzzle =>
       WithPuzzlePerf:
-        JsonOk(env.puzzle.jsonView(puzzle, none, none))
+        apiSinglePuzzle(puzzle)
+
+  def apiSinglePuzzle(puzzle: Puz)(using Context, Perf) =
+    JsonOk(env.puzzle.jsonView(puzzle, none, none, withInitialPos = true))
 
   def home = Open(serveHome)
 
@@ -118,7 +121,7 @@ final class Puzzle(env: Env, apiC: => Api) extends LilaController(env):
   private def streakJsonAndPuzzle(using Context) =
     given Perf = lila.rating.Perf.default
     env.puzzle.streak.apply.flatMapz { case PuzzleStreak(ids, puzzle) =>
-      env.puzzle.jsonView(puzzle = puzzle, PuzzleAngle.mix.some, none).map { puzzleJson =>
+      env.puzzle.jsonView.analysis(puzzle = puzzle, PuzzleAngle.mix).map { puzzleJson =>
         (puzzleJson ++ Json.obj("streak" -> ids), puzzle).some
       }
     }
@@ -366,9 +369,12 @@ final class Puzzle(env: Env, apiC: => Api) extends LilaController(env):
       else if ctx.isAuth then nb / 3
       else nb
     fetchRateLimit(rateLimited, cost = cost):
-      WithPuzzlePerf:
-        for puzzles <- batchSelect(PuzzleAngle.findOrMix(angleStr), reqSettings, nb)
-        yield Ok(puzzles)
+      PuzzleAngle
+        .find(angleStr)
+        .fold(fuccess(notFoundJson(s"No $angleStr puzzles found"))): angle =>
+          WithPuzzlePerf:
+            for puzzles <- batchSelect(angle, reqSettings, nb)
+            yield Ok(puzzles)
 
   private def reqSettings(using req: RequestHeader) = PuzzleSettings(
     PuzzleDifficulty.orDefault(~get("difficulty")),

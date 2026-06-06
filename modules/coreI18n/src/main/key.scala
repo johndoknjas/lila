@@ -11,12 +11,15 @@ object I18nKey:
       trans.translator.txt.literal(key, args, trans.lang)
     def pluralTxt(count: Count, args: Any*)(using trans: Translate): String =
       trans.translator.txt.plural(key, count, args, trans.lang)
-    def pluralSameTxt(count: Long)(using trans: Translate): String = pluralTxt(count, count)
+    def pluralSameTxt(count: Long)(using Translate): String = pluralTxt(count, count)
     def apply(args: Matchable*)(using trans: Translate): RawFrag =
       trans.translator.frag.literal(key, args, trans.lang)
     def plural(count: Count, args: Matchable*)(using trans: Translate): RawFrag =
       trans.translator.frag.plural(key, count, args, trans.lang)
-    def pluralSame(count: Int)(using trans: Translate): RawFrag = plural(count, count)
+    def pluralSame(count: Int)(using Translate): RawFrag = plural(count, count)
+    // the translated message contains HTML tags
+    def rawHtml(args: Any*)(using Translate): RawFrag = RawFrag(txt(args*))
+    def pluralRawHtml(count: Count, args: Any*)(using Translate): RawFrag = RawFrag(pluralTxt(count, args*))
 
   // format: OFF
   object activity:
@@ -42,6 +45,18 @@ object I18nKey:
     val `rankedInTournament`: I18nKey = "activity:rankedInTournament"
     val `competedInNbSwissTournaments`: I18nKey = "activity:competedInNbSwissTournaments"
     val `joinedNbTeams`: I18nKey = "activity:joinedNbTeams"
+
+  object app:
+    val `lichessMobileApp`: I18nKey = "app:lichessMobileApp"
+    val `returningToApp`: I18nKey = "app:returningToApp"
+    val `ifAppDoesNotOpenAutomatically`: I18nKey = "app:ifAppDoesNotOpenAutomatically"
+    val `openTheApp`: I18nKey = "app:openTheApp"
+    val `viewAllReleases`: I18nKey = "app:viewAllReleases"
+    val `allReleases`: I18nKey = "app:allReleases"
+    val `downloadOnAppleAppStore`: I18nKey = "app:downloadOnAppleAppStore"
+    val `downloadOnGooglePlay`: I18nKey = "app:downloadOnGooglePlay"
+    val `downloadOnFdroid`: I18nKey = "app:downloadOnFdroid"
+    val `lichessMobileScreen`: I18nKey = "app:lichessMobileScreen"
 
   object appeal:
     val `cleanAllGood`: I18nKey = "appeal:cleanAllGood"
@@ -185,6 +200,7 @@ object I18nKey:
     val `notYetStarted`: I18nKey = "broadcast:notYetStarted"
     val `officialWebsite`: I18nKey = "broadcast:officialWebsite"
     val `officialStandings`: I18nKey = "broadcast:officialStandings"
+    val `regulations`: I18nKey = "broadcast:regulations"
     val `iframeHelp`: I18nKey = "broadcast:iframeHelp"
     val `webmastersPage`: I18nKey = "broadcast:webmastersPage"
     val `embedThisBroadcast`: I18nKey = "broadcast:embedThisBroadcast"
@@ -228,6 +244,8 @@ object I18nKey:
     val `tiebreaks`: I18nKey = "broadcast:tiebreaks"
     val `gameX`: I18nKey = "broadcast:gameX"
     val `knockouts`: I18nKey = "broadcast:knockouts"
+    val `underXAgeTournament`: I18nKey = "broadcast:underXAgeTournament"
+    val `underXEloTournament`: I18nKey = "broadcast:underXEloTournament"
     val `nbBroadcasts`: I18nKey = "broadcast:nbBroadcasts"
     val `nbViewers`: I18nKey = "broadcast:nbViewers"
 
@@ -544,6 +562,7 @@ object I18nKey:
 
   object emails:
     val `emailConfirm_subject`: I18nKey = "emails:emailConfirm_subject"
+    val `emailConfirm_intro`: I18nKey = "emails:emailConfirm_intro"
     val `emailConfirm_click`: I18nKey = "emails:emailConfirm_click"
     val `emailConfirm_justIgnore`: I18nKey = "emails:emailConfirm_justIgnore"
     val `passwordReset_subject`: I18nKey = "emails:passwordReset_subject"
@@ -925,6 +944,10 @@ object I18nKey:
     val `puzzleFailed`: I18nKey = "learn:puzzleFailed"
     val `retry`: I18nKey = "learn:retry"
 
+  object msg:
+    val `lichobileNewAppAvailable`: I18nKey = "msg:lichobileNewAppAvailable"
+    val `lichobileNewAppDownload`: I18nKey = "msg:lichobileNewAppDownload"
+
   object nvui:
     val `featuredEvents`: I18nKey = "nvui:featuredEvents"
     val `moveList`: I18nKey = "nvui:moveList"
@@ -1018,7 +1041,6 @@ object I18nKey:
     val `botPlay`: I18nKey = "oauthScope:botPlay"
     val `engineRead`: I18nKey = "oauthScope:engineRead"
     val `engineWrite`: I18nKey = "oauthScope:engineWrite"
-    val `webLogin`: I18nKey = "oauthScope:webLogin"
     val `webMod`: I18nKey = "oauthScope:webMod"
     val `personalAccessTokens`: I18nKey = "oauthScope:personalAccessTokens"
     val `canMakeOauthRequests`: I18nKey = "oauthScope:canMakeOauthRequests"
@@ -1093,7 +1115,8 @@ object I18nKey:
     val `officialNonProfit`: I18nKey = "patron:officialNonProfit"
     val `actOfCreation`: I18nKey = "patron:actOfCreation"
     val `changeMonthlySupport`: I18nKey = "patron:changeMonthlySupport"
-    val `changeOrContact`: I18nKey = "patron:changeOrContact"
+    val `changeSupport`: I18nKey = "patron:changeSupport"
+    val `patronPage`: I18nKey = "patron:patronPage"
     val `contactSupport`: I18nKey = "patron:contactSupport"
     val `otherMethods`: I18nKey = "patron:otherMethods"
     val `lichessIsRegisteredWith`: I18nKey = "patron:lichessIsRegisteredWith"
@@ -1253,7 +1276,6 @@ object I18nKey:
     val `origin`: I18nKey = "puzzle:origin"
     val `specialMoves`: I18nKey = "puzzle:specialMoves"
     val `didYouLikeThisPuzzle`: I18nKey = "puzzle:didYouLikeThisPuzzle"
-    val `voteToLoadNextOne`: I18nKey = "puzzle:voteToLoadNextOne"
     val `upVote`: I18nKey = "puzzle:upVote"
     val `downVote`: I18nKey = "puzzle:downVote"
     val `yourPuzzleRatingWillNotChange`: I18nKey = "puzzle:yourPuzzleRatingWillNotChange"
@@ -1614,6 +1636,8 @@ object I18nKey:
     val `blackLeftTheGame`: I18nKey = "blackLeftTheGame"
     val `whiteDidntMove`: I18nKey = "whiteDidntMove"
     val `blackDidntMove`: I18nKey = "blackDidntMove"
+    val `whiteAborted`: I18nKey = "whiteAborted"
+    val `blackAborted`: I18nKey = "blackAborted"
     val `requestAComputerAnalysis`: I18nKey = "requestAComputerAnalysis"
     val `computerAnalysis`: I18nKey = "computerAnalysis"
     val `computerAnalysisAvailable`: I18nKey = "computerAnalysisAvailable"
@@ -1651,6 +1675,8 @@ object I18nKey:
     val `database`: I18nKey = "database"
     val `whiteDrawBlack`: I18nKey = "whiteDrawBlack"
     val `averageRatingX`: I18nKey = "averageRatingX"
+    val `minRatingX`: I18nKey = "minRatingX"
+    val `maxRatingX`: I18nKey = "maxRatingX"
     val `recentGames`: I18nKey = "recentGames"
     val `topGames`: I18nKey = "topGames"
     val `masterDbExplanation`: I18nKey = "masterDbExplanation"
@@ -1678,7 +1704,6 @@ object I18nKey:
     val `enable`: I18nKey = "enable"
     val `bestMoveArrow`: I18nKey = "bestMoveArrow"
     val `showVariationArrows`: I18nKey = "showVariationArrows"
-    val `evaluationGauge`: I18nKey = "evaluationGauge"
     val `visualMotifs`: I18nKey = "visualMotifs"
     val `undefendedPieces`: I18nKey = "undefendedPieces"
     val `pinnedPieces`: I18nKey = "pinnedPieces"
@@ -1768,9 +1793,7 @@ object I18nKey:
     val `emailCanTakeSomeTime`: I18nKey = "emailCanTakeSomeTime"
     val `refreshInboxAfterFiveMinutes`: I18nKey = "refreshInboxAfterFiveMinutes"
     val `checkSpamFolder`: I18nKey = "checkSpamFolder"
-    val `emailForSignupHelp`: I18nKey = "emailForSignupHelp"
-    val `copyTextToEmail`: I18nKey = "copyTextToEmail"
-    val `waitForSignupHelp`: I18nKey = "waitForSignupHelp"
+    val `sendEmailForAccountVerification`: I18nKey = "sendEmailForAccountVerification"
     val `accountConfirmed`: I18nKey = "accountConfirmed"
     val `accountCanLogin`: I18nKey = "accountCanLogin"
     val `accountConfirmationEmailNotNeeded`: I18nKey = "accountConfirmationEmailNotNeeded"
@@ -1946,6 +1969,7 @@ object I18nKey:
     val `popularOpenings`: I18nKey = "popularOpenings"
     val `endgamePositions`: I18nKey = "endgamePositions"
     val `chess960StartPosition`: I18nKey = "chess960StartPosition"
+    val `randomChess960Position`: I18nKey = "randomChess960Position"
     val `startPosition`: I18nKey = "startPosition"
     val `clearBoard`: I18nKey = "clearBoard"
     val `loadPosition`: I18nKey = "loadPosition"
@@ -2018,6 +2042,9 @@ object I18nKey:
     val `invalidUsernameOrPassword`: I18nKey = "invalidUsernameOrPassword"
     val `incorrectPassword`: I18nKey = "incorrectPassword"
     val `invalidAuthenticationCode`: I18nKey = "invalidAuthenticationCode"
+    val `clearField`: I18nKey = "clearField"
+    val `orSeparator`: I18nKey = "orSeparator"
+    val `logInByEmail`: I18nKey = "logInByEmail"
     val `emailMeALink`: I18nKey = "emailMeALink"
     val `currentPassword`: I18nKey = "currentPassword"
     val `newPassword`: I18nKey = "newPassword"
@@ -2200,6 +2227,8 @@ object I18nKey:
     val `xHostsY`: I18nKey = "xHostsY"
     val `xJoinsY`: I18nKey = "xJoinsY"
     val `xLikesY`: I18nKey = "xLikesY"
+    val `like`: I18nKey = "like"
+    val `liked`: I18nKey = "liked"
     val `quickPairing`: I18nKey = "quickPairing"
     val `lobby`: I18nKey = "lobby"
     val `anonymous`: I18nKey = "anonymous"
@@ -2300,7 +2329,6 @@ object I18nKey:
     val `agreementAssistance`: I18nKey = "agreementAssistance"
     val `agreementNice`: I18nKey = "agreementNice"
     val `agreementMultipleAccounts`: I18nKey = "agreementMultipleAccounts"
-    val `agreementPolicy`: I18nKey = "agreementPolicy"
     val `searchOrStartNewDiscussion`: I18nKey = "searchOrStartNewDiscussion"
     val `edit`: I18nKey = "edit"
     val `ultraBullet`: I18nKey = "ultraBullet"
@@ -2324,6 +2352,7 @@ object I18nKey:
     val `tryTheContactPage`: I18nKey = "tryTheContactPage"
     val `makeSureToRead`: I18nKey = "makeSureToRead"
     val `theForumEtiquette`: I18nKey = "theForumEtiquette"
+    val `pleaseBeNiceInTheForum`: I18nKey = "pleaseBeNiceInTheForum"
     val `thisTopicIsArchived`: I18nKey = "thisTopicIsArchived"
     val `joinTheTeamXToPost`: I18nKey = "joinTheTeamXToPost"
     val `teamNamedX`: I18nKey = "teamNamedX"
@@ -2408,6 +2437,7 @@ object I18nKey:
     val `offline`: I18nKey = "offline"
     val `search`: I18nKey = "search"
     val `clearSearch`: I18nKey = "clearSearch"
+    val `thereAreNoResultsForX`: I18nKey = "thereAreNoResultsForX"
     val `tags`: I18nKey = "tags"
     val `enPassant`: I18nKey = "enPassant"
     val `opponentLeftCounter`: I18nKey = "opponentLeftCounter"
@@ -2589,7 +2619,6 @@ object I18nKey:
     val `youAreNowASpectator`: I18nKey = "study:youAreNowASpectator"
     val `pgnTags`: I18nKey = "study:pgnTags"
     val `like`: I18nKey = "study:like"
-    val `unlike`: I18nKey = "study:unlike"
     val `newTag`: I18nKey = "study:newTag"
     val `commentThisPosition`: I18nKey = "study:commentThisPosition"
     val `commentThisMove`: I18nKey = "study:commentThisMove"
@@ -3061,7 +3090,6 @@ object I18nKey:
     val `noVideosForTheseTags`: I18nKey = "video:noVideosForTheseTags"
     val `thatsAllWeGotForTheseTags`: I18nKey = "video:thatsAllWeGotForTheseTags"
     val `thatsAllWeGotForThisSearchX`: I18nKey = "video:thatsAllWeGotForThisSearchX"
-    val `thereAreNoResultsForX`: I18nKey = "video:thereAreNoResultsForX"
     val `viewMoreTags`: I18nKey = "video:viewMoreTags"
     val `videoNotFound`: I18nKey = "video:videoNotFound"
     val `xByY`: I18nKey = "video:xByY"

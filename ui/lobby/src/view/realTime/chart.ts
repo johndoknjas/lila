@@ -1,9 +1,11 @@
-import type LobbyController from '@/ctrl';
+import { h, type VNode } from 'snabbdom';
+
+import perfIcons from 'lib/game/perfIcons';
 import * as licon from 'lib/licon';
 import { bind } from 'lib/view';
-import { h, type VNode } from 'snabbdom';
+
+import type LobbyController from '@/ctrl';
 import type { Hook } from '@/interfaces';
-import perfIcons from 'lib/game/perfIcons';
 
 const percents = (v: number) => v + '%';
 
@@ -77,7 +79,8 @@ function renderHook(ctrl: LobbyController, hook: Hook): string {
   }
   html += '<div class="inner-clickable">';
   html += `<div>${hook.clock}</div>`;
-  html += '<i data-icon="' + perfIcons[hook.perf] + '"> ' + i18n.site[hook.ra ? 'rated' : 'casual'] + '</i>';
+  html +=
+    '<icon data-icon="' + perfIcons[hook.perf] + '"> ' + i18n.site[hook.ra ? 'rated' : 'casual'] + '</icon>';
   html += '</div></div>';
   return html;
 }

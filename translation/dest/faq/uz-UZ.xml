@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-  <string name="faqAbbreviation">TSS</string>
+  <string name="faqAbbreviation">FAQ</string>
   <string name="frequentlyAskedQuestions">Tez‑tez soʻraladigan savollar</string>
   <string name="whyIsLichessCalledLichess">Lichess nimaga Lichess deb nomlangan?</string>
   <string name="lichessCombinationLiveLightLibrePronounced">Lichess bu live/light/libre va chess soʻzlarining kombinatsiyasi. %1$s deb talaffuz qilinadi.</string>
   <string name="leechess">li‑ches</string>
   <string name="hearItPronouncedBySpecialist">Mutaxassis talaffuzini eshiting.</string>
   <string name="whyLiveLightLibre">Jonli (live) — chunki oʻyinlar haftasiga 7 kun kuniga 24 soat real vaqt rejimida oʻynaladi va kuzatiladi; yengil (light) va erkin (libre) — chunki Lichess ochiq kodli loyiha boʻlib, boshqa saytlarga xos boʻlgan xususiy va keraksiz chiqindilardan xolidir.</string>
-  <string name="whyIsLilaCalledLila">Shuningdek, Lichessʼning ochiq kodi — \'%1$s\' nomi ham li[chess in sca]la soʻzlaridan olingan. Buning sababi, Lichessʼning asosiy qismi intuitiv tushunarli dasturlash tili boʻlmish %2$sʼda yozilgan.</string>
+  <string name="whyIsLilaCalledLila">Shuningdek, Lichessʼning dastur kodi — \'%1$s\' nomi ham li[chess in sca]la soʻzlaridan olingan. Buning sababi, Lichessʼning asosiy qismi intuitiv tushunarli dasturlash tili boʻlmish %2$sʼda yozilgan.</string>
   <string name="howCanIContributeToLichess">Lichessʼga qanday qilib hissa qoʻshishim mumkin?</string>
   <string name="lichessPoweredByDonationsAndVolunteers">Lichess homiylar tomonidan beriladigan xayriyalar va koʻngillilar jamoasining saʼy‑harakatlari asosida faoliyat yuritadi.</string>
   <string name="findMoreAndSeeHowHelp">%1$s haqida (shu jumladan, %2$s bilan) koʻproq maʼlumot olishingiz mumkin. Agar oʻz vaqtingiz va mahoratingiz bilan Lichessʼga koʻngilli sifatida yordam bermoqchi boʻlsangiz, koʻmaklashishning yana koʻplab %3$s ham mavjud.</string>
@@ -138,7 +138,7 @@ Reyting — bu shunchaki \"nisbiy\" koʻrsatkich. U faqat bir guruh oʻyinchilar
   <string name="howToThreeDots">Qanday qilib...</string>
   <string name="enableDisableNotificationPopUps">Bildirishnomalarni yoqish yoki oʻchirish mumkin?</string>
   <string name="viewSiteInformationPopUp">Sayt haqida maʼlumot olish oynasini koʻrish</string>
-  <string name="lichessCanOptionnalySendPopUps">Lichess ixtiyoriy ravishda qalqib chiquvchi bildirishnomalarni yuborishi mumkin. Masalan, navbat sizga kelganda yoki shaxsiy xabar olganingizda.
+  <string name="lichessCanOptionnalySendPopUps">Lichess ixtiyoriy ravishda qalqib chiquvchi bildirishnomalarni yuborishi mumkin. Masalan, sizning galingiz kelganida yoki shaxsiy xabar olganingizda.
 
 Buning uchun brauzeringizning manzillar satridagi lichess.org manzili yonidagi joylashgan qulf belgisini bosing.
 

@@ -12,6 +12,7 @@ import lila.common.Json.given
 import lila.core.config.Secret
 import lila.core.data.Text
 import lila.core.id.ImageId
+import lila.mon.extensions.*
 import lila.memo.{ ImageAutomod, ImageAutomodRequest, Dimensions }
 import lila.memo.SettingStore.Text.given
 
@@ -59,7 +60,9 @@ final class Automod(
             "messages" -> Json.arr(
               Json.obj("role" -> "system", "content" -> systemPrompt.value),
               Json.obj("role" -> "user", "content" -> userText)
-            )
+            ),
+            "reasoning" -> Json.obj("enabled" -> false),
+            "response_format" -> Json.obj("type" -> "json_object")
           )
         ws.url(config.url)
           .withHttpHeaders(
@@ -107,7 +110,9 @@ final class Automod(
                   Json.obj("type" -> "image_url", "image_url" -> Json.obj("url" -> imageUrl))
                 )
               )
-            )
+            ),
+            "reasoning" -> Json.obj("enabled" -> false),
+            "response_format" -> Json.obj("type" -> "json_object")
           )
         ws.url(config.url)
           .withHttpHeaders(
@@ -124,7 +129,7 @@ final class Automod(
             lila.mon.mod.report.automod.imageFlagged(flagged).increment()
             flagged.option:
               res.str("reason") | "No reason provided"
-          .monSuccess(_.mod.report.automod.imageRequest)
+          .monSuccess(lila.mon.mod.report.automod.imageRequest)
           .recover:
             case err =>
               logger.error(err.getMessage, err)

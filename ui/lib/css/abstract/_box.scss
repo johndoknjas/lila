@@ -5,6 +5,7 @@
 /* helps with clipping background into border-radius */
 %box-radius-force {
   @extend %box-radius;
+
   overflow: hidden;
 }
 
@@ -60,6 +61,13 @@
 
 %box-shadow {
   @include box-shadow;
+}
+
+%box-bordered {
+  @extend %box-radius;
+  @include backdrop-blur-if-transparent;
+
+  border: $border;
 }
 
 %box-neat {

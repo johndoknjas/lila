@@ -26,8 +26,8 @@
   <string name="castlingDescription">Shohni xavfsiz joyga oʻtkazing va ruxni hujumga tayyorlang.</string>
   <string name="capturingDefender">Himoyachini yoʻq qilish</string>
   <string name="capturingDefenderDescription">Boshqa bir donani himoya qilayotgan muhim donani urib olish. Bu esa oʻsha himoyasiz qolgan donani keyingi yurishda qoʻlga kiritish imkonini beradi.</string>
-  <string name="collinearMove" comment="Description for this theme (translateable separately):&#10;Two opposing pieces face each other, and one slides along the line of attack without capturing the enemy piece.&#10;&#10;Collinear is a term that comes from the field of geometry: https://en.wiktionary.org/wiki/collinear">Chiziqli yurish</string>
-  <string name="collinearMoveDescription" comment="Description for the puzzle theme 'Collinear move' (translateable separately).">Ikki donasi bir‑biriga roʻbaroʻ kelgan holatda, bir dona dushman donasini urmasdan hujum chizigʻi boʻylab harakatlanadi.</string>
+  <string name="collinearMove">Chiziqli yurish</string>
+  <string name="collinearMoveDescription">Ikki donasi bir‑biriga roʻbaroʻ kelgan holatda, bir dona dushman donasini urmasdan hujum chizigʻi boʻylab harakatlanadi.</string>
   <string name="cornerMate">Burchak moti</string>
   <string name="cornerMateDescription">Rux yoki farzin yordamida shohni burchakka qamab, ot bilan mot qilish.</string>
   <string name="crushing">Mutlaq ustunlik</string>
@@ -43,7 +43,7 @@
   <string name="kingsideAttack">Shoh qanotidagi hujum</string>
   <string name="kingsideAttackDescription">Raqib shohi qisqa rokirovka qilganidan soʻng uyushtirilgan hujum.</string>
   <string name="clearance">Yoʻl ochish</string>
-  <string name="clearanceDescription">Navbatdagi taktik gʻoya uchun katak, liniya yoki diagonalni boʻshatish (koʻpincha tempo bilan).</string>
+  <string name="clearanceDescription">Navbatdagi taktik gʻoya uchun katak, liniya yoki diagonalni boʻshating (koʻpincha tempo bilan).</string>
   <string name="defensiveMove">Himoya yurishi</string>
   <string name="defensiveMoveDescription">Moddiy yoʻqotish yoki pozitsion ustunlikni boy bermaslik uchun zarur boʻlgan aniq yurish.</string>
   <string name="deflection">Chalgʻitish</string>
@@ -79,7 +79,7 @@
   <string name="swallowstailMateDescription">Tashqi koʻrinishi qaldirgʻoch dumiga yoki \"V\" shakliga oʻxshash boʻlgan mot turi.</string>
   <string name="triangleMate">Uchburchak mot</string>
   <string name="triangleMateDescription">Farzin va rux bitta gorizontal yoki vertikalda raqib shohidan bir katak uzoqlikda joylashadi. Ular oʻzaro bir katak masofa bilan ajralib, shoh bilan birga uchburchak shaklini hosil qiladi.</string>
-  <string name="vukovicMate">Vukovich moti</string>
+  <string name="vukovicMate" comment="This was previously &quot;Vukovic&quot;. It can be safely updated to &quot;Vuković&quot;">Vukovich moti</string>
   <string name="vukovicMateDescription">Rux va ot bilan beriladigan mot. Bunda rux boshqa bir dona himoyasi ostida yakuniy zarbani beradi, ot esa shohning qochish yoʻllarini toʻsib turadi.</string>
   <string name="knightEndgame">Ot endshpili</string>
   <string name="knightEndgameDescription">Faqat otlar va piyodalardan iborat endshpil.</string>
@@ -142,11 +142,11 @@
   <string name="veryLong">Juda uzun masala</string>
   <string name="veryLongDescription">Yutish uchun toʻrt yoki undan koʻproq yurish talab qilinadi.</string>
   <string name="xRayAttack">Rentgen</string>
-  <string name="xRayAttackDescription">Donaning raqib figurasi ortidagi katakka hujum qilishi yoki uni himoya qilishi.</string>
+  <string name="xRayAttackDescription">Donaning raqib donasi ortidagi katakka hujum qilishi yoki uni himoya qilishi.</string>
   <string name="zugzwang">Sugsvang</string>
   <string name="zugzwangDescription">Raqib yurish qilishga majbur boʻlgan, ammo har qanday yurish uning pozitsiyasini yomonlashtiradigan holat.</string>
   <string name="mix">Bir undan bir bundan</string>
-  <string name="mixDescription">Har turdan bir shingil. Oldinda nima kutayotganini bilmaysiz, shuning uchun har qanday holatga tayyor turasiz. Xuddi real oʻyindagi kabi!</string>
+  <string name="mixDescription">Har turdan bir shingil. Oldinda nima kutayotganini bilmaysiz, shuning uchun har qanday holatga tayyor turasiz! Haqiqiy oʻyindagi kabi!</string>
   <string name="playerGames">Oʻyinchilardan</string>
   <string name="playerGamesDescription">Oʻzingizning yoki boshqa oʻyinchilarning oʻyinlaridan olingan masalalarni topish.</string>
   <string name="puzzleDownloadInformation">Ushbu masalalar jamoat mulki hisoblanadi va ularni %s manzilidan yuklab olish mumkin.</string>

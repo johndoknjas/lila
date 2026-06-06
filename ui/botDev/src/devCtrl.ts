@@ -1,15 +1,16 @@
-import { RateBot, rateBotMatchup } from './rateBot';
-import type { BotInfo, LocalSpeed } from 'lib/bot/types';
-import { statusOf } from 'lib/game';
 import { defined, type Prop } from 'lib';
 import { shuffle } from 'lib/algo';
+import type { BotInfo, LocalSpeed } from 'lib/bot/types';
+import { statusOf } from 'lib/game';
 import { type ObjectStorage, objectStorage } from 'lib/objectStorage';
-import { storedBooleanProp } from 'lib/storage';
-import type { GameStatus, GameContext } from './localGame';
-import { env } from './devEnv';
-import { pubsub } from 'lib/pubsub';
 import { type PermaLog, makeLog } from 'lib/permalog';
+import { pubsub } from 'lib/pubsub';
+import { storedBooleanProp } from 'lib/storage';
+
+import { env } from './devEnv';
 import type { GameObserver } from './gameCtrl';
+import type { GameStatus, GameContext } from './localGame';
+import { RateBot, rateBotMatchup } from './rateBot';
 
 export type Result = {
   winner?: Color;
@@ -48,7 +49,7 @@ export class DevCtrl implements GameObserver {
 
   async init(): Promise<void> {
     this.resetScript();
-    [this.traceDb] = await Promise.all([makeLog({ store: 'botmove' }, 1), this.getStoredRatings()]);
+    [this.traceDb] = [makeLog({ store: 'botmove' }, 1), this.getStoredRatings()];
     pubsub.on('theme', env.redraw);
   }
 
@@ -56,7 +57,7 @@ export class DevCtrl implements GameObserver {
     return this.hurryProp() || (this.gameInProgress && env.bot.playing.some(x => 'level' in x));
   }
 
-  run(test?: Test, iterations: number = 1): boolean {
+  run(test?: Test, iterations = 1): boolean {
     if (test) {
       this.resetScript(test);
       this.script.games.push(...this.matchups(test, iterations));
