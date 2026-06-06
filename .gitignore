@@ -44,6 +44,7 @@ dependency-graph.png
 dump.rdb
 /.tmp/
 .venv
+*.deb
 
 RUNNING_PID
 instance.lock
