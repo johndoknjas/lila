@@ -40,7 +40,7 @@ object Dependencies:
     val bundle = Seq(munit)
 
   object chess:
-    val version = "17.15.5"
+    val version = "17.15.7"
     val org = "com.github.lichess-org.scalachess"
     // val org = "org.lichess" // for publishLocal
     val core = org %% "scalachess" % version
@@ -85,7 +85,7 @@ object Dependencies:
     def bundle = Seq(driver, stream)
 
   object play:
-    val playVersion = "2.8.18-lila_3.22"
+    val playVersion = "2.8.18-lila_3.23"
     val json = "org.playframework" %% "play-json" % "3.0.6"
     val api = "com.typesafe.play" %% "play" % playVersion
     val server = "com.typesafe.play" %% "play-server" % playVersion

@@ -111,7 +111,7 @@ export default class AnalyseCtrl implements CevalHandler {
   settings: SettingsCtrl;
   private readonly showCevalProp: Prop<boolean> = storedBooleanProp(
     'analyse.show-engine',
-    !!this.cevalEnabledProp(),
+    this.cevalEnabledProp(),
   );
   keyboardHelp: boolean = location.hash === '#keyboard';
   threatMode: Prop<boolean> = prop(false);
@@ -190,8 +190,7 @@ export default class AnalyseCtrl implements CevalHandler {
         ? new makeStudy(opts.study, this, (opts.tagTypes || '').split(','), opts.practice, opts.relay)
         : undefined;
 
-    if (location.hash === '#practice' || (this.study && this.study.data.chapter.practice))
-      this.togglePractice();
+    if (location.hash === '#practice' || this.study?.data.chapter.practice) this.togglePractice();
     else if (location.hash === '#menu') requestIdleCallbackSafe(this.actionMenu.toggle, 500);
     this.setCevalPracticeOpts();
     this.startCeval();
@@ -378,7 +377,7 @@ export default class AnalyseCtrl implements CevalHandler {
           color: movableColor,
           dests: (movableColor === color && dests) || new Map(),
         },
-        check: !!node.check(),
+        check: node.check(),
         lastMove: uciToMove(node.uci),
       };
     config.premovable = {
@@ -661,7 +660,7 @@ export default class AnalyseCtrl implements CevalHandler {
     return (this.cevalEnabled() && node.ceval) || (this.settings.showStaticAnalysis && node.eval);
   }
 
-  motifAllowed = (): boolean => this.study?.isCevalAllowed() !== false;
+  motifAllowed = (): boolean => this.study?.isCevalAllowed() !== false && !this.retro?.isSolving();
   motifEnabled = (): boolean => this.motifAllowed() && this.motif.supports(this.data.game.variant.key);
 
   promote(path: TreePath, toMainline: boolean): void {
@@ -759,7 +758,7 @@ export default class AnalyseCtrl implements CevalHandler {
 
   isCevalAllowed = () =>
     !this.ongoing &&
-    this.study?.isCevalAllowed() !== false &&
+    (!this.study || this.study.isCevalAllowed()) &&
     (this.synthetic || !playable(this.data)) &&
     !location.search.includes('evals=0');
 
@@ -810,7 +809,8 @@ export default class AnalyseCtrl implements CevalHandler {
 
   showMoveGlyphs = (): boolean => (this.study && !this.study.relay) || this.settings.showStaticAnalysis;
 
-  showMoveAnnotations = (): boolean => this.settings.showMoveAnnotationsOnBoard && this.showMoveGlyphs();
+  showMoveAnnotations = (): boolean =>
+    this.settings.showMoveAnnotationsOnBoard && !this.retro?.isSolving() && this.showMoveGlyphs();
 
   showEvalGauge(): boolean {
     return (

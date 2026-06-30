@@ -56,7 +56,6 @@ object HTTPRequest:
   def isLichobile(ua: UserAgent): Boolean = ua.value.contains("Lichobile/")
   def isLichobile(req: RequestHeader): Boolean = isLichobile(userAgent(req))
   def isAndroid = UaMatcher("Android")
-  def isLitools(req: RequestHeader) = userAgent(req) == UserAgent("litools")
   def lichessMobileVersion(ua: UserAgent): Option[LichessMobileVersion] =
     isLichessMobile(ua).so:
       for
@@ -70,6 +69,7 @@ object HTTPRequest:
 
   def origin(req: RequestHeader): Option[Origin] = Origin.from(req.headers.get(HeaderNames.ORIGIN))
   def referer(req: RequestHeader): Option[String] = req.headers.get(HeaderNames.REFERER)
+  def noReferer(req: RequestHeader): Boolean = referer(req).isEmpty
 
   def ipAddress(req: RequestHeader): IpAddress =
     IpAddress.unchecked(ipAddressStr(req))
@@ -131,6 +131,9 @@ object HTTPRequest:
   def acceptsJson(req: RequestHeader) = accepts(req).exists: a =>
     a == webXhrAccepts || a.startsWith("application/json") || startsWithLichobileAccepts(a)
   def acceptsCsv(req: RequestHeader) = accepts(req) contains "text/csv"
+  def acceptsMarkdown(using req: RequestHeader) =
+    accepts(req).contains("text/markdown") ||
+      queryStringGet("output_format").exists(f => f == "md" || f == "markdown")
   def isEventSource(req: RequestHeader): Boolean = accepts(req) contains "text/event-stream"
   def isProgrammatic(req: RequestHeader) =
     !isSynchronousHttp(req) || isFishnet(req) || isApi(req) || isPrometheus(req) ||

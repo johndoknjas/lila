@@ -8,7 +8,7 @@
     display: none;
   }
 
-  @media (max-width: at-most(600px)) and (hover: none) {
+  @media (max-width: at-most(600px)) {
     h2 {
       display: block;
     }
@@ -36,6 +36,8 @@
   display: flex;
   flex-wrap: wrap;
   justify-content: stretch;
+  touch-action: none;
+  -webkit-tap-highlight-color: transparent;
   gap: 2em;
 
   @media (max-width: at-most(600px)) {
@@ -116,13 +118,13 @@
     margin-inline: auto;
   }
 
-  @media (hover: hover) {
+  @include mq-has-hover {
     .help-button {
       display: none;
     }
   }
 
-  @media (hover: none) {
+  @include mq-no-hover {
     legend {
       display: none;
     }
@@ -130,7 +132,7 @@
 }
 
 .help-container,
-.popup {
+.setting-popup {
   fieldset:has(video, img) {
     align-items: center;
   }
@@ -151,8 +153,10 @@
   max-height: 300px;
 }
 
-.popup {
+.setting-popup {
   @extend %box-radius;
 
+  display: block;
+  touch-action: none;
   background: $c-bg-zebra2;
 }

@@ -28,6 +28,13 @@ final class GameProxyRepo(
   def gameIfPresentOrFetch(gameId: GameId): Fu[Option[Game]] =
     gameIfPresent(gameId).orElse(gameRepo.game(gameId))
 
+  def gamesIfPresentOrFetch(gameIds: Seq[GameId]): Fu[List[Game]] = for
+    proxied <- gameIds.traverse(gameIfPresentOrFetch).map(_.flatten)
+    foundIds = proxied.map(_.id).toSet
+    missingIds = gameIds.filterNot(foundIds)
+    fromDb <- gameRepo.gamesFromSecondary(missingIds)
+  yield proxied.toList ::: fromDb
+
   // get the proxied version of the game
   def upgradeIfPresent(game: Game): Fu[Game] =
     if game.finishedOrAborted then fuccess(game)
@@ -55,5 +62,5 @@ final class GameProxyRepo(
     try povs.sortWith(lila.game.Pov.priority)
     catch
       case e: IllegalArgumentException =>
-        lila.log("round").error(s"Could not sort urgent games of ${user.id}", e)
+        lila.round.logger.error(s"Could not sort urgent games of ${user.id}", e)
         povs.sortBy(-_.game.movedAt.toSeconds)
