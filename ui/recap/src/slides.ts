@@ -3,8 +3,8 @@ import { COLORS } from 'chessops';
 import { shuffle } from 'lib/algo';
 import perfIcons from 'lib/game/perfIcons';
 import { currencyFormat, numberFormat, percentFormat } from 'lib/i18n';
-import * as licon from 'lib/licon';
-import { onInsert, hl, type LooseVNodes, type VNode, spinnerVdom, iconCls } from 'lib/view';
+import { licon } from 'lib/licon';
+import { onInsert, hl, type LooseVNodes, type VNode, spinnerVdom, icon } from 'lib/view';
 import { fullName, userFlair, userTitle } from 'lib/view/userLink';
 
 import { pieceGrams, totalGames } from './constants';
@@ -317,7 +317,7 @@ export const patron = (opts: Opts): VNode =>
       ),
     ),
     hl('p', i18n.recap.patronCharity),
-    iconCls(licon.Wings, 'text'),
+    icon(licon.Wings)('.text'),
 
     opts.user.patron
       ? hl('p', i18n.patron.thankYou)
@@ -331,7 +331,7 @@ export const patron = (opts: Opts): VNode =>
 
 const renderPerf = (perf: RecapPerf): VNode => {
   return hl('span', [
-    iconCls(perfIcons[perf.key], 'text'),
+    icon(perfIcons[perf.key])('.text'),
     !perfIsSpeed(perf.key)
       ? i18n.variant[perf.key]
       : perf.key !== 'ultraBullet'

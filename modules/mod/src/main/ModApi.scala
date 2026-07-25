@@ -67,9 +67,8 @@ final class ModApi(
         sus = prev.set(_.withMarks(_.set(_.boost, v)))
         _ <- logApi.booster(sus, v)
       yield
-        if v then
-          Bus.pub(lila.core.mod.MarkBooster(sus.user.id))
-          notifier.reporters(me.modId, sus)
+        Bus.pub(lila.core.mod.MarkBooster(sus.user.id, v))
+        if v then notifier.reporters(me.modId, sus)
         sus
 
   def setTroll(prev: Suspect, value: Boolean)(using me: MyId): Fu[Suspect] =
@@ -130,7 +129,11 @@ final class ModApi(
 
   def setKid(mod: ModId, username: UserStr, v: KidMode): Funit =
     withUser(username): user =>
-      userApi.setKid(user, v).mapz(logApi.setKidMode(mod, user.id, _))
+      userApi
+        .setKid(user, v)
+        .flatMapz: mode =>
+          mode.yes.so(notifier.notifyKidMode(mod, user)) >>
+            logApi.setKidMode(mod, user.id, mode)
 
   def setTitle(username: UserStr, title: Option[PlayerTitle])(using Me): Funit =
     withUser(username): user =>
@@ -187,15 +190,17 @@ final class ModApi(
 
   def setRankban(sus: Suspect, v: Boolean)(using MyId): Funit =
     (sus.user.marks.rankban != v).so:
-      if v then Bus.pub(lila.core.mod.KickFromRankings(sus.user.id))
+      Bus.pub(lila.core.mod.RankBan(sus.user.id, v))
       userRepo.setRankban(sus.user.id, v) >> logApi.rankban(sus, v)
 
   def setArenaBan(sus: Suspect, v: Boolean)(using MyId): Funit =
     (sus.user.marks.arenaBan != v).so:
+      Bus.pub(lila.core.mod.ArenaBan(sus.user.id, v))
       userRepo.setArenaBan(sus.user.id, v) >> logApi.arenaBan(sus, v)
 
   def setPrizeban(sus: Suspect, v: Boolean)(using MyId): Funit =
     (sus.user.marks.prizeban != v).so:
+      Bus.pub(lila.core.mod.PrizeBan(sus.user.id, v))
       userRepo.setPrizeban(sus.user.id, v) >> logApi.prizeban(sus, v)
 
   def allMods =

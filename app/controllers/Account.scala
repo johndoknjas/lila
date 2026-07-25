@@ -119,14 +119,15 @@ final class Account(
   def apiNowPlaying = Scoped()(doNowPlaying)
 
   private def doNowPlaying(using ctx: Context)(using me: Me) =
-    env.round.proxyRepo
-      .urgentGames(me)
-      .map:
-        _.value.take((getInt("nb") | 9).atMost(50))
-      .map:
-        _.map(env.api.lobbyApi.nowPlaying)
-      .map: povs =>
-        Ok(Json.obj("nowPlaying" -> JsArray(povs)))
+    for
+      all <- env.round.proxyRepo.urgentGames(me)
+      selected = all.value.take((getInt("nb") | 9).atMost(50))
+      povs = selected.map(env.api.lobbyApi.nowPlaying)
+    yield Ok:
+      Json.obj(
+        "nowPlaying" -> JsArray(povs),
+        "nbMyTurn" -> all.value.count(_.isMyTurn)
+      )
 
   def dasher = Auth { _ ?=> me ?=>
     negotiateJson:
@@ -160,7 +161,7 @@ final class Account(
 
   private def refreshSessionId(result: Result, pwned: IsPwned)(using ctx: Context, me: Me): Fu[Result] = for
     _ <- env.security.store.closeAllSessionsOf(me)
-    _ <- env.push.webSubscriptionApi.unsubscribeByUser(me)
+    _ <- env.push.browserSub.unsubscribeByUser(me)
     _ <- env.push.unregisterDevices(me)
     sessionId <- env.security.api.saveAuthentication(me, ctx.mobileApiVersion, pwned)
   yield result.withCookies(env.security.lilaCookie.session(env.security.api.sessionIdKey, sessionId.value))
@@ -356,7 +357,7 @@ final class Account(
     else
       for
         _ <- env.security.store.closeUserAndSessionId(me, SessionId(sessionId))
-        _ <- env.push.webSubscriptionApi.unsubscribeBySession(SessionId(sessionId))
+        _ <- env.push.browserSub.unsubscribeBySession(SessionId(sessionId))
       yield NoContent
   }
 

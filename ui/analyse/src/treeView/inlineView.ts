@@ -1,4 +1,4 @@
-import type { Classes, Hooks } from 'snabbdom';
+import type { Classes } from 'snabbdom';
 
 import { isSafari } from 'lib/device';
 import { playable } from 'lib/game';
@@ -7,11 +7,11 @@ import { ops as treeOps, path as treePath } from 'lib/tree/tree';
 import type { TreeComment, TreeNode, TreePath } from 'lib/tree/types';
 import { type VNode, type LooseVNodes, hl } from 'lib/view';
 
-import type AnalyseCtrl from '../ctrl';
-import type { DiscloseState } from '../idbTree';
-import type { Conceal } from '../interfaces';
-import { authorText } from '../study/studyComments';
-import { renderMoveNodes, renderIndex } from '../view/components';
+import type AnalyseCtrl from '@/ctrl';
+import type { DiscloseState } from '@/idbTree';
+import type { Conceal } from '@/interfaces';
+import { authorText } from '@/study/studyComments';
+import { renderMoveNodes, renderIndex } from '@/view/components';
 
 export function renderInlineView(ctrl: AnalyseCtrl): VNode {
   const renderer = new InlineView(ctrl);
@@ -66,9 +66,9 @@ export class InlineView {
     if (!this.ctrl.showComments || !node.comments) return [];
     return node.comments
       .map(comment =>
-        this.ctrl.retro?.hideComputerLine(node) && this.isFishnetComment(comment)
+        this.ctrl.retro?.hideComputerLine(node) && this.isLichessComment(comment)
           ? hl('comment', i18n.site.learnFromThisMistake)
-          : (!this.isFishnetComment(comment) || this.ctrl.showFishnetAnalysis()) &&
+          : (!this.isLichessComment(comment) || this.ctrl.settings.showStaticAnalysis) &&
             hl('comment', {
               class: {
                 inaccuracy: comment.text.startsWith('Inaccuracy.'),
@@ -86,7 +86,7 @@ export class InlineView {
       .filter(Boolean);
   }
 
-  private isFishnetComment(comment: TreeComment): boolean {
+  private isLichessComment(comment: TreeComment): boolean {
     return comment.by === 'lichess' && comment.text.endsWith(' was best.');
   }
 
@@ -113,12 +113,12 @@ export class InlineView {
       this.moveNode(child, args),
       this.commentNodes(child),
       args.parenthetical && this.lines(siblings, args),
-      this.ctrl.disclosureMode() || child.children.length < 2 || childArgs.parenthetical
+      this.ctrl.settings.disclosureMode || child.children.length < 2 || childArgs.parenthetical
         ? this.sidelineNodes(child.children, childArgs)
         : this.lines(child.children, childArgs),
       !args.parenthetical && this.lines(siblings, args),
     ];
-    return this.ctrl.disclosureMode() && args.parentDisclose === 'expanded'
+    return this.ctrl.settings.disclosureMode && args.parentDisclose === 'expanded'
       ? hl('interrupt', sideline)
       : sideline;
   }
@@ -138,8 +138,10 @@ export class InlineView {
     return !third && second && !treeOps.hasBranching(second, 6);
   }
 
-  protected moveNode(node: TreeNode, args: Args): LooseVNodes {
-    const { conceal, isMainline, parentPath, parentNode, parentDisclose, parenthetical } = args;
+  protected moveNode(
+    node: TreeNode,
+    { conceal, isMainline, parentPath, parentNode, parentDisclose, parenthetical }: Args,
+  ): LooseVNodes {
     const { ctrl } = this;
     const path = parentPath + node.id;
     const currentPath =
@@ -164,8 +166,10 @@ export class InlineView {
       'pending-deletion': path.startsWith(ctrl.pendingDeletionPath() || ' '),
       'pending-copy': !!ctrl.pendingCopyPath()?.startsWith(path),
     };
-    const liveGlyph = ctrl.liveAnnotate.get(path);
-    const glyphs = liveGlyph ? [liveGlyph] : node.glyphs;
+    const glyphs = [...(node.glyphs ?? [])];
+    const liveGlyph = ctrl.liveAnnotate?.get(path);
+    if (liveGlyph && ctrl.settings.showLiveAnnotations && !glyphs.some(g => g.id <= this.glyphs.length))
+      glyphs.push(liveGlyph);
     if (ctrl.showMoveGlyphs()) {
       glyphs
         ?.map(g => this.glyphs[g.id - 1])
@@ -187,16 +191,19 @@ export class InlineView {
 
   protected disclosureConnector(parentPath: TreePath): LooseVNodes {
     const callback = (vnode: VNode) => this.connectToDisclosureBtn(vnode, parentPath);
-    const hook: Hooks = { insert: callback, update: v => setTimeout(() => callback(v)) };
     return (
-      this.ctrl.disclosureMode() &&
-      hl('div.disclosure-connector', { hook }, hl('div.disclosure-connector.riser'))
+      this.ctrl.settings.disclosureMode &&
+      hl(
+        'div.disclosure-connector',
+        { hook: { insert: callback, update: v => setTimeout(() => callback(v)) } },
+        hl('div.disclosure-connector.riser'),
+      )
     );
   }
 
   private disclosureBtn(node: TreeNode, path: TreePath): LooseVNodes {
     return (
-      this.ctrl.disclosureMode() &&
+      this.ctrl.settings.disclosureMode &&
       hl('a.disclosure', {
         class: { expanded: !node.collapsed },
         attrs: { 'data-path': path },

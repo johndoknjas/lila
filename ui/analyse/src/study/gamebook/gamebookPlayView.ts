@@ -1,6 +1,6 @@
-import * as licon from 'lib/licon';
+import { licon } from 'lib/licon';
 import { richHTML } from 'lib/richText';
-import { type VNode, iconTag, bind, dataIcon, hl, requiresI18n } from 'lib/view';
+import { type VNode, bind, dataIcon, hl, requiresI18n, icon } from 'lib/view';
 
 import GamebookPlayCtrl, { type State } from './gamebookPlayCtrl';
 
@@ -43,7 +43,7 @@ function renderFeedback(ctrl: GamebookPlayCtrl, state: State) {
     return hl(
       'button.feedback.act.bad' + (state.comment ? '.com' : ''),
       { attrs: { type: 'button' }, hook: bind('click', ctrl.retry) },
-      [iconTag(licon.Reload), hl('span', i18n.site.retry)],
+      [icon(licon.Reload)(), hl('span', i18n.site.retry)],
     );
   if (fb === 'good' && state.comment)
     return hl('button.feedback.act.good.com', { attrs: { type: 'button' }, hook: bind('click', ctrl.next) }, [

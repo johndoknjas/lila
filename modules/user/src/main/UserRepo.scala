@@ -348,12 +348,14 @@ final class UserRepo(c: Coll)(using Executor) extends lila.core.user.UserRepo(c)
       .void
 
   def reopen(id: UserId) =
-    coll.updateField($id(id), F.enabled, true) >>
+    coll.update.one(
+      $id(id),
+      $set(F.enabled -> true) ++ $unset(F.delete) ++ $pull(F.marks, UserMark.alt)
+    ) >>
       coll.update
         .one(
           $id(id) ++ $doc(F.email.$exists(false)),
-          $doc("$rename" -> $doc(F.prevEmail -> F.email)) ++
-            $doc("$unset" -> $doc(F.delete -> true))
+          $doc("$rename" -> $doc(F.prevEmail -> F.email))
         )
         .void
         .recover(lila.db.recoverDuplicateKey(_ => ()))
@@ -566,6 +568,9 @@ final class UserRepo(c: Coll)(using Executor) extends lila.core.user.UserRepo(c)
   def unsetFlairs(all: Set[(UserId, Flair)]): Funit = all.nonEmpty.so:
     all.toList.sequentiallyVoid: (userId, flair) =>
       coll.unsetField($id(userId) ++ $doc(BSONFields.flair -> flair), BSONFields.flair)
+
+  def unsetBio(id: UserId): Funit =
+    coll.unsetField($id(id), s"${F.profile}.bio").void
 
   def byIdAs[A: BSONDocumentReader](id: String, proj: Bdoc): Fu[Option[A]] =
     coll.one[A]($id(id), proj)

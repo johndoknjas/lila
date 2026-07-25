@@ -1,14 +1,14 @@
 import { Chessground as makeChessground } from '@lichess-org/chessground';
 import type { VNode } from 'snabbdom';
 
-import * as licon from 'lib/licon';
+import { licon } from 'lib/licon';
 import { pubsub } from 'lib/pubsub';
 import { makeCgOpts, povMessage } from 'lib/puz/run';
 import { getNow } from 'lib/puz/util';
 import { makeConfig as makeCgConfig } from 'lib/puz/view/chessground';
 import renderClock from 'lib/puz/view/clock';
 import { playModifiers, renderCombo } from 'lib/puz/view/util';
-import { onInsert, hl, iconTag } from 'lib/view';
+import { onInsert, hl, icon } from 'lib/view';
 
 import config from '../config';
 import type StormCtrl from '../ctrl';
@@ -24,31 +24,28 @@ export default function (ctrl: StormCtrl): VNode {
 
 const chessground = (ctrl: StormCtrl): VNode =>
   hl('div.cg-wrap', {
-    hook: {
-      insert: vnode => {
-        ctrl.ground(
-          makeChessground(
-            vnode.elm as HTMLElement,
-            makeCgConfig(makeCgOpts(ctrl.run, !ctrl.run.endAt, ctrl.flipped), ctrl.pref, ctrl.userMove),
-          ),
-        );
-        pubsub.on('board.change', (is3d: boolean) =>
-          ctrl.withGround(g => {
-            g.state.addPieceZIndex = is3d;
-            g.redrawAll();
-          }),
-        );
-      },
-    },
+    hook: onInsert(el => {
+      ctrl.ground(
+        makeChessground(
+          el,
+          makeCgConfig(makeCgOpts(ctrl.run, !ctrl.run.endAt, ctrl.flipped), ctrl.pref, ctrl.userMove),
+        ),
+      );
+      pubsub.on('board.change', (is3d: boolean) =>
+        ctrl.withGround(g => {
+          g.state.addPieceZIndex = is3d;
+          g.redrawAll();
+        }),
+      );
+    }),
   });
 
 const renderBonus = (bonus: number) => `${bonus}s`;
 
 const renderPlay = (ctrl: StormCtrl): VNode[] => {
   const run = ctrl.run;
-  const malus = run.modifier.malus;
-  const bonus = run.modifier.bonus;
   const now = getNow();
+  const { malus, bonus } = run.modifier;
   return [
     hl('div.puz-board.main-board', [chessground(ctrl), ctrl.promotion.view()]),
     hl('div.puz-side', [
@@ -64,8 +61,8 @@ const renderPlay = (ctrl: StormCtrl): VNode[] => {
   ];
 };
 
-const renderSolved = (ctrl: StormCtrl): VNode =>
-  hl('div.puz-side__top.puz-side__solved', [hl('div.puz-side__solved__text', `${ctrl.countWins()}`)]);
+const renderSolved = ({ countWins }: StormCtrl): VNode =>
+  hl('div.puz-side__top.puz-side__solved', [hl('div.puz-side__solved__text', `${countWins()}`)]);
 
 const renderControls = (ctrl: StormCtrl): VNode =>
   hl('div.puz-side__control', [
@@ -90,7 +87,7 @@ const renderStart = () =>
 
 const renderReload = (text: string) =>
   hl('div.storm.storm--reload.box.box-pad', [
-    iconTag(licon.Storm),
+    icon(licon.Storm)(),
     hl('p', text),
     hl('a.storm--dup__reload.button', { attrs: { href: '/storm' } }, i18n.storm.clickToReload),
   ]);

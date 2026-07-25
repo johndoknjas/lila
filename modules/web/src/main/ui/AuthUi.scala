@@ -76,16 +76,18 @@ final class AuthUi(helpers: Helpers):
               div(cls := "password-reset")(
                 a(href := routes.Auth.passwordReset)(trans.site.passwordReset())
               ),
-              div(cls := "login-remember form-check__container")(
-                form3.nativeCheckbox(
-                  "login-remember-me",
-                  "remember",
-                  checked = isRememberMe
-                ),
-                label(cls := "form-label", `for` := "login-remember-me")(
-                  trans.site.rememberMe()
+              if custom.isEmpty then
+                div(cls := "login-remember form-check__container")(
+                  form3.nativeCheckbox(
+                    "login-remember-me",
+                    "remember",
+                    checked = isRememberMe
+                  ),
+                  label(cls := "form-label", `for` := "login-remember-me")(
+                    trans.site.rememberMe()
+                  )
                 )
-              )
+              else form3.hidden("remember", isRememberMe)
             ),
             div(cls := "two-factor none")(
               form3.group(
@@ -101,7 +103,7 @@ final class AuthUi(helpers: Helpers):
               ),
               p(cls := "error none")("Invalid code.")
             ),
-            turnstile.widget(explicit = true),
+            turnstile.widget(hidden = true),
             turnstile.submit(trans.site.signIn())(testId("login-submit"))
           ),
           div(cls := "or-separator")(span(trans.site.orSeparator())),
@@ -188,7 +190,7 @@ final class AuthUi(helpers: Helpers):
               )
             ,
             agreement(form("agreement"), form.errors.exists(_.key.startsWith("agreement."))),
-            simple.not.option(turnstile.widget(explicit = true)),
+            simple.not.option(turnstile.widget(hidden = true)),
             turnstile.submit(trans.site.signUp()),
             simple.option(small(cls := "form-help")(tosLink))
           )
@@ -256,7 +258,10 @@ final class AuthUi(helpers: Helpers):
           )
         )
 
-  def signupConfirm(user: User, token: String)(using Context, Option[ValidReferrer]) =
+  def signupConfirm(
+      user: User,
+      token: String
+  )(using Context, Option[ValidReferrer]) =
     Page(trans.site.signUp.txt())
       .css("bits.email-confirm"):
         main(cls := "page-small box box-pad signup-confirm")(
@@ -408,7 +413,7 @@ final class AuthUi(helpers: Helpers):
     )
 
   private def agreement(form: play.api.data.Field, error: Boolean)(using Context) =
-    div(cls := "agreement")(
+    div(cls := "form-group agreement")(
       error.option(p:
         strong(cls := "error"):
           "You must agree to the Lichess policies listed below:"),

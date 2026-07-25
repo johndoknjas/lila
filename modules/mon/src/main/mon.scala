@@ -84,8 +84,7 @@ object mongoCache:
   def compute(name: String) = timer("mongocache.compute").withTag("name", name)
 object evalCache:
   private val r = counter("evalCache.request")
-  def request(ply: Int, isHit: Boolean) =
-    r.withTags(tags("ply" -> (if ply < 15 then ply.toString else "15+"), "hit" -> isHit))
+  def request(isHit: Boolean) = r.withTag("hit", isHit)
   object upgrade:
     val count = counter("evalCache.upgrade.count").withoutTags()
     val members = gauge("evalCache.upgrade.members").withoutTags()
@@ -255,6 +254,11 @@ object user:
   def weeklyStableRanking(perf: PerfKey) = future("user.weeklyStableRanking", perf.value)
 object actor:
   def queueSize(name: String) = gauge("trouper.queueSize").withTag("name", name)
+object appeal:
+  private val unreadGauge = gauge("appeal.unread")
+  def unreadByTopic(list: Map[lila.core.misc.AppealTopic, Int]) =
+    list.map: (topic, count) =>
+      unreadGauge.withTag("topic", topic.key).update(count)
 object mod:
   def queueStatus(room: String, score: Int) =
     gauge("mod.queueStatus").withTags:
@@ -319,6 +323,8 @@ object relay:
     histogram("relay.push.errors").withTags(histogramTags).record(errors)
     counter("relay.push.games.nb").withTags(counterTags).increment(games)
     counter("relay.push.moves.nb").withTags(counterTags).increment(moves)
+  object listing:
+    def time(section: String) = timer("relay.listing.time").withTag("section", section)
 
 object bot:
   def moves(username: String) = counter("bot.moves").withTag("name", username)
@@ -443,8 +449,8 @@ object tournament:
         "client" -> client
       )
   def withdrawableIds(reason: String) = future("tournament.withdrawableIds", reason)
-  def action(tourId: String, action: String) =
-    timer("tournament.api.action").withTags(tags("tourId" -> tourId, "action" -> action))
+  def action(action: String) =
+    timer("tournament.api.action").withTags(tags("action" -> action))
   object notifier:
     def tournaments = counter("tournament.notify.tournaments").withoutTags()
     def players = counter("tournament.notify.players").withoutTags()
@@ -666,6 +672,7 @@ object fishnet:
     val evalCacheHits = histogram("fishnet.analysis.evalCacheHits").withoutTags()
     val skipPositionsGame = future("fishnet.analysis.skipPositions.game")
     val skipPositionsStudy = future("fishnet.analysis.skipPositions.study")
+    def sameHash(tpe: "game" | "study") = counter("fishnet.analysis.sameHash").withTag("type", tpe)
   object http:
     def request(hit: Boolean) = counter("fishnet.http.acquire").withTag("hit", hit)
   def move(level: Int) = counter("fishnet.move.time").withTag("level", level)
@@ -682,6 +689,8 @@ object study:
     val write = timer("study.tree.write").withoutTags()
   object sequencer:
     val chapterTime = timer("study.sequencer.chapter.time").withoutTags()
+  object pgn:
+    val time = timer("study.pgn.time").withoutTags()
 object api:
   val users = counter("api.cost").withTag("endpoint", "users")
   val activity = counter("api.cost").withTag("endpoint", "activity")
@@ -693,6 +702,9 @@ object `export`:
   object png:
     val game = counter("export.png").withTag("type", "game")
     val puzzle = counter("export.png").withTag("type", "puzzle")
+object analyse:
+  object annotator:
+    val addEvalsTime = timer("analyse.annotator.addEvalsTime").withoutTags()
 object bus:
   val classifiers = gauge("bus.classifiers").withoutTags()
 object blocking:
@@ -734,6 +746,9 @@ object signedClient:
       counter(s"signedClient.$name.step").withTags(tags("client" -> client, "step" -> s))
     def failure(reason: String)(client: String) =
       counter(s"signedClient.$name.failure").withTags(tags("client" -> client, "reason" -> reason))
+    def alreadyLoggedIn(client: String, loggedIn: Boolean) =
+      counter(s"signedClient.$name.alreadyLoggedIn").withTags:
+        tags("client" -> client, "loggedIn" -> loggedIn)
   val login = AuthPage("login")
   val signup = AuthPage("signup")
 

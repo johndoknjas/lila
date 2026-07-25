@@ -205,7 +205,8 @@ final class ClasApi(
           .cursor[Clas](ReadPref.sec)
           .list(100)
         _ = inactiveClasses.nonEmptyOption.foreach: classes =>
-          logger.info(s"Archiving ${classes.size} inactive classes: ${classes.map(_.id).mkString(", ")}")
+          lila.log.system.info:
+            s"Archiving ${classes.size} inactive classes: ${classes.map(_.id).mkString(", ")}"
         _ <- inactiveClasses.sequentiallyVoid: from =>
           for
             clas <- doArchiveOnly(from, true)(using UserId.lichessAsMe)
@@ -386,7 +387,9 @@ You can re-open it at ${routeUrl(routes.Clas.show(clas.id))}"""
         _ = teamSync(clas)
       yield newStudents
 
-    def resetPassword(s: Student): Fu[ClearPassword] =
+    def resetPassword(s: Student)(using me: Me): Fu[ClearPassword] =
+      lila.log.system.info:
+        s"Reset password for student ${s.userId} in class ${s.clasId} by teacher ${me.username}"
       val password = Student.password.generate()
       authenticator.setPassword(s.userId, password).inject(password)
 

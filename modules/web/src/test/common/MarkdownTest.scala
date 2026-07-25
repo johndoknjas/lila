@@ -1,7 +1,8 @@
-package lila.common
+package lila.markdown
 
 import chess.format.pgn.PgnStr
 
+import lila.core.lilaism.Lilaism.*
 import lila.core.config.{ AssetDomain, NetDomain }
 import lila.core.misc.lpv.LpvEmbed
 
@@ -250,5 +251,13 @@ Line 2""")
       )
     )
 
-  test("&amp emoji"):
+  test("remove html entities"):
+    val render: Markdown => Html =
+      new MarkdownRender(removeHtmlEntities = true)("test")
+    assertEquals(render(Markdown("&#128512;")), Html("<p>#128512</p>\n"))
+    assertEquals(render(Markdown("&#x1F605; &#x1F4A7; &#129327;")), Html("<p>#x1F605 #x1F4A7 #129327</p>\n"))
+
+  test("keep html entities"):
+    val render: Markdown => Html =
+      new MarkdownRender(removeHtmlEntities = false)("test")
     assertEquals(render(Markdown("&#128512;")), Html("<p>&#128512;</p>\n"))

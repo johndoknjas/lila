@@ -188,8 +188,8 @@ private final class RelayPlayerApi(
   def jsonList(tourId: RelayTourId): Fu[JsonStr] =
     relayGroupApi.scoreGroupOf(tourId).flatMap(jsonCache.get)
 
-  private val photosJsonCache = cacheApi[RelayTourId, PhotosJson](64, "relay.players.photos.json"):
-    _.expireAfterWrite(15.seconds).buildAsyncFuture: tourId =>
+  private val photosJsonCache = cacheApi[RelayTourId, PhotosJson](256, "relay.players.photos.json"):
+    _.expireAfterWrite(20.seconds).buildAsyncFuture: tourId =>
       for
         sg <- relayGroupApi.scoreGroupOf(tourId)
         studyIds <- sg.toList.flatTraverse(roundRepo.studyIdsOf)
@@ -245,18 +245,13 @@ private final class RelayPlayerApi(
             .to(SeqMap)
         yield withRank
 
-  private def sgIsParallel(tours: List[RelayTour]): Boolean =
-    tours.headOption
-      .flatMap(_.dates.map(_.start))
-      .exists: firstStart =>
-        tours.tailOption.exists(_.forall(_.dates.map(_.start).exists(_.isBefore(firstStart.plusMinutes(20)))))
-
   private def readGamesAndPlayers(tourIds: List[RelayTourId]): Fu[RelayPlayers] =
     for
       tours <- tourRepo.byIds(tourIds)
       toursById = tours.mapBy(_.id)
       rounds <-
-        if sgIsParallel(tours) then roundRepo.byToursOrdered(tourIds)
+        if RelayGroup.sgIsParallel(tours)
+        then roundRepo.byToursOrdered(tourIds).map(_.sortBy(_.startsAtTime))
         else tourIds.flatTraverse(roundRepo.byTourOrdered)
       roundsById = rounds.mapBy(_.id)
       chapters <- chapterRepo.tagsByStudyIds(rounds.map(_.studyId))

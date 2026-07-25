@@ -32,13 +32,13 @@ export default function (ctrl: AnalyseCtrl, color: Color, position: Position) {
       let nb = pocket[role] || 0;
       if (activeColor) {
         if (dropped === role) nb--;
-        if (captured && captured.role === role) nb++;
+        if (captured?.role === role) nb++;
       }
       return h(
         'div.pocket-c1',
         h(
           'div.pocket-c2',
-          h('piece.' + role + '.' + color, {
+          h(`piece.${role}.${color}`, {
             attrs: { 'data-role': role, 'data-color': color, 'data-nb': nb },
           }),
         ),

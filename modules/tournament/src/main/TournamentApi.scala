@@ -7,6 +7,7 @@ import com.roundeights.hasher.Algo
 import play.api.libs.json.*
 import scalalib.paginator.Paginator
 import scalalib.Debouncer
+import scalalib.model.Minutes
 import chess.{ IntRating, ByColor }
 import alleycats.Zero
 
@@ -43,7 +44,8 @@ final class TournamentApi(
     waitingUsers: WaitingUsersApi,
     cacheApi: lila.memo.CacheApi,
     lightUserApi: lila.core.user.LightUserApi,
-    ircApi: lila.irc.IrcApi
+    ircApi: lila.core.irc.IrcApi,
+    teamApi: lila.core.team.TeamApi
 )(using scheduler: Scheduler)(using
     Executor,
     akka.actor.ActorSystem,
@@ -178,7 +180,7 @@ final class TournamentApi(
         .result)
 
   private def featureOneOf(tour: Tournament, pairings: List[Pairing.WithPlayers], ranking: Ranking): Funit =
-    tour.featuredId
+    tour.featured
       .ifTrue(pairings.nonEmpty)
       .so(pairingRepo.byId)
       .map2(RankedPairing(ranking))
@@ -240,6 +242,7 @@ final class TournamentApi(
               callbacks.clearWinnersCache(tour)
               callbacks.clearTrophyCache(tour)
               duelStore.remove(tour)
+              notifyPayoutWinners(tour).logFailure(logger, _ => s"${tour.id} notifyPayoutWinners")
     }
 
   private[tournament] val killSchedule = scala.collection.mutable.Set.empty[TourId]
@@ -266,6 +269,21 @@ final class TournamentApi(
             case rp if rp.rank <= 100 =>
               trophyApi.award(tournamentUrl(tour.id), rp.player.userId, marathonTopHundred)
             case rp => trophyApi.award(tournamentUrl(tour.id), rp.player.userId, marathonTopFivehundred)
+
+  private def notifyPayoutWinners(tour: Tournament): Funit =
+    import lila.tournament.Tournament.tournamentUrl
+    import lila.core.msg.PayoutMessages
+    tour.payouts.so: payouts =>
+      for userIds <-
+          if tour.isTeamBattle then
+            for
+              rankedTeams <- cached.battle.teamStanding.get(tour.id)
+              owners <- rankedTeams.take(payouts.nbWinners).traverse(rt => teamApi.creatorOf(rt.teamId))
+            yield owners.flatten
+          else
+            for players <- playerRepo.bestByTour(tour.id, payouts.nbWinners)
+            yield players.map(_.userId)
+      yield Bus.pub(PayoutMessages(userIds, tour.name, tournamentUrl(tour.id)))
 
   def getVerdicts(tour: Tournament, playerExists: Boolean)(using
       GetMyTeamIds
@@ -297,7 +315,7 @@ final class TournamentApi(
           else if me.marks.prizeban && tour.prizeInDescription then fuccess(JoinResult.PrizeBanned)
           else if prevPlayer.isEmpty && !initialJoin.hit(
               me.userId,
-              cost = if asLeader then 0 else if tour.byLichess then 1 else 2
+              cost = if asLeader || tour.createdBy.is(me) then 0 else if tour.byLichess then 1 else 2
             )
           then fuccess(JoinResult.RateLimited)
           else if prevPlayer.nonEmpty || tour.password.forall: p =>
@@ -642,7 +660,7 @@ final class TournamentApi(
   def notableFinished = cached.notableFinishedCache.get {}
 
   private def scheduledCreatedAndStarted =
-    tournamentRepo.scheduledCreated(6 * 60).zip(tournamentRepo.scheduledStarted)
+    tournamentRepo.scheduledCreated(Minutes(6 * 60)).zip(tournamentRepo.scheduledStarted)
 
   // when loading /tournament
   def fetchVisibleTournaments: Fu[VisibleTournaments] =
@@ -789,7 +807,7 @@ final class TournamentApi(
   )(run: Tournament => Fu[A]): Fu[A] =
     fetch(tourId).flatMapz { tour =>
       if tour.nbPlayers > 3000
-      then run(tour).chronometer.mon(lila.mon.tournament.action(tourId.value, action)).result
+      then run(tour).chronometer.mon(lila.mon.tournament.action(action)).result
       else run(tour)
     }
 

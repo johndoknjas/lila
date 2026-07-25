@@ -271,15 +271,15 @@ final class AccessTokenApi(
       lila.mon.security.secretScanning(scan.`type`, scan.source, compromised.isDefined).increment()
       compromised match
         case Some(token) =>
-          logger.branch("github").info(s"revoking token ${token.plain} for user ${token.userId}")
+          logger.info(s"github revoking token ${token.plain} for user ${token.userId}")
           revoke(token.plain).inject((token, scan.url).some)
         case None =>
-          logger.branch("github").info(s"ignoring token ${scan.token}")
+          logger.info(s"github ignoring token ${scan.token}")
           fuccess(none)
   yield res.flatten
 
   private val accessTokenCache =
-    cacheApi[AccessTokenId, Option[AccessToken.ForAuth]](8_192, "oauth.access_token"):
+    cacheApi[AccessTokenId, Option[AccessToken.ForAuth]](16_384, "oauth.access_token"):
       _.expireAfterWrite(5.minutes).buildAsyncFuture(fetchAccessToken)
 
   private def fetchAccessToken(id: AccessTokenId): Fu[Option[AccessToken.ForAuth]] =

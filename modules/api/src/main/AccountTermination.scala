@@ -82,7 +82,7 @@ final class AccountTermination(
     _ <- seekApi.removeByUser(u)
     _ <- securityStore.closeAllSessionsOf(u.id)
     _ <- selfClose.so(tokenApi.revokeAllByUser(u.id))
-    _ <- pushEnv.webSubscriptionApi.unsubscribeByUser(u)
+    _ <- pushEnv.browserSub.unsubscribeByUser(u)
     _ <- pushEnv.unregisterDevices(u)
     _ <- streamerApi.demote(u.id)
     reports <- reportApi.processAndGetBySuspect(lila.report.Suspect(u))
@@ -125,7 +125,7 @@ final class AccountTermination(
       fufail[Unit](s"Cannot delete essential account ${u.username}")
     playbanned <- playbanApi.hasCurrentPlayban(u.id)
     tos = u.marks.dirty || playbanned
-    _ = logger.info(s"Deleting user ${u.username} tos=$tos")
+    _ = lila.log.system.info(s"Deleting user ${u.username} tos=$tos")
     _ <- if tos then userRepo.delete.nowWithTosViolation(u) else userRepo.delete.nowFully(u)
     _ <- activityWrite.deleteAll(u)
     singlePlayerGameIds <- gameRepo.deleteAllSinglePlayerOf(u.id)
@@ -143,13 +143,16 @@ final class AccountTermination(
     // a lot of deletion is done by modules listening to the following event:
     Bus.pub(lila.core.user.UserDelete(u))
 
-  private def deleteAllGameChats(u: User) = gameRepo
-    .docCursor(lila.game.Query.user(u.id), $id(true).some)
-    .documentSource()
-    .mapConcat(_.getAsOpt[GameId]("_id").toList)
-    .grouped(100)
-    .mapAsync(1)(ids => chatApi.userChat.removeMessagesBy(ids, u.id))
-    .run()
+  def deleteAllGameChats(u: User) =
+    import lila.game.Query
+    import lila.core.game.Source.*
+    gameRepo
+      .docCursor(Query.user(u.id) ++ Query.sourceIn(List(Lobby, Pool, Friend, Api)), $id(true).some)
+      .documentSource()
+      .mapConcat(_.getAsOpt[GameId]("_id").toList)
+      .grouped(100)
+      .mapAsync(1)(ids => chatApi.userChat.removeMessagesBy(ids, u.id))
+      .run()
 
   private val isEssential: Set[UserId] =
     Set(

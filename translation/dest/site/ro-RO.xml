@@ -157,9 +157,9 @@
     <item quantity="other">%s de gafe</item>
   </plurals>
   <plurals name="numberBlunders">
-    <item quantity="one">O Gafă</item>
+    <item quantity="one">%s Gafă</item>
     <item quantity="few">%s Gafe</item>
-    <item quantity="other">%s de Gafe</item>
+    <item quantity="other">%s Gafe</item>
   </plurals>
   <plurals name="nbMistakes">
     <item quantity="one">o greșeală</item>
@@ -167,9 +167,9 @@
     <item quantity="other">%s de greșeli</item>
   </plurals>
   <plurals name="numberMistakes">
-    <item quantity="one">O Greșeală</item>
+    <item quantity="one">%s Greșeală</item>
     <item quantity="few">%s Greșeli</item>
-    <item quantity="other">%s de Greșeli</item>
+    <item quantity="other">%s Greșeli</item>
   </plurals>
   <plurals name="nbInaccuracies">
     <item quantity="one">o inexactitate</item>
@@ -177,9 +177,9 @@
     <item quantity="other">%s de inexactități</item>
   </plurals>
   <plurals name="numberInaccuracies">
-    <item quantity="one">O Inexactitate</item>
+    <item quantity="one">%s Inexactitate</item>
     <item quantity="few">%s Inexactități</item>
-    <item quantity="other">%s de Inexactități</item>
+    <item quantity="other">%s Inexactități</item>
   </plurals>
   <string name="moveTimes">Timpii de mutare</string>
   <string name="flipBoard">Rotiţi tabla</string>
@@ -855,6 +855,11 @@
   <string name="quickPairing">Potrivire rapidă</string>
   <string name="lobby">Lobby</string>
   <string name="anonymous">Anonim</string>
+  <plurals name="nbAnonymous">
+    <item quantity="one">Anonim</item>
+    <item quantity="few">Anonimi (%s)</item>
+    <item quantity="other">Anonimi (%s)</item>
+  </plurals>
   <string name="yourScore">Scorul tău: %s</string>
   <string name="language">Limbă</string>
   <string name="allLanguages">Orice limbă</string>
@@ -1059,7 +1064,7 @@ Lăsați gol pentru a începe jocurile din poziția inițială normală.</string
   <string name="gameInProgress">Ai un joc în desfășurare cu %s.</string>
   <string name="abortTheGame">Abandonează jocul</string>
   <string name="resignTheGame">Cedează jocul</string>
-  <string name="youCantStartNewGame">Nu poți începe un joc nou până când acesta nu se termină.</string>
+  <string name="youCantStartNewGame" comment="Appears when trying to start a new game and it is your turn in an active game.&#10;This logic does not apply to correspondence games.&#10;Note that it is possible to start a new game while it is your opponent's turn.">Nu poți începe un joc nou în timp ce este rândul tău.</string>
   <string name="since">De la</string>
   <string name="until">Până la</string>
   <string name="lichessDbExplanation">Partide evaluate obținute de la toți jucătorii Lichess</string>
@@ -1083,4 +1088,5 @@ Toate costurile de operare și de dezvoltare sunt finanțate doar din donațiile
   <string name="thereAreNoResultsForX">Niciun rezultat pentru \"%s\"</string>
   <string name="tags">Etichete</string>
   <string name="enPassant">En passant legale</string>
+  <string name="settings">Setări</string>
 </resources>

@@ -2,7 +2,8 @@ package lila.memo
 
 import scalalib.future.TimeoutException
 
-import lila.common.{ Bus, Markdown, MarkdownRender, MarkdownToastUi }
+import lila.common.Bus
+import lila.markdown.{ MarkdownRender, MarkdownToastUi }
 import lila.mon.extensions.*
 import lila.core.config
 import lila.core.misc.lpv.{ LpvEmbed, Lpv as LpvBus }
@@ -18,7 +19,8 @@ case class MarkdownOptions(
     timestamp: Boolean = false,
     maxPgns: Max = Max(0),
     toastUi: Boolean = false,
-    sourceMap: Boolean = false
+    sourceMap: Boolean = false,
+    removeHtmlEntities: Boolean = false
 )
 
 final class MarkdownCache(
@@ -89,6 +91,7 @@ final class MarkdownCache(
         timestamp = opts.timestamp,
         table = opts.table,
         sourceMap = opts.sourceMap,
+        removeHtmlEntities = opts.removeHtmlEntities,
         pgnExpand = pgnCache.expand.some,
         assetDomain = assetDomain.some
       )
@@ -100,7 +103,7 @@ final class MarkdownCache(
         if opts.toastUi then toastUiProcessor(key, opts)(text)
         else getRenderer(opts)(key)(text)
       .mon(lila.mon.markdown.time)
-      .logIfSlow(50, logger.branch(key))(_ => s"slow markdown size:${text.value.size}")
+      .logIfSlow(50, logger)(_ => s"slow markdown size: $key ${text.value.size}")
       .result
 
   private def toastUiProcessor(key: RenderKey, opts: MarkdownOptions): Markdown => Html =

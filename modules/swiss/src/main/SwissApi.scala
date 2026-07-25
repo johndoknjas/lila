@@ -16,7 +16,7 @@ import lila.core.swiss.{ IdName, SwissFinish }
 import lila.core.userId.UserSearch
 import lila.mon.extensions.*
 import lila.db.dsl.{ *, given }
-import lila.gathering.Condition.WithVerdicts
+import lila.gathering.Condition.{ WithVerdicts, AllowList }
 import lila.gathering.GreatPlayer
 
 final class SwissApi(
@@ -69,6 +69,7 @@ final class SwissApi(
         nbRounds = data.nbRounds,
         rated = chess.Rated(data.isRated && data.realPosition.isEmpty),
         description = data.description,
+        payouts = data.payouts,
         position = data.realPosition,
         chatFor = data.realChatFor,
         roundInterval = data.realRoundInterval,
@@ -102,6 +103,7 @@ final class SwissApi(
             nbRounds = data.nbRounds,
             rated = data.rated.getOrElse(old.settings.rated).map(_ && position.isEmpty),
             description = data.description.orElse(old.settings.description),
+            payouts = data.payouts,
             position = position,
             chatFor = data.chatFor | old.settings.chatFor,
             roundInterval =
@@ -118,8 +120,11 @@ final class SwissApi(
           then s.copy(nextRoundAt = nowInstant.plusSeconds(s.settings.roundInterval.toSeconds.toInt).some)
           else if s.settings.manualRounds && !old.settings.manualRounds then s.copy(nextRoundAt = none)
           else s
+      val allowListChanged = swiss.settings.conditions.allowList.filter: al =>
+        old.settings.conditions.allowList.forall(_ != al)
       for
         _ <- mongo.swiss.update.one($id(old.id), addFeaturable(swiss))
+        _ <- allowListChanged.so(kickMissingFromAllowList(swiss, _))
         _ <- (swiss.perfType != old.perfType).so(recomputePlayerRatings(swiss))
       yield
         cache.swissCache.clear(swiss.id)
@@ -384,20 +389,31 @@ final class SwissApi(
   private def kickFromSwissIds(userId: UserId, swissIds: List[SwissId], forfeit: Boolean = false): Funit =
     swissIds.sequentiallyVoid(withdraw(_, userId, forfeit))
 
+  private def kickMissingFromAllowList(swiss: Swiss, allowList: AllowList): Funit = swiss.isNotFinished.so:
+    for
+      playerIds <- mongo.player.distinct[UserId, List]("u", $doc(SwissPlayer.Fields.swissId -> swiss.id).some)
+      users <- lightUserApi.asyncManyFallback(playerIds)
+      kicks = users.filterNot(allowList.allows).toList.map(_.id)
+      _ <- kicks.sequentiallyVoid(withdrawNotSequenced(swiss, _, forfeit = false))
+    yield if kicks.nonEmpty then recomputeAndUpdateAll(swiss.id)
+
   def withdraw(id: SwissId, userId: UserId, forfeit: Boolean = false): Funit =
-    Sequencing(id)(cache.swissCache.notFinishedById): swiss =>
-      SwissPlayer.fields: f =>
-        val selId = $id(SwissPlayer.makeId(swiss.id, userId))
-        if swiss.isStarted then
-          mongo.player.updateField(selId, f.absent, true) >>
-            forfeit.so { forfeitPairings(swiss, userId) }
-        else
-          mongo.player.delete.one(selId).flatMap { res =>
-            (res.n == 1).so:
-              for _ <- mongo.swiss.incField($id(swiss.id), Swiss.Fields.nbPlayers, -1)
-              yield cache.swissCache.clear(swiss.id)
-          }
+    Sequencing(id)(cache.swissCache.notFinishedById):
+      withdrawNotSequenced(_, userId, forfeit)
     .void >> recomputeAndUpdateAll(id)
+
+  private def withdrawNotSequenced(swiss: Swiss, userId: UserId, forfeit: Boolean): Funit =
+    SwissPlayer.fields: f =>
+      val selId = $id(SwissPlayer.makeId(swiss.id, userId))
+      if swiss.isStarted then
+        mongo.player.updateField(selId, f.absent, true) >>
+          forfeit.so { forfeitPairings(swiss, userId) }
+      else
+        mongo.player.delete.one(selId).flatMap { res =>
+          (res.n == 1).so:
+            for _ <- mongo.swiss.incField($id(swiss.id), Swiss.Fields.nbPlayers, -1)
+            yield cache.swissCache.clear(swiss.id)
+        }
 
   private def forfeitPairings(swiss: Swiss, userId: UserId): Funit =
     SwissPairing.fields: F =>
@@ -498,12 +514,25 @@ final class SwissApi(
     systemChat(swiss.id, s"Tournament completed!")
     cache.swissCache.clear(swiss.id)
     socket.reload(swiss.id)
+    notifyPayoutWinners(swiss).logFailure(logger, _ => s"${swiss.id} notifyPayoutWinners")
     scheduler
       .scheduleOnce(10.seconds):
         // we're delaying this to make sure the ranking has been recomputed
         // since doFinish is called by finishGame before that
         rankingApi(swiss).foreach: ranking =>
           Bus.pub(SwissFinish(swiss.id, ranking))
+
+  private def notifyPayoutWinners(swiss: Swiss): Funit =
+    swiss.settings.payouts.so: payouts =>
+      SwissPlayer.fields: f =>
+        mongo.player
+          .find($doc(f.swissId -> swiss.id))
+          .sort($sort.desc(f.score))
+          .cursor[SwissPlayer](ReadPref.sec)
+          .list(payouts.nbWinners)
+          .map: players =>
+            val userIds = players.map(_.userId)
+            Bus.pub(lila.core.msg.PayoutMessages(userIds, swiss.name, Swiss.swissUrl(swiss.id)))
 
   def kill(swiss: Swiss): Funit = for _ <-
       if swiss.isStarted then

@@ -10,6 +10,7 @@ import lila.common.Form.{
   into,
   mustNotContainLichess,
   numberIn,
+  tagifyValues,
   given
 }
 import lila.core.captcha.CaptchaApi
@@ -37,7 +38,7 @@ final private class TeamForm(teamRepo: TeamRepo, captcha: CaptchaApi, flairApi: 
       Fields.gameId,
       Fields.move
     )(TeamSetup.apply)(unapply)
-      .verifying("team:teamAlreadyExists", d => !teamExists(d).await(2.seconds, "teamExists"))
+      .verifying("team:teamAlreadyExists", d => !teamExists(d).await(1.seconds, "teamExists"))
       .verifying(lila.core.captcha.failMessage, captcha.validateSync)
 
   def edit(team: Team)(using Me) = Form(
@@ -102,7 +103,8 @@ final private class TeamForm(teamRepo: TeamRepo, captcha: CaptchaApi, flairApi: 
     single("explain" -> cleanText(minLength = 3, maxLength = 9000))
 
   def members = Form:
-    single("members" -> nonEmptyText)
+    import lila.common.Json.given
+    single("members" -> tagifyValues.field[UserStr, List[UserId]]("value")(_.flatMap(_.validateId)))
 
   val blocklist = Form:
     val sep = "\n"

@@ -1,12 +1,13 @@
-import * as licon from 'lib/licon';
+import { licon } from 'lib/licon';
 import { povMessage } from 'lib/puz/run';
 import renderClock from 'lib/puz/view/clock';
 import renderHistory from 'lib/puz/view/history';
 import { playModifiers, renderCombo } from 'lib/puz/view/util';
 import { copyMeInput, type VNode, type MaybeVNodes, bind, hl } from 'lib/view';
 
-import config from '../config';
-import type RacerCtrl from '../ctrl';
+import config from '@/config';
+import type RacerCtrl from '@/ctrl';
+
 import { renderBoard } from './board';
 import { renderRace } from './race';
 
@@ -134,7 +135,9 @@ const playerScore = (ctrl: RacerCtrl): VNode =>
 const renderLink = (ctrl: RacerCtrl) =>
   hl('div.puz-side__link', [
     hl('p', i18n.site.toInviteSomeoneToPlayGiveThisUrl),
-    copyMeInput(`${window.location.protocol}//${window.location.host}/racer/${ctrl.race.id}`),
+    copyMeInput(`${window.location.protocol}//${window.location.host}/racer/${ctrl.race.id}`, {
+      inputAttrs: { readonly: true },
+    }),
   ]);
 
 const renderStart = (ctrl: RacerCtrl) =>
@@ -161,7 +164,7 @@ const renderJoin = (ctrl: RacerCtrl) =>
 
 const yourRank = (ctrl: RacerCtrl) => {
   const score = ctrl.myScore();
-  if (!score) return;
+  if (!score) return undefined;
   const players = ctrl.players();
   const rank = players.filter(p => p.score > score).length + 1;
   return hl('strong.race__post__rank', i18n.storm.yourRankX(`${rank}/${players.length}`));

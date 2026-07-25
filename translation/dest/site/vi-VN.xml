@@ -97,6 +97,7 @@
   <string name="whiteDrawBlack">Trắng thắng / Hòa / Đen thắng</string>
   <string name="averageRatingX">Hệ số bình quân: %s</string>
   <string name="minRatingX">Hệ số tối thiểu của %s</string>
+  <string name="maxRatingX">Hệ số tối đa của %s</string>
   <string name="recentGames">Các ván cờ gần đây</string>
   <string name="topGames">Các ván đấu hàng đầu</string>
   <string name="masterDbExplanation">Các ván đấu OTB của các kỳ thủ có hệ số FIDE %1$s+ từ năm %2$s đến %3$s</string>
@@ -773,6 +774,9 @@ trò chuyện trong ván đấu và có một URL có thể chia sẻ công khai
   <string name="quickPairing">Xếp cặp nhanh</string>
   <string name="lobby">Phòng chờ</string>
   <string name="anonymous">Ẩn danh</string>
+  <plurals name="nbAnonymous">
+    <item quantity="other">Ẩn danh (%s)</item>
+  </plurals>
   <string name="yourScore">Điểm của bạn: %s</string>
   <string name="language">Ngôn ngữ</string>
   <string name="allLanguages">Tất cả ngôn ngữ</string>
@@ -970,7 +974,6 @@ Bỏ trống để bắt đầu tất cả ván đấu bằng thế trận ban �
   <string name="gameInProgress">Bạn đang có ván đấu với %s.</string>
   <string name="abortTheGame">Hủy ván đấu</string>
   <string name="resignTheGame">Chịu thua</string>
-  <string name="youCantStartNewGame">Bạn không thể chơi ván mới cho đến khi xong ván này.</string>
   <string name="since">Từ</string>
   <string name="until">Cho tới</string>
   <string name="lichessDbExplanation">Các ván đấu có xếp hạng được lấy từ tất cả các kỳ thủ trên Lichess</string>
@@ -994,4 +997,5 @@ Mọi chi phí vận hành, phát triển, và nội dung được tài trợ b�
   <string name="thereAreNoResultsForX">Không có kết quả nào cho \"%s\"</string>
   <string name="tags">Thẻ</string>
   <string name="enPassant">Bắt tốt qua đường</string>
+  <string name="settings">Cài đặt</string>
 </resources>
