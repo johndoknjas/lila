@@ -1,14 +1,16 @@
+import autoprefixer from 'autoprefixer';
 import cps from 'node:child_process';
 import crypto from 'node:crypto';
 import fs from 'node:fs';
 import { basename, dirname, join, relative, resolve } from 'node:path';
 import ps from 'node:process';
+import postcss from 'postcss';
 
 import { c, env, errorMark, trimLines } from './env.ts';
 import { hashedBasename, symlinkTargetHashes } from './hash.ts';
 import { updateManifest } from './manifest.ts';
 import { glob, readable } from './parse.ts';
-import { makeTask, runTask } from './task.ts';
+import { makeTask, runTask, addIncludes } from './task.ts';
 
 const importMap = new Map<string, Set<string>>();
 
@@ -22,14 +24,13 @@ export function stopSass(): void {
 }
 
 export async function sass(): Promise<string | undefined> {
-  if (!env.begin('sass')) return;
+  if (!env.begin('sass')) return undefined;
 
   await Promise.allSettled([
     fs.promises.mkdir(env.cssOutDir),
     fs.promises.mkdir(env.themeGenDir),
     fs.promises.mkdir(join(env.buildTempDir, 'css')),
   ]);
-
   let remaining: Set<string> | undefined;
 
   makeTask({
@@ -112,7 +113,10 @@ async function compile(sources: string[], logAll = true): Promise<string[]> {
     sassPs.stdout?.on('data', (buf: Buffer) => sassError(buf.toString('utf8')));
     sassPs.on('close', async (code: number) => {
       sassPs = undefined;
-      if (code === 0) resolveWithErrors([]);
+      if (code === 0)
+        Promise.all(sources.map(addVendorPrefixes))
+          .then(() => resolveWithErrors([]))
+          .catch(() => resolveWithErrors(sources));
       else
         Promise.all(sources.map(async s => ({ s, exists: await readable(absTempCss(s)) })))
           .then(srcExists => resolveWithErrors(srcExists.filter(({ exists }) => !exists).map(({ s }) => s)))
@@ -121,7 +125,14 @@ async function compile(sources: string[], logAll = true): Promise<string[]> {
   });
 }
 
-// recursively parse scss file and its imports to build dependency and color maps
+async function addVendorPrefixes(src: string): Promise<void> {
+  const cssPath = absTempCss(src);
+  const css = await fs.promises.readFile(cssPath, 'utf8');
+  const result = await postcss([autoprefixer]).process(css, { from: cssPath });
+  await fs.promises.writeFile(cssPath, result.css);
+}
+
+// recursively parse scss file and its imports to build dependency maps
 async function parseScss(src: string, processed: Set<string>) {
   if (dirname(src).endsWith('/gen')) return;
   if (processed.has(src)) return;
@@ -151,6 +162,7 @@ async function parseScss(src: string, processed: Set<string>) {
 
     const dep = relative(env.rootDir, absDep);
     if (!importMap.get(dep)?.add(src)) importMap.set(dep, new Set<string>([src]));
+    addIncludes([{ cwd: dirname(dep), path: '*.scss' }], 'sass'); // could be outside of ui/** glob
     await parseScss(dep, processed);
   }
 }
@@ -254,6 +266,6 @@ const absTempCss = (scss: string): string => join(env.cssTempDir, `${basename(sc
 
 const isConcrete = (src: string): boolean => src.startsWith('ui/') && !basename(src).startsWith('_');
 
-const isPartial = (src: string): boolean => src.startsWith('ui/') && basename(src).startsWith('_');
+const isPartial = (src: string): boolean => basename(src).startsWith('_');
 
 const isUrlTarget = (src: string): boolean => src.startsWith('public/');

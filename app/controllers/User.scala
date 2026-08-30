@@ -1,6 +1,6 @@
 package controllers
 
-import akka.stream.scaladsl.*
+import org.apache.pekko.stream.scaladsl.*
 import play.api.http.ContentTypes
 import play.api.libs.EventSource
 import play.api.libs.json.*
@@ -13,6 +13,7 @@ import lila.common.Json.given
 import lila.core.user.LightPerf
 import lila.core.userId.UserSearch
 import lila.core.security.IsProxy
+import lila.core.perf.UserWithPerfs
 import lila.game.GameFilter
 import lila.mod.UserWithModlog
 import lila.rating.PerfType
@@ -31,6 +32,8 @@ final class User(
   import env.relation.api as relationApi
   import env.gameSearch.userGameSearch
   import env.user.lightUserApi
+
+  private given Conversion[UserWithPerfs, UserModel] = _.user
 
   def tv(username: UserStr) = Open:
     Found(meOrFetch(username)): user =>
@@ -77,7 +80,7 @@ final class User(
 
   private def renderShow(u: UserModel, status: Results.Status = Results.Ok)(using Context): Fu[Result] =
     WithProxy: proxy ?=>
-      limit.enumeration.userProfile(rateLimited)(ctx.req.uri):
+      limit.enumeration.userProfile(rateLimited):
         val showActivityAndGames = isRestricted.not && !UserId.isOfficial(u.id)
         def fetchActivity = showActivityAndGames.so(env.activity.read.recentAndPreload(u))
         if HTTPRequest.isSynchronousHttp(ctx.req)
@@ -115,7 +118,7 @@ final class User(
   def games(username: UserStr, filter: String, page: Int) = OpenBody:
     Reasonable(page):
       WithProxy: proxy ?=>
-        limit.enumeration.userProfile(rateLimited)(ctx.req.uri):
+        limit.enumeration.userProfile(rateLimited):
           EnabledUser(username): u =>
             val isSearch = filter == GameFilter.search.name
             if isSearch && ctx.isAnon
@@ -216,10 +219,10 @@ final class User(
               .map: u =>
                 env.user.jsonView.full(u.user, u.perfs.some, withProfile = true)
 
-  def ratingHistory(username: UserStr) = Open:
+  def ratingHistory(username: UserStr) = OpenOrScoped():
     EnabledUser(username): u =>
       env.history
-        .ratingChartApi(u)
+        .ratingChartApi(u, computeIfNeeded = ctx.isAuth)
         .dmap: // send an empty JSON array if no history JSON is available
           _ | lila.core.data.SafeJsonStr("[]")
         .dmap(jsonStr => Ok(jsonStr).as(JSON))
@@ -541,7 +544,7 @@ final class User(
       negotiate(
         Ok.async:
           env.history
-            .ratingChartApi(data.user.user)
+            .ratingChartApi(data.user.user, computeIfNeeded = canCompute)
             .map:
               views.user.perfStatPage(data, _)
         ,

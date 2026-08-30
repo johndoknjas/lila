@@ -14,7 +14,8 @@ case class Appeal(
     // https://github.com/lichess-org/lila/issues/7564
     firstUnrepliedAt: Instant,
     muted: Boolean = false, // new appeal posts of the user are ignored
-    closedUntil: Option[Instant] = None // user must wait a certain duration
+    closedUntil: Option[Instant] = None, // user must wait a certain duration
+    accounts: Option[AccountsDisclosure] = None
 ):
   def isRead = status == Appeal.Status.read
   def isUnread = status == Appeal.Status.unread
@@ -26,6 +27,14 @@ case class Appeal(
   def toggleClosed(v: Boolean) =
     if v then copy(status = Appeal.Status.closed)
     else copy(status = Appeal.Status.read).sleep(none)
+
+  def withdraw =
+    copy(
+      msgs = msgs :+ AppealMsg(UserId.lichess, "This appeal was withdrawn by the user.", nowInstant),
+      updatedAt = nowInstant,
+      status = Appeal.Status.closed,
+      closedUntil = none
+    )
 
   def toggleRead(v: Boolean) =
     copy(status = if v then Appeal.Status.read else Appeal.Status.unread)
@@ -60,7 +69,8 @@ case class Appeal(
 
   def isByMod(msg: AppealMsg) = msg.by != user
 
-  def modIds = msgs.collect { case msg if isByMod(msg) => msg.by }.distinct.toList
+  def modIds =
+    msgs.collect { case msg if isByMod(msg) && msg.by.isnt(UserId.lichess) => msg.by }.distinct.toList
 
   def participated(modId: UserId) = msgs.exists(_.by.is(modId))
 
@@ -89,7 +99,7 @@ object Appeal:
 
   val maxLength = 1100
 
-  def make(topic: AppealTopic, text: String)(using me: Me) =
+  def make(topic: AppealTopic, text: String, accounts: Option[AccountsDisclosure] = None)(using me: Me) =
     val now = nowInstant
     Appeal(
       id = Id(scalalib.ThreadLocalRandom.nextString(8)),
@@ -99,10 +109,18 @@ object Appeal:
       status = Status.unread,
       createdAt = now,
       updatedAt = now,
-      firstUnrepliedAt = now
+      firstUnrepliedAt = now,
+      accounts = accounts.ifTrue(AppealTopicApi.requiresAccounts(topic))
     )
 
   private[appeal] case class SnoozeKey(snoozerId: UserId, appealId: Id)
   private[appeal] given UserIdOf[SnoozeKey] = _.snoozerId
 
 case class AppealMsg(by: UserId, text: String, at: Instant)
+
+case class AccountsDisclosure(
+    otherUsernames: Option[String],
+    moreForgotten: Boolean,
+    household: Option[String]
+):
+  def onlyThisAccount = otherUsernames.isEmpty

@@ -11,9 +11,9 @@ export class LinksCtrl extends PaneCtrl {
     return hl('div', [
       this.userLinks(),
       hl('div.subs', [
-        hl('button.sub', modeCfg('langs'), i18n.site.language),
+        hl('button.sub.language', modeCfg('langs'), i18n.site.language),
         hl('button.sub', modeCfg('sound'), i18n.site.sound),
-        hl('button.sub', modeCfg('background'), i18n.site.background),
+        hl('button.sub', modeCfg('theme'), i18n.site.theme),
         hl('button.sub', modeCfg('board'), i18n.site.board),
         hl('button.sub', modeCfg('piece'), i18n.site.pieceSet),
         this.root.opts.zenable &&
@@ -69,10 +69,7 @@ export class LinksCtrl extends PaneCtrl {
       : null;
   }
 
-  private readonly modeCfg = (m: Mode) => ({
-    hook: bind('click', () => this.root.setMode(m)),
-    attrs: { 'data-icon': licon.GreaterThan, type: 'button' },
-  });
+  private readonly modeCfg = (m: Mode) => ({ hook: bind('click', () => this.root.setMode(m)) });
 
   private readonly linkCfg = (href: string, icon: LiconValue, more?: Attrs) => ({
     attrs: { href, 'data-icon': icon, ...more },

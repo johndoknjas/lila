@@ -83,8 +83,8 @@ final class Dev(env: Env) extends LilaController(env):
       env.report.discordScoreThresholdSetting
     ),
     "Cheat" -> List(
-      env.round.selfReportEndGame,
-      env.round.selfReportMarkUser,
+      env.round.selfReport.endGameSetting,
+      env.round.selfReport.markUserSetting,
       env.bot.boardReport.domainSetting
     ),
     "Security" -> List(
@@ -112,8 +112,8 @@ final class Dev(env: Env) extends LilaController(env):
     ),
     "Broadcast" -> List(
       env.relay.proxy.domainRegex,
-      env.relay.proxy.hostPort,
-      env.relay.proxy.credentials
+      env.memo.proxy.hostPort,
+      env.memo.proxy.credentials
     ),
     "Tutor" -> List(
       env.tutor.nbAnalysisSetting,

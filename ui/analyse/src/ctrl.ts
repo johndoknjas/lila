@@ -21,7 +21,7 @@ import {
   type Prop,
   type Toggle,
 } from 'lib';
-import { CevalCtrl, isFirstEvalBetter, sanIrreversible, type CevalHandler, type CevalOpts } from 'lib/ceval';
+import { CevalCtrl, useFirstEval, sanIrreversible, type CevalHandler, type CevalOpts } from 'lib/ceval';
 import { ChatCtrl } from 'lib/chat/chatCtrl';
 import { displayColumns } from 'lib/device';
 import { playable, playedTurns, fenToEpd, validUci } from 'lib/game';
@@ -130,7 +130,7 @@ export default class AnalyseCtrl implements CevalHandler {
   initialPath: TreePath;
   contextMenuPath?: TreePath;
   gamePath?: TreePath;
-  pendingCopyPath: Prop<TreePath | null>;
+  pendingCopy: Prop<{ eventPath: TreePath; withVariations: boolean } | null>;
   pendingDeletionPath: Prop<TreePath | null>;
 
   // misc
@@ -175,7 +175,7 @@ export default class AnalyseCtrl implements CevalHandler {
 
     this.initialize(this.data, false);
     this.initCeval();
-    this.pendingCopyPath = propWithEffect(null, this.redraw);
+    this.pendingCopy = propWithEffect(null, this.redraw);
     this.pendingDeletionPath = propWithEffect(null, this.redraw);
     this.initialPath = this.makeInitialPath();
     this.setPath(this.initialPath);
@@ -555,7 +555,6 @@ export default class AnalyseCtrl implements CevalHandler {
         role: piece.role,
         pos,
         variant: this.data.game.variant.key,
-        fen: this.node.fen,
         path: this.path,
       };
       if (this.study) this.socket.sendAnaDrop(drop);
@@ -582,7 +581,6 @@ export default class AnalyseCtrl implements CevalHandler {
       orig,
       dest,
       variant: this.data.game.variant.key,
-      fen: this.node.fen,
       path: this.path,
     };
     if (prom) move.promotion = prom;
@@ -655,12 +653,29 @@ export default class AnalyseCtrl implements CevalHandler {
     this.redraw();
   }
 
+  isPendingCopy(path: TreePath, isMainline: boolean): boolean {
+    const pending = this.pendingCopy();
+    if (!pending) return false;
+    const { eventPath, withVariations } = pending;
+    return withVariations ? treePath.areComparable(path, eventPath) : isMainline;
+  }
+
   allowedEval(node: TreeNode = this.node): ClientEval | ServerEval | false | undefined {
     return (this.cevalEnabled() && node.ceval) || (this.settings.showStaticAnalysis && node.eval);
   }
 
   motifAllowed = (): boolean => this.study?.isCevalAllowed() !== false && !this.retro?.isSolving();
   motifEnabled = (): boolean => this.motifAllowed() && this.motif.supports(this.data.game.variant.key);
+
+  async pruneToMainline(path: TreePath): Promise<void> {
+    const nodeList = this.tree.getNodeList(path);
+    for (let i = 0; i < nodeList.length - 1; i++) {
+      if (nodeList[i].forceVariation) delete nodeList[i].forceVariation;
+      nodeList[i].children = [nodeList[i + 1]];
+    }
+    this.jump(path);
+    this.redraw();
+  }
 
   promote(path: TreePath, toMainline: boolean): void {
     this.tree.promoteAt(path, toMainline);
@@ -706,10 +721,10 @@ export default class AnalyseCtrl implements CevalHandler {
 
       if (isThreat) {
         const threat = ev as LocalEval;
-        if (!node.threat || isFirstEvalBetter(threat, node.threat, this.ceval.search.multiPv))
+        if (!node.threat || useFirstEval(threat, node.threat, this.ceval.search.multiPv))
           node.threat = threat;
       } else if (
-        (!node.ceval || isFirstEvalBetter(ev, node.ceval, this.ceval.search.multiPv)) &&
+        (!node.ceval || useFirstEval(ev, node.ceval, this.ceval.search.multiPv)) &&
         !(ev.cloud && this.ceval.engines.external)
       ) {
         node.ceval = ev;
@@ -737,7 +752,10 @@ export default class AnalyseCtrl implements CevalHandler {
     const opts: CevalOpts = {
       variant: this.data.game.variant,
       initialFen: this.data.game.initialFen,
-      emit: (ev, meta) => this.onNewCeval(ev, meta.path, meta.threatMode),
+      emit: (ev, meta) => {
+        if (ev) this.onNewCeval(ev, meta.path, meta.threatMode);
+        else this.cevalEnabled(false);
+      },
       onUciHover: this.setAutoShapes,
       redraw: this.redraw,
       externalEngines:
@@ -749,6 +767,7 @@ export default class AnalyseCtrl implements CevalHandler {
         this.initCeval();
         this.redraw();
       },
+      hideErrors: this.isEmbed,
       ...mergeOpts,
     };
     if (this.ceval) this.ceval.init(opts);

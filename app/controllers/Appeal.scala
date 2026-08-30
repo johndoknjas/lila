@@ -33,7 +33,7 @@ final class Appeal(env: Env, reportC: => report.Report, userC: => User) extends 
   }
 
   private def renderAppealOrTree(
-      err: Option[Form[String]] = None
+      err: Option[Form[lila.appeal.AppealForm.Data]] = None
   )(using Context)(using me: Me) = for
     appeals <- env.appeal.api.byTopic(me)
     status <- makeStatus(me)
@@ -57,12 +57,20 @@ final class Appeal(env: Env, reportC: => report.Report, userC: => User) extends 
         if AppealTopicApi.select(status, appeals).exists(_ == topic) then
           bindForm(userForm)(
             err => BadRequest.async(renderAppealOrTree(err.some)),
-            text =>
-              for _ <- env.appeal.api.post(topic, text, muted = appeals.muted)
+            data =>
+              for _ <- env.appeal.api.post(topic, data, appeals)
               yield Redirect(routes.Appeal.home).flashSuccess
           )
         else fuccess(Redirect(routes.Appeal.home).flashFailure("You cannot post an appeal for this topic"))
     yield res
+  }
+
+  def withdraw(topic: AppealTopic) = Auth { _ ?=> me ?=>
+    Found(env.appeal.api.find(me, topic)): appeal =>
+      if !appeal.isOpen then Redirect(routes.Appeal.home)
+      else
+        for _ <- env.appeal.api.withdraw(appeal)
+        yield Redirect(routes.Appeal.home).flashSuccess
   }
 
   def modQueue = Secure(_.Appeals) { ctx ?=> me ?=>

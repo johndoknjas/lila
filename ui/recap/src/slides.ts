@@ -14,15 +14,14 @@ import { formatDuration, perfIsSpeed, perfLabel } from './util';
 
 const confettiCanvas = (): VNode =>
   hl('canvas#confetti', {
-    hook: {
-      insert: _ =>
-        site.asset.loadEsm('bits.confetti', {
-          init: {
-            cannons: false,
-            fireworks: true,
-          },
-        }),
-    },
+    hook: onInsert(() => {
+      site.asset.loadEsm('bits.confetti', {
+        init: {
+          cannons: false,
+          fireworks: true,
+        },
+      });
+    }),
   });
 
 const hi = (user: LightUser): VNode => hl('h2', i18n.recap.hiUser.asArray(fullName(user)));
@@ -145,7 +144,7 @@ export const firstMoves = (r: Recap, firstMove: Counted<string>): VNode => {
 
 export const openingColor = (os: ByColor<Counted<Opening>>, color: Color): VNode | undefined => {
   const o = os[color];
-  if (!o.count) return;
+  if (!o.count) return undefined;
   return slideTag('openings')([
     hl('div.lpv.lpv--todo.lpv--moves-bottom.is2d', {
       hook: onInsert(el => loadOpeningLpv(el, color, o.value)),

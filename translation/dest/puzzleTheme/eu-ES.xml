@@ -55,16 +55,19 @@
   <string name="endgame">Partida-bukaera</string>
   <string name="endgameDescription">Partidaren azken faseko taktika.</string>
   <string name="enPassantDescription">Igarotzean harrapatzeko arauarekin zerikusia duen taktika.</string>
+  <string name="enPassantAdjacentCaptureDescription" comment="Replaces old string enPassantDescription">Igarotzean harrapatzeko arauarekin zerikusia duen taktika.</string>
   <string name="epauletteMate">Txarratelaren matea</string>
   <string name="epauletteMateDescription">Xakean dagoen erregearen alde bietako laukietan beste pieza batzuk daude.</string>
   <string name="exposedKing">Babesik gabeko erregea</string>
   <string name="exposedKingDescription">Pieza gutxik defenditzen duten erregearen inguruko erasoa, sarri matean amaitzen dena.</string>
   <string name="fork">Eraso bikoitza</string>
   <string name="forkDescription">Mugitzen den piezak aurkariaren bi pieza batera erasotzen dituenean.</string>
+  <string name="forkOpposingPiecesDescription" comment="Replaces old string forkDescription">Pieza batek aurkariaren pieza bi edo gehiago aldi berean erasotzen dituen jokaldia.</string>
   <string name="hangingPiece">Defentsarik gabeko pieza</string>
   <string name="hangingPieceDescription">Defentsarik ez duen edo defendatzaile gutxi dituen aurkariaren pieza baten ingurukoak.</string>
   <string name="hookMate">Hooken matea</string>
   <string name="hookMateDescription">Gaztelua, zalduna eta peoi batekin ematen den matea aurkariaren peoi batek bere erregearen bidea oztopatzen duelarik.</string>
+  <string name="hookMateOpposingPawnDescription" comment="Replaces old string hookMateDescription">Gaztelua, zalduna eta peioa erabiliz ematen den matea, aurkariaren peoiak erregeak ihes egitea ekiditen du.</string>
   <string name="interference">Tartean sartzea</string>
   <string name="interferenceDescription">Aurkariaren bi piezaren artean pieza bat jartzea, horrela aurkariaren piezetako bat edo biak defentsarik gabe utziz.</string>
   <string name="intermezzo">Tarteko-jokaldia</string>
@@ -73,8 +76,10 @@
   <string name="killBoxMateDescription">Gaztelua aurkariaren erregearen ondoan dago damaren laguntzarekin, honek gainera erregearen ihes-laukiak babesten ditu. Gazteluak eta damak erregea 3x3ko \"hilkutxa\" baten harrapatu dezakete.</string>
   <string name="pillsburysMate">Pillsburyren matea</string>
   <string name="pillsburysMateDescription">Gazteluak ematen du matea, alfilak erregea baztertuta mantentzen duen bitartean.</string>
+  <string name="pillsburyMateRookAndBishopDescription" comment="Replaces old string pillsburysMateDescription">Gazteluak ematen du matea, alfilak erregea baztertuta mantentzen duen bitartean.</string>
   <string name="morphysMate">Morphyren matea</string>
   <string name="morphysMateDescription">Erabili alfila erregeari mate emateko gazteluak erregea baztertuta mantentzen duen artean.</string>
+  <string name="morphyMateBishopAndRookDescription" comment="Replaces old string morphysMateDescription">Alfilak ematen du matea, gazteluak erregea baztertuta mantentzen duen bitartean.</string>
   <string name="swallowstailMate">Enara-buztanaren matea</string>
   <string name="swallowstailMateDescription">Enara-buztanaren itxura hartzen duen mate patroia, V baten itxuraren atzekoa.</string>
   <string name="triangleMate">Hirukiaren matea</string>

@@ -10,7 +10,7 @@ final class Swiss(
     env: Env,
     tourC: Tournament,
     apiC: Api
-)(using akka.stream.Materializer)
+)(using org.apache.pekko.stream.Materializer)
     extends LilaController(env):
 
   private def swissNotFound(using Context) = NotFound.page(views.swiss.ui.notFound)
@@ -197,7 +197,7 @@ final class Swiss(
   def apiUpdate(id: SwissId) = ScopedBody(_.Tournament.Write) { req ?=> me ?=>
     WithEditableSwiss(id): swiss =>
       bindForm(env.swiss.forms.edit(swiss))(
-        err => jsonFormError(err),
+        jsonFormError,
         data =>
           env.swiss.api.update(swiss.id, data) >>
             FoundOk(env.swiss.api.update(swiss.id, data))(apiJson)

@@ -43,7 +43,7 @@ class HistoryDialog {
       </div>`);
     await this.updateHistory();
     this.dlg = await domDialog({
-      append: [{ node: this.view }],
+      insert: [{ nodes: this.view }],
       easyClose: 'clickOutside',
       actions: [
         { selector: '[data-action="pull"]', listener: this.pull },
@@ -109,7 +109,7 @@ class HistoryDialog {
   }
 
   version(version: string | number | undefined): BotVersionInfo | undefined {
-    if (!version) return;
+    if (!version) return undefined;
     return this.versions.find(b => String(b.version) === String(version));
   }
 

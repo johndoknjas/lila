@@ -216,7 +216,7 @@ export class CevalCtrl {
 
   engineFailed(msg: string): void {
     if (msg.includes('Blocking on the main thread')) return; // mostly harmless
-    showEngineError(String(this.engines.active()?.name), msg);
+    if (!this.opts.hideErrors) showEngineError(String(this.engines.active()?.name), msg);
     this.reset();
     this.unload();
   }
@@ -283,8 +283,6 @@ export class CevalCtrl {
       dontStop: Boolean(this.engines.external || this.opts.custom || this.isDeeper() || this.isInfinite),
     };
     const emitter = throttleWithFlush(125, (ev: LocalEval, meta: EvalMeta) => {
-      if (working.fen && working.fen !== ev.fen) return emitter.clear();
-
       this.curEval = ev;
 
       if (!working.fen) {
@@ -305,11 +303,16 @@ export class CevalCtrl {
       }
       working.emit(this.curEval, meta);
     });
-    return (ev: LocalEval, meta: EvalMeta) => {
-      pubsub.emit('analysis.eval', structuredClone(ev), meta);
-      if (working.started !== this.lastStarted) emitter.clear();
-      else if (ev.bestmove) emitter.flush(ev, meta);
-      else emitter(ev, meta);
+    return (ev: LocalEval | undefined, meta: EvalMeta) => {
+      if (!ev) {
+        working.emit(undefined, meta); // report error
+      } else if (working.started === this.lastStarted && (!working.fen || working.fen === ev.fen)) {
+        pubsub.emit('analysis.eval', structuredClone(ev), meta);
+        if (ev.bestmove) emitter.flush(ev, meta);
+        else emitter(ev, meta);
+      } else {
+        emitter.clear();
+      }
     };
   }
 }
