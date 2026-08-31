@@ -2,6 +2,7 @@
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PARENT="$(cd "$ROOT/.." && pwd)"
 TMP="$ROOT/.tmp"
 mkdir -p "$TMP"
 
@@ -10,6 +11,7 @@ CLOUDFLARE_LOG="$TMP/cloudflared.log"
 LOCAL_CONF="$ROOT/conf/local.conf"
 APP_CONF="$ROOT/conf/application.conf"
 APP_CONF_DEFAULT="$ROOT/conf/application.conf.default"
+AUX_SCRIPT="$PARENT/init-lichess-dev-mac.sh"
 
 escape_applescript_string() {
   local s="$1"
@@ -67,6 +69,11 @@ net {
 EOF
 }
 
+if [[ ! -f "$AUX_SCRIPT" ]]; then
+  echo "Could not find helper script: $AUX_SCRIPT" >&2
+  exit 1
+fi
+
 # (Recommended) pre-clean so you don't stack old processes forever:
 pkill -f "cloudflared tunnel.*--url http://127\.0\.0\.1:9670" 2>/dev/null || true
 pkill -f "cloudflared tunnel.*--url http://localhost:9670" 2>/dev/null || true
@@ -96,4 +103,5 @@ else
   export LILA_CSRF_ORIGIN="$PUBLIC_URL"
 fi
 
-exec "$ROOT/auxiliary-script.sh"
+printf '%s\n' "$ROOT" > "${TMPDIR:-/tmp}/lichess-start-dir"
+exec "$AUX_SCRIPT"

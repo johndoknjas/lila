@@ -12,8 +12,6 @@ LOCAL_CONF="$ROOT/conf/local.conf"
 APP_CONF="$ROOT/conf/application.conf"
 APP_CONF_DEFAULT="$ROOT/conf/application.conf.default"
 TMP_CADDYFILE="$TMP/Caddyfile.public"
-
-# Your parent-folder tmux helper
 AUX_SCRIPT="$PARENT/init-lichess-dev.sh"
 
 ensure_application_includes_local() {
