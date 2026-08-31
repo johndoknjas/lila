@@ -1,15 +1,9 @@
 :9670 {
-  @socket path /socket* /lobby/socket* /analysis/socket* \
-    /play /play/* \
-    /watch /watch/* \
-    /round /round/* \
-    /challenge /challenge/* \
-    /tournament /tournament/* \
-    /simul /simul/* \
-    /swiss /swiss/* \
-    /team /team/* \
-    /racer /racer/*
+  # lila and lila-ws share path prefixes: /team/:id, /swiss/:id, /racer/:id and
+  # /challenge/:id are each BOTH an HTML page (lila) and a socket (lila-ws).
+  # They are only distinguishable by the upgrade header, so route on that, not on path.
+  @websocket header_regexp Upgrade (?i)^websocket$
 
-  reverse_proxy @socket localhost:9664
+  reverse_proxy @websocket localhost:9664
   reverse_proxy localhost:9663
 }
